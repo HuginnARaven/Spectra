@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  spectra.api:
+    image: ${DOCKER_REGISTRY-}spectraapi
+    build:
+      context: ./backend
+      dockerfile: Spectra.API/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=spectra-db;Port=5432;Database=SpectraDb;Username=postgres;Password=postgres
+      - ConnectionStrings__Redis=spectra-redis:6379
+    depends_on:
+      - spectra-db
+      - spectra-redis
+
+  spectra-db:
+    image: postgres:15-alpine
+    container_name: spectra-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: SpectraDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  spectra-redis:
+    image: redis:alpine
+    container_name: spectra-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
