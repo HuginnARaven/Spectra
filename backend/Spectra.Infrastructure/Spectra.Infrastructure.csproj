@@ -8,11 +8,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Spectra.Application\Spectra.Application.csproj" />
+    <ProjectReference Include="..\Spectra.Domain\Spectra.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
-    <Folder Include="Configurations\" />
     <Folder Include="Services\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
