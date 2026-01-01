@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Spectra.API.Controllers
 {

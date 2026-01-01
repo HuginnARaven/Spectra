@@ -6,7 +6,6 @@ using Spectra.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Spectra.Application.Services
 {
