@@ -10,6 +10,17 @@ namespace SpectraAPI
 
             // Add services to the container.
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
+                    });
+            });
+
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
 
@@ -20,6 +31,8 @@ namespace SpectraAPI
 
             var app = builder.Build();
 
+            app.UseCors("AllowAll");
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -28,7 +41,7 @@ namespace SpectraAPI
                 //app.MapOpenApi();
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
