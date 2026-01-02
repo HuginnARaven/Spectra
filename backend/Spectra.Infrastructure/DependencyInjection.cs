@@ -7,7 +7,9 @@ using Spectra.Application.Services;
 using Spectra.Domain.Interfaces;
 using Spectra.Infrastructure.Data;
 using Spectra.Infrastructure.Repositories;
+using Spectra.Infrastructure.Services;
 using Spectra.Infrastructure.Services.Utilities;
+using StackExchange.Redis;
 
 namespace Spectra.Infrastructure
 {
@@ -20,9 +22,14 @@ namespace Spectra.Infrastructure
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
             services.AddScoped<IUrlRepository, UrlRepository>();
 
+            var redisConnectionString = configuration.GetConnectionString("Redis");
+            services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisConnectionString));
+            services.AddScoped<IUrlCacheService, RedisUrlCacheService>();
+
             // Services (Application Services)
             services.AddScoped<IUrlShorteningService, UrlShorteningService>();
             services.AddSingleton<IUrlGenerator, RandomUrlGenerator>();
+
             return services;
         }
     }

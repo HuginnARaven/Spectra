@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Spectra.Application.Services
 {
-    public class UrlShorteningService(IUrlRepository repository, IUrlGenerator urlGenerator) : IUrlShorteningService
+    public class UrlShorteningService(IUrlRepository repository, IUrlGenerator urlGenerator, IUrlCacheService cache) : IUrlShorteningService
     {
         public async Task<UrlResponse> ShortenUrlAsync(CreateUrlRequest request)
         {
@@ -37,12 +37,18 @@ namespace Spectra.Application.Services
 
         public async Task<string> GetOriginalUrlAsync(string code)
         {
+            var cachedUrl = await cache.GetOriginalUrlAsync(code);
+            if (!string.IsNullOrEmpty(cachedUrl))
+                return cachedUrl;
+
             var url = await repository.GetByCodeAsync(code);
 
             if (url == null)
             {
                 throw new KeyNotFoundException($"URL with code '{code}' not found.");
             }
+
+            await cache.SetUrlAsync(code, url.OriginalUrl);
 
             return url.OriginalUrl;
         }
