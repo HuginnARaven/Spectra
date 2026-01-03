@@ -26,9 +26,15 @@ namespace Spectra.Infrastructure
             services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisConnectionString));
             services.AddScoped<IUrlCacheService, RedisUrlCacheService>();
 
+            services.AddSingleton<IUserAgentParser, UserAgentParser>();
+
+            services.AddSingleton<IGeoLocationService, GeoLocationService>();
+
             // Services (Application Services)
             services.AddScoped<IUrlShorteningService, UrlShorteningService>();
             services.AddSingleton<IUrlGenerator, RandomUrlGenerator>();
+
+            services.AddScoped<IUrlAnalyticsService, UrlAnalyticsService>();
 
             return services;
         }

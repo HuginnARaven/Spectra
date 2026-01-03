@@ -25,5 +25,11 @@ namespace Spectra.Infrastructure.Repositories
         {
             return await context.Urls.FirstOrDefaultAsync(u => u.ShortCode == code);
         }
+
+        public async Task AddVisitAsync(UrlVisit visit)
+        {
+            await context.UrlVisits.AddAsync(visit);
+            await context.SaveChangesAsync();
+        }
     }
 }

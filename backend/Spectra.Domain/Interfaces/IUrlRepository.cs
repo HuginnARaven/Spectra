@@ -10,5 +10,6 @@ namespace Spectra.Domain.Interfaces
         Task AddAsync(Url url);
         Task<Url?> GetByCodeAsync(string code);
         Task<bool> CodeExistsAsync(string code);
+        Task AddVisitAsync(UrlVisit visit);
     }
 }
