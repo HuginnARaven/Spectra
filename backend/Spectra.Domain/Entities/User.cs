@@ -1,4 +1,5 @@
-﻿using Spectra.Domain.Common;
+﻿using Microsoft.AspNetCore.Identity;
+using Spectra.Domain.Common;
 using Spectra.Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -6,18 +7,13 @@ using System.Text;
 
 namespace Spectra.Domain.Entities
 {
-    public class User : BaseEntity
+    public class User : IdentityUser<Guid>
     {
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-
-        public string PasswordHash { get; set; } = string.Empty;
-
         public string? DisplayName { get; set; }
-
-        public bool IsActive { get; set; } = true;
-        public UserRole Role { get; set; } = UserRole.User;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime LastActive { get; set; } = DateTime.UtcNow;
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
 
         public ICollection<Url> Urls { get; set; } = new List<Url>();
     }
