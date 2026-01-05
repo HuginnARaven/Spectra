@@ -4,6 +4,7 @@ using Spectra.Domain.Interfaces;
 using Spectra.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 
 namespace Spectra.Infrastructure.Repositories
@@ -29,6 +30,25 @@ namespace Spectra.Infrastructure.Repositories
         public async Task AddVisitAsync(UrlVisit visit)
         {
             await context.UrlVisits.AddAsync(visit);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<IReadOnlyList<Url?>> GetUserUrlsAsync(string userId)
+        {
+            Console.WriteLine(userId);
+            return await context.Urls.Where(u => u.UserId == Guid.Parse(userId)).ToListAsync();
+        }
+
+        public async Task<Url?> GetUserUrlByIdAsync(string id, string userId)
+        {
+            Console.WriteLine(userId);
+            Console.WriteLine(Guid.Parse(userId));
+            return await context.Urls.FirstOrDefaultAsync(u => u.Id == Guid.Parse(id) && u.UserId == Guid.Parse(userId));
+        }
+
+        public async Task DeleteUrlAsync(Url url)
+        {
+            context.Urls.Remove(url);
             await context.SaveChangesAsync();
         }
     }

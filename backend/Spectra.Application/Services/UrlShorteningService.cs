@@ -6,12 +6,13 @@ using Spectra.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using AutoMapper;
 
 namespace Spectra.Application.Services
 {
-    public class UrlShorteningService(IUrlRepository repository, IUrlGenerator urlGenerator, IUrlCacheService cache) : IUrlShorteningService
+    public class UrlShorteningService(IUrlRepository repository, IUrlGenerator urlGenerator, IUrlCacheService cache, IMapper mapper) : IUrlShorteningService
     {
-        public async Task<UrlResponse> ShortenUrlAsync(CreateUrlRequest request)
+        public async Task<UrlResponse> ShortenUrlAsync(CreateUrlRequest request, string? userId)
         {
             var code = await GenerateVerifiedUniqueCodeAsync();
 
@@ -21,7 +22,7 @@ namespace Spectra.Application.Services
                 OriginalUrl = request.OriginalUrl,
                 ShortCode = code,
                 CreatedAt = DateTime.UtcNow,
-                UserId = Guid.Parse("70073d20-1db6-41ea-960f-67596e24bd0e"),
+                UserId = Guid.Parse(userId!),
             };
 
             await repository.AddAsync(url);
@@ -68,6 +69,24 @@ namespace Spectra.Application.Services
             }
 
             throw new Exception("Failed to generate a unique code. Please try again.");
+        }
+
+        public async Task<IReadOnlyList<UrlDto>> GetUserUrlsAsync(string userId)
+        {
+            var urls = await repository.GetUserUrlsAsync(userId);
+
+            return mapper.Map<IReadOnlyList<UrlDto>>(urls);
+        }
+
+        public async Task DeleteUrlsAsync(string urlId, string userId)
+        {
+            var url = await repository.GetUserUrlByIdAsync(urlId, userId);
+            if (url == null)
+            {
+                throw new KeyNotFoundException($"URL with id '{urlId}' not found.");
+            }
+
+            await repository.DeleteUrlAsync(url);
         }
     }
 }

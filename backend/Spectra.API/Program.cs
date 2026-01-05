@@ -1,4 +1,6 @@
+using Microsoft.OpenApi;
 using Spectra.Infrastructure;
+using Spectra.Application;
 
 namespace SpectraAPI
 {
@@ -27,6 +29,7 @@ namespace SpectraAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);
 
             var app = builder.Build();

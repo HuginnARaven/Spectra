@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Application.Services;
@@ -12,8 +14,7 @@ using Spectra.Infrastructure.Repositories;
 using Spectra.Infrastructure.Services;
 using Spectra.Infrastructure.Services.Utilities;
 using StackExchange.Redis;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Text;
 
 namespace Spectra.Infrastructure
@@ -70,10 +71,7 @@ namespace Spectra.Infrastructure
             services.AddSingleton<IGeoLocationService, GeoLocationService>();
 
             // Services (Application Services)
-            services.AddScoped<IUrlShorteningService, UrlShorteningService>();
             services.AddSingleton<IUrlGenerator, RandomUrlGenerator>();
-
-            services.AddScoped<IUrlAnalyticsService, UrlAnalyticsService>();
 
             return services;
         }

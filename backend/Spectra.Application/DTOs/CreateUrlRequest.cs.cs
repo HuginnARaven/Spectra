@@ -10,5 +10,6 @@ namespace Spectra.Application.DTOs
         [Required]
         [Url]
         public string OriginalUrl { get; set; } = string.Empty;
+
     }
 }

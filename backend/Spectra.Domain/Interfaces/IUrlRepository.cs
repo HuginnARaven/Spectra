@@ -11,5 +11,8 @@ namespace Spectra.Domain.Interfaces
         Task<Url?> GetByCodeAsync(string code);
         Task<bool> CodeExistsAsync(string code);
         Task AddVisitAsync(UrlVisit visit);
+        Task<IReadOnlyList<Url?>> GetUserUrlsAsync(string userId);
+        Task<Url?> GetUserUrlByIdAsync(string id, string userId);
+        Task DeleteUrlAsync(Url url);
     }
 }

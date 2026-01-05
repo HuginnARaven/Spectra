@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
+using Spectra.Domain.Entities;
+using System.Security.Claims;
 
 namespace Spectra.API.Controllers
 {
@@ -9,12 +12,48 @@ namespace Spectra.API.Controllers
     [ApiController]
     public class UrlsController(IUrlShorteningService urlService, IUrlAnalyticsService analyticsService) : ControllerBase
     {
+        [Authorize]
         [HttpPost("create-shorten-url")]
         public async Task<IActionResult> CreateShortenUrl(CreateUrlRequest request)
         {
-            return Ok(await urlService.ShortenUrlAsync(request));
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId)) { 
+                return Unauthorized();
+            }
+
+            return Ok(await urlService.ShortenUrlAsync(request, currentUserId));
         }
-        
+
+        [Authorize]
+        [HttpGet("get-shorten-urls")]
+        public async Task<IActionResult> GetUserUrls()
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            Console.WriteLine(currentUserId);
+
+            return Ok(await urlService.GetUserUrlsAsync(currentUserId));
+        }
+
+        [Authorize]
+        [HttpDelete("delete-shorten-url/{id}")]
+        public async Task<IActionResult> DeleteUrl(string id)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            await urlService.DeleteUrlsAsync(id, currentUserId);
+
+            return Ok();
+        }
+
         [HttpGet]
         [Route("~/{code}")] // ~ -> to ingnore default route forming
         public async Task<IActionResult> GetOriginalFromShortenUrl(string code)
