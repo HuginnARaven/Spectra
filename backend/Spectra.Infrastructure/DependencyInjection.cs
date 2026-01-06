@@ -27,6 +27,7 @@ namespace Spectra.Infrastructure
 
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
             services.AddScoped<IUrlRepository, UrlRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
 
             var redisConnectionString = configuration.GetConnectionString("Redis");
             services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisConnectionString));

@@ -12,6 +12,7 @@ namespace Spectra.Application
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddScoped<IUrlShorteningService, UrlShorteningService>();
             services.AddScoped<IUrlAnalyticsService, UrlAnalyticsService>();
+            services.AddScoped<IAccountService, AccountService>();
 
             return services;
         }
