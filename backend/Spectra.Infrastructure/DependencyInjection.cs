@@ -71,6 +71,9 @@ namespace Spectra.Infrastructure
 
             services.AddSingleton<IGeoLocationService, GeoLocationService>();
 
+            services.AddSingleton<IBackgroundAnalyticsQueue, BackgroundAnalyticsQueue>();
+            services.AddHostedService<AnalyticsWorker>();
+
             // Services (Application Services)
             services.AddSingleton<IUrlGenerator, RandomUrlGenerator>();
 
