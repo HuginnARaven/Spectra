@@ -1,6 +1,7 @@
 using Microsoft.OpenApi;
-using Spectra.Infrastructure;
+using Microsoft.OpenApi.Models;
 using Spectra.Application;
+using Spectra.Infrastructure;
 
 namespace SpectraAPI
 {
@@ -24,10 +25,39 @@ namespace SpectraAPI
             });
 
             builder.Services.AddControllers();
-            builder.Services.AddOpenApi();
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Spectra API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = @"JWT Authorization header using the Bearer scheme.",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                        },
+                        new List<string>()
+                    }
+                });
+            });
 
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);

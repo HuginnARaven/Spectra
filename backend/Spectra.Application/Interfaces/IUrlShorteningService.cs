@@ -1,4 +1,5 @@
-﻿using Spectra.Application.DTOs;
+﻿using Spectra.Application.Common;
+using Spectra.Application.DTOs;
 using Spectra.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,6 @@ namespace Spectra.Application.Interfaces
         Task<string> GetOriginalUrlAsync(string shortenUrl);
         Task<IReadOnlyList<UrlDto>> GetUserUrlsAsync(string userId);
         Task DeleteUrlsAsync(string urlId, string userId);
+        Task<PaginatedResult<UrlVisitDto>> GetUrlVisitsAsync(string urlId, string userId, PaginationRequest request);
     }
 }

@@ -35,14 +35,11 @@ namespace Spectra.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Url?>> GetUserUrlsAsync(string userId)
         {
-            Console.WriteLine(userId);
             return await context.Urls.Where(u => u.UserId == Guid.Parse(userId)).ToListAsync();
         }
 
         public async Task<Url?> GetUserUrlByIdAsync(string id, string userId)
         {
-            Console.WriteLine(userId);
-            Console.WriteLine(Guid.Parse(userId));
             return await context.Urls.FirstOrDefaultAsync(u => u.Id == Guid.Parse(id) && u.UserId == Guid.Parse(userId));
         }
 
@@ -50,6 +47,23 @@ namespace Spectra.Infrastructure.Repositories
         {
             context.Urls.Remove(url);
             await context.SaveChangesAsync();
+        }
+
+        public async Task<(IReadOnlyList<UrlVisit> Items, int TotalCount)> GetUrlVisitsAsync(Guid urlId, int skip, int take)
+        {
+            var query = context.UrlVisits
+                .AsNoTracking()
+                .Where(v => v.UrlId == urlId)
+                .OrderByDescending(v => v.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
     }
 }

@@ -14,5 +14,6 @@ namespace Spectra.Domain.Interfaces
         Task<IReadOnlyList<Url?>> GetUserUrlsAsync(string userId);
         Task<Url?> GetUserUrlByIdAsync(string id, string userId);
         Task DeleteUrlAsync(Url url);
+        Task<(IReadOnlyList<UrlVisit> Items, int TotalCount)> GetUrlVisitsAsync(Guid urlId, int skip, int take);
     }
 }

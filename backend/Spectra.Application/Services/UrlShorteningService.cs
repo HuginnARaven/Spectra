@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using AutoMapper;
+using System.Security.AccessControl;
+using Spectra.Application.Common;
 
 namespace Spectra.Application.Services
 {
@@ -87,6 +89,23 @@ namespace Spectra.Application.Services
             }
 
             await repository.DeleteUrlAsync(url);
+        }
+
+        public async Task<PaginatedResult<UrlVisitDto>> GetUrlVisitsAsync(string urlId, string userId, PaginationRequest request)
+        {
+            var url = await repository.GetUserUrlByIdAsync(urlId, userId);
+            if (url == null)
+            {
+                throw new KeyNotFoundException($"URL with id '{urlId}' not found.");
+            }
+
+            var skip = (request.PageNumber - 1) * request.PageSize;
+
+            var (visits, totalCount) = await repository.GetUrlVisitsAsync(url.Id, skip, request.PageSize);
+
+            var visitDtos = mapper.Map<IReadOnlyList<UrlVisitDto>>(visits);
+
+            return new PaginatedResult<UrlVisitDto>(visitDtos, totalCount, request.PageNumber, request.PageSize);
         }
     }
 }

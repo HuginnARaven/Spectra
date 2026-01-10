@@ -34,8 +34,6 @@ namespace Spectra.API.Controllers
                 return Unauthorized();
             }
 
-            Console.WriteLine(currentUserId);
-
             return Ok(await urlService.GetUserUrlsAsync(currentUserId));
         }
 
@@ -52,6 +50,21 @@ namespace Spectra.API.Controllers
             await urlService.DeleteUrlsAsync(id, currentUserId);
 
             return Ok();
+        }
+
+        [Authorize]
+        [HttpGet("get-url-visits/{id}")]
+        public async Task<IActionResult> GetUrlVisits(string id, [FromQuery] PaginationRequest request)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await urlService.GetUrlVisitsAsync(id, currentUserId, request);
+
+            return Ok(result);
         }
 
         [HttpGet]
