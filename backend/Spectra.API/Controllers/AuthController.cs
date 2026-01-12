@@ -13,43 +13,25 @@ namespace Spectra.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            try
-            {
-                var result = await identityService.RegisterAsync(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var result = await identityService.RegisterAsync(request);
+
+            return Ok(result);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            try
-            {
-                var result = await identityService.LoginAsync(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized(new { message = ex.Message });
-            }
+            var result = await identityService.LoginAsync(request);
+
+            return Ok(result);
         }
 
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
-            try
-            {
-                var result = await identityService.RefreshTokenAsync(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var result = await identityService.RefreshTokenAsync(request);
+
+            return Ok(result);
         }
     }
 }

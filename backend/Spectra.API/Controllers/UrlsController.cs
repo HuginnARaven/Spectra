@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Spectra.API.Extensions;
 using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
 using Spectra.Domain.Entities;
@@ -16,10 +17,7 @@ namespace Spectra.API.Controllers
         [HttpPost("create-shorten-url")]
         public async Task<IActionResult> CreateShortenUrl(CreateUrlRequest request)
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(currentUserId)) { 
-                return Unauthorized();
-            }
+            var currentUserId = User.GetUserId();
 
             return Ok(await urlService.ShortenUrlAsync(request, currentUserId));
         }
@@ -28,11 +26,7 @@ namespace Spectra.API.Controllers
         [HttpGet("get-shorten-urls")]
         public async Task<IActionResult> GetUserUrls()
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                return Unauthorized();
-            }
+            var currentUserId = User.GetUserId();
 
             return Ok(await urlService.GetUserUrlsAsync(currentUserId));
         }
@@ -41,11 +35,7 @@ namespace Spectra.API.Controllers
         [HttpDelete("delete-shorten-url/{id}")]
         public async Task<IActionResult> DeleteUrl(string id)
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                return Unauthorized();
-            }
+            var currentUserId = User.GetUserId();
 
             await urlService.DeleteUrlsAsync(id, currentUserId);
 
@@ -56,11 +46,7 @@ namespace Spectra.API.Controllers
         [HttpGet("get-url-visits/{id}")]
         public async Task<IActionResult> GetUrlVisits(string id, [FromQuery] PaginationRequest request)
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                return Unauthorized();
-            }
+            var currentUserId = User.GetUserId();
 
             var result = await urlService.GetUrlVisitsAsync(id, currentUserId, request);
 
@@ -76,39 +62,32 @@ namespace Spectra.API.Controllers
                 return NotFound();
             }
 
-            try
+            var originalUrl = await urlService.GetOriginalUrlAsync(code);
+
+            // check for Prefetch/Prerender
+            var purpose = Request.Headers["Purpose"].ToString();
+            var secPurpose = Request.Headers["Sec-Purpose"].ToString();
+            var secFetchDest = Request.Headers["Sec-Fetch-Dest"].ToString();
+
+            bool isBotOrPrefetch =
+                (!string.IsNullOrEmpty(purpose) && purpose.Contains("prefetch", StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(secPurpose) && secPurpose.Contains("prefetch", StringComparison.OrdinalIgnoreCase)) ||
+                secFetchDest == "image";
+
+            if (isBotOrPrefetch)
             {
-                var originalUrl = await urlService.GetOriginalUrlAsync(code);
-
-                // check for Prefetch/Prerender
-                var purpose = Request.Headers["Purpose"].ToString();
-                var secPurpose = Request.Headers["Sec-Purpose"].ToString();
-                var secFetchDest = Request.Headers["Sec-Fetch-Dest"].ToString();
-
-                bool isBotOrPrefetch =
-                    (!string.IsNullOrEmpty(purpose) && purpose.Contains("prefetch", StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrEmpty(secPurpose) && secPurpose.Contains("prefetch", StringComparison.OrdinalIgnoreCase)) ||
-                    secFetchDest == "image";
-
-                if (isBotOrPrefetch)
-                {
-                    return Redirect(originalUrl);
-                }
-
-                // collecting data only if it is not Prefetch/Prerender or other browser shenanigans
-                var ip = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "Unknown";
-                var ua = Request.Headers["User-Agent"].ToString();
-                var referer = Request.Headers["Referer"].ToString();
-
-                // "Fire-and-Forget" strategy similar to Celery in Django
-                await analyticsService.QueueBackgroundWorkItemAsync(new VisitLogDto(code, ip, ua, referer));
-
                 return Redirect(originalUrl);
             }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+
+            // collecting data only if it is not Prefetch/Prerender or other browser shenanigans
+            var ip = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "Unknown";
+            var ua = Request.Headers["User-Agent"].ToString();
+            var referer = Request.Headers["Referer"].ToString();
+
+            // "Fire-and-Forget" strategy similar to Celery in Django
+            await analyticsService.QueueBackgroundWorkItemAsync(new VisitLogDto(code, ip, ua, referer));
+
+            return Redirect(originalUrl);
         }
     }
 }

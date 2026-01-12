@@ -57,7 +57,7 @@ namespace Spectra.Application.Services
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new Exception($"Password change failed: {errors}");
+                throw new ArgumentException($"Password change failed: {errors}");
             }
         }
     }

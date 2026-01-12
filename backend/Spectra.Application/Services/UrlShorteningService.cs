@@ -70,7 +70,7 @@ namespace Spectra.Application.Services
                 attempts++;
             }
 
-            throw new Exception("Failed to generate a unique code. Please try again.");
+            throw new InvalidOperationException("Failed to generate a unique code. Please try again.");
         }
 
         public async Task<IReadOnlyList<UrlDto>> GetUserUrlsAsync(string userId)
