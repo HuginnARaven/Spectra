@@ -1,7 +1,9 @@
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
+using Spectra.API.Middleware;
 using Spectra.Application;
 using Spectra.Infrastructure;
+using FluentValidation.AspNetCore;
 
 namespace SpectraAPI
 {
@@ -25,6 +27,7 @@ namespace SpectraAPI
             });
 
             builder.Services.AddControllers();
+            builder.Services.AddFluentValidationAutoValidation();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -64,9 +67,10 @@ namespace SpectraAPI
 
             var app = builder.Build();
 
+            // Configure the HTTP request pipeline.
+            app.UseMiddleware<ExeptionMiddleware>();
             app.UseCors("AllowAll");
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -77,7 +81,6 @@ namespace SpectraAPI
             // app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

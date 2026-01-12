@@ -16,13 +16,13 @@ namespace Spectra.Infrastructure.Services
             var user = await userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
-                throw new Exception("Invalid credentials.");
+                throw new UnauthorizedAccessException("Invalid credentials.");
             }
 
             var isPasswordValid = await userManager.CheckPasswordAsync(user, request.Password);
             if (!isPasswordValid)
             {
-                throw new Exception("Invalid credentials.");
+                throw new UnauthorizedAccessException("Invalid credentials.");
             }
 
             var token = jwtTokenGenerator.GenerateToken(user);
@@ -47,7 +47,7 @@ namespace Spectra.Infrastructure.Services
             var existingUser = await userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
             {
-                throw new Exception("User with this email already exists.");
+                throw new InvalidOperationException("User with this email already exists.");
             }
 
             var user = new User
@@ -63,7 +63,7 @@ namespace Spectra.Infrastructure.Services
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new Exception($"Registration failed: {errors}");
+                throw new ArgumentException($"{errors}");
             }
 
             var token = jwtTokenGenerator.GenerateToken(user);
@@ -88,14 +88,14 @@ namespace Spectra.Infrastructure.Services
             var principal = jwtTokenGenerator.GetPrincipalFromExpiredToken(request.Token);
             var userId = principal.Claims.FirstOrDefault(c => c.Type == System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
 
-            if (userId == null) throw new Exception("Invalid access token");
+            if (userId == null) throw new ArgumentException("Invalid access token");
 
             var user = await userManager.FindByIdAsync(userId);
-            if (user == null) throw new Exception("User not found");
+            if (user == null) throw new KeyNotFoundException("User not found");
 
             if (user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
-                throw new Exception("Invalid or expired refresh token");
+                throw new InvalidOperationException("Invalid or expired refresh token");
             }
 
             var newAccessToken = jwtTokenGenerator.GenerateToken(user);
