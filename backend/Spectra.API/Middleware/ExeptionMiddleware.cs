@@ -14,6 +14,7 @@ namespace Spectra.API.Middleware
         {
             try
             {
+                Console.WriteLine("InvokeAsync");
                 await next(httpContext);
             }
             catch (Exception e) 

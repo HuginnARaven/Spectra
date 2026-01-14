@@ -17,6 +17,20 @@ services:
       - spectra-db
       - spectra-redis
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "64178:64178"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8080/api 
+    depends_on:
+      - backend
+
   spectra-db:
     image: postgres:15-alpine
     container_name: spectra-db

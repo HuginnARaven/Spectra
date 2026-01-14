@@ -5,7 +5,12 @@
     <Project Path="backend/Spectra.Domain/Spectra.Domain.csproj" Id="40707b04-362f-4633-a5d4-4127d36d441e" />
     <Project Path="backend/Spectra.Infrastructure/Spectra.Infrastructure.csproj" Id="4b48b0e1-92f4-4b64-8b2d-711b8176bfa4" />
   </Folder>
-  <Folder Name="/Frontend/" />
+  <Folder Name="/Frontend/">
+    <Project Path="frontend/frontend.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
     <File Path="README.md" />
