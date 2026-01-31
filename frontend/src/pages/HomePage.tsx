@@ -1,12 +1,7 @@
-import React from 'react';
-
-const HomePage = () => {
+export default function HomePage() {
     return (
-        <div className="p-10">
-            <h1 className="text-3xl font-bold text-primary">Spectra Frontend</h1>
-            <p className="mt-4 text-muted-foreground">Infrastructure</p>
+        <div className="flex flex-1 flex-col">
+            Welcome to Spectra
         </div>
-    );
-};
-
-export default HomePage;
+    )
+}

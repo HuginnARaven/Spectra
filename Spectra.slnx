@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Backend/">
+    <File Path="backend/.dockerignore" />
     <Project Path="backend/Spectra.API/Spectra.API.csproj" />
     <Project Path="backend/Spectra.Application/Spectra.Application.csproj" Id="d3c1e029-2925-4a34-ab68-a8230ac21100" />
     <Project Path="backend/Spectra.Domain/Spectra.Domain.csproj" Id="40707b04-362f-4633-a5d4-4127d36d441e" />

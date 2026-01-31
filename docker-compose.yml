@@ -22,14 +22,14 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "64178:64178"
+      - "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8080/api 
     depends_on:
-      - backend
+      - spectra.api
 
   spectra-db:
     image: postgres:15-alpine
