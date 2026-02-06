@@ -1,108 +1,114 @@
 import {
-  IconCreditCard,
-  IconDotsVertical,
-  IconLogout,
-  IconNotification,
-  IconUserCircle,
+    IconCreditCard,
+    IconDotsVertical,
+    IconLogout,
+    IconNotification,
+    IconUserCircle,
 } from "@tabler/icons-react"
 
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
 } from "@/components/ui/avatar"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar"
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import { loadUser, logout } from "@/features/auth/authSlice"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
-  const { isMobile } = useSidebar()
+export function NavUser() {
+    const { isMobile } = useSidebar()
+    const dispatch = useAppDispatch();
+    const { user } = useAppSelector((state) => state.auth);
 
-  return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
-                </span>
-              </div>
-              <IconDotsVertical className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    {user.email}
-                  </span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <IconLogout />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
-  )
+    const avatar = 'https://static.vecteezy.com/system/resources/thumbnails/063/477/529/small/neutral-gray-silhouette-of-male-avatar-defoult-photo-placeholder-with-short-hair-for-anonymous-profile-picture-with-minimalist-style-suitable-for-various-social-media-platforms-and-websites-vector.jpg'
+
+    if (!user) {
+        dispatch(loadUser(""));
+    }
+    
+    const handleLogout = () => {
+        dispatch(logout());
+    };
+
+    return (
+        <SidebarMenu>
+            <SidebarMenuItem>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <SidebarMenuButton
+                            size="lg"
+                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                        >
+                            <Avatar className="h-8 w-8 rounded-lg grayscale">
+                                <AvatarImage src={avatar} alt={user?.username} />
+                                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                            </Avatar>
+                            <div className="grid flex-1 text-left text-sm leading-tight">
+                                <span className="truncate font-medium">{user?.username}</span>
+                                <span className="text-muted-foreground truncate text-xs">
+                                    {user?.email}
+                                </span>
+                            </div>
+                            <IconDotsVertical className="ml-auto size-4" />
+                        </SidebarMenuButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                        side={isMobile ? "bottom" : "right"}
+                        align="end"
+                        sideOffset={4}
+                    >
+                        <DropdownMenuLabel className="p-0 font-normal">
+                            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                <Avatar className="h-8 w-8 rounded-lg">
+                                    <AvatarImage src={avatar} alt={user?.username} />
+                                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                                </Avatar>
+                                <div className="grid flex-1 text-left text-sm leading-tight">
+                                    <span className="truncate font-medium">{user?.username}</span>
+                                    <span className="text-muted-foreground truncate text-xs">
+                                        {user?.email}
+                                    </span>
+                                </div>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem>
+                                <IconUserCircle />
+                                Account
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <IconCreditCard />
+                                Billing
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <IconNotification />
+                                Notifications
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout}>
+                            <IconLogout />
+                            Log out
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </SidebarMenuItem>
+        </SidebarMenu>
+    )
 }

@@ -6,8 +6,10 @@ import {
 
 import { Outlet } from "react-router-dom"
 import { AppSidebar } from "../components/app-sidebar/app-sidebar"
+import { useAppSelector } from "../app/hooks";
 
 export default function SidebarLayout() {
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
     return (
         <SidebarProvider
             style={
@@ -17,7 +19,7 @@ export default function SidebarLayout() {
                 } as React.CSSProperties
             }
         >
-            <AppSidebar variant="inset" />
+            {isAuthenticated ? (<AppSidebar variant="inset" />) : (<></>)}
             <SidebarInset>
                 <SiteHeader />
                 <Outlet />
