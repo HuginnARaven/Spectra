@@ -1,11 +1,11 @@
-import { Plus } from "lucide-react";
+﻿import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { CreateUrlForm } from "../features/urls/components/create-url-form";
 import { UrlsTable } from "../features/urls/components/urls-table";
 
-export default function UrlManagamentPage() {
+export default function UrlManagementPage() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     return (
         <div className="flex flex-1 flex-col gap-4 p-4">

@@ -17,10 +17,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 isActive: useLocation().pathname === `/dashboard` ? true : false
             },
             {
-                title: "Url managament",
-                url: "url-managament",
+                title: "Url management",
+                url: "url-management",
                 icon: IconListDetails,
-                isActive: useLocation().pathname === `/url-managament` ? true : false
+                isActive: useLocation().pathname === `/url-management` ? true : false
             },
             {
                 title: "Analytics",

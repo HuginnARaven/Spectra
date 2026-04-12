@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
     Table,
     TableBody,
@@ -7,61 +8,48 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Copy, ExternalLink } from "lucide-react";
+import { Copy, ExternalLink, Loader2 } from "lucide-react";
 import { UrlActionsMenu } from "./url-actions-menu";
-
-
-type UrlData = {
-    id: string;
-    originalUrl: string;
-    shortUrl: string;
-    shortCode: string;
-    createdAt: string;
-}
-
-const tmpData: UrlData[] = [
-    {
-        "id": "cd386f2e-10d9-45b5-9706-28d64de80748",
-        "originalUrl": "https://stackoverflow.com/questions/43447688/setting-up-swagger-asp-net-core-using-the-authorization-headers-bearer",
-        "shortUrl": "http://localhost:8080/7aAvxTL",
-        "shortCode": "7aAvxTL",
-        "createdAt": "2026-01-05T21:23:46.268453Z"
-    },
-    {
-        "id": "66a3d807-5bda-4a4d-a8ed-5d4bf61a373c",
-        "originalUrl": "https://stackoverflow.com/",
-        "shortUrl": "http://localhost:8080/kVfiwU4",
-        "shortCode": "kVfiwU4",
-        "createdAt": "2026-01-05T21:23:52.788905Z"
-    },
-    {
-        "id": "23e61fe8-6777-4998-b0b0-6296aa780af2",
-        "originalUrl": "https://leetcode.com/studyplan/top-interview-150/",
-        "shortUrl": "http://localhost:8080/AzS8TAr",
-        "shortCode": "AzS8TAr",
-        "createdAt": "2026-01-05T21:24:09.955684Z"
-    },
-    {
-        "id": "ceb31f13-031e-460e-8a9b-7cc5d5707db5",
-        "originalUrl": "https://openai.com/index/openai-codex/",
-        "shortUrl": "http://localhost:8080/GKrSq6q",
-        "shortCode": "GKrSq6q",
-        "createdAt": "2026-01-11T12:09:36.687482Z"
-    },
-    {
-        "id": "d36700ac-97a7-4da4-8c0b-eb1757a7bcac",
-        "originalUrl": "http://localhost:8080/swagger/index.html",
-        "shortUrl": "http://localhost:8080/gLBV5Xg",
-        "shortCode": "gLBV5Xg",
-        "createdAt": "2026-01-12T16:35:13.557207Z"
-    }
-];
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { fetchUrls } from "../urlsSlice";
+import { toast } from "sonner";
 
 export function UrlsTable() {
+    const dispatch = useAppDispatch();
+    const { urls, isLoading, error } = useAppSelector((state) => state.urls);
+
+    useEffect(() => {
+        dispatch(fetchUrls());
+    }, [dispatch]);
+
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
-        // Тут можна додати toast notification "Copied!"
+        toast.success("Copied to clipboard");
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center text-destructive py-10">
+                Error loading URLs: {error}
+            </div>
+        );
+    }
+
+    if (urls.length === 0) {
+        return (
+            <div className="text-center text-muted-foreground py-10">
+                No URLs created yet.
+            </div>
+        );
+    }
 
     return (
         <Table>
@@ -74,7 +62,7 @@ export function UrlsTable() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {tmpData.map((row) => (
+                {urls.map((row) => (
                     <TableRow key={row.id}>
                         <TableCell className="font-medium">
                             <div className="flex items-center space-x-2">
