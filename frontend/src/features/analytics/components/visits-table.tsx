@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {
     Table,
     TableBody,
@@ -7,26 +7,70 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import {useAppDispatch, useAppSelector} from "@/app/hooks.ts";
+import { useAppDispatch, useAppSelector } from "@/app/hooks.ts";
 import { useSearchParams } from 'react-router-dom';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import {fetchUrlVisits} from "@/features/analytics/analyticsSlice.ts";
+import { fetchUrlVisits } from "@/features/analytics/analyticsSlice.ts";
+import { Field, FieldLabel } from "@/components/ui/field";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+const generatePagination = (currentPage: number, totalPages: number) => {
+    if (totalPages <= 7) {
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    if (currentPage <= 3) {
+        return [1, 2, 3, 4, '...', totalPages];
+    }
+
+    if (currentPage >= totalPages - 2) {
+        return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+};
 
 export function VisitsTable() {
     const dispatch = useAppDispatch();
-    const { urlVisits, isLoading, error } = useAppSelector((state) => state.analytics);
-    
-    const [searchParams] = useSearchParams();
-    const urlId  = searchParams.get('urlId') || '';
-    
-    if(urlId !== ''){
-        useEffect(() => {
-            dispatch(fetchUrlVisits({id: urlId, page: 1, pageSize: 100}));
-        }, [dispatch]);
-    }
+    const { urlVisits, totalCount, isLoading, error } = useAppSelector((state) => state.analytics);
 
-    if (isLoading) {
+    const [searchParams] = useSearchParams();
+    const urlId = searchParams.get('urlId') || '';
+    
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+
+    const totalPages = Math.ceil((totalCount || 0) / pageSize) || 1;
+    
+    useEffect(() => {
+        if (urlId) {
+            dispatch(fetchUrlVisits({ id: urlId, page, pageSize }));
+        }
+    }, [dispatch, urlId, page, pageSize]);
+    
+    const handlePageSizeChange = (value: string) => {
+        setPageSize(Number(value));
+        setPage(1);
+    };
+
+    if (isLoading && urlVisits.length === 0) {
         return (
             <div className="flex justify-center items-center py-10">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -42,18 +86,34 @@ export function VisitsTable() {
         );
     }
 
-    if (urlVisits.length === 0) {
+    if (!isLoading && urlVisits.length === 0) {
         return (
             <div className="text-center text-muted-foreground py-10">
                 There are no visits yet.
             </div>
         );
     }
-    
+
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="flex items-center justify-between flex-row">
                 <CardTitle>Recent Visits</CardTitle>
+                <Field orientation="horizontal" className="w-fit">
+                    <FieldLabel htmlFor="select-rows-per-page" className="mr-2">Visits per page</FieldLabel>
+                    <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                        <SelectTrigger className="w-20" id="select-rows-per-page">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent align="start">
+                            <SelectGroup>
+                                <SelectItem value="5">5</SelectItem>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="15">15</SelectItem>
+                                <SelectItem value="20">20</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </Field>
             </CardHeader>
             <CardContent>
                 <Table>
@@ -77,6 +137,49 @@ export function VisitsTable() {
                     </TableBody>
                 </Table>
             </CardContent>
+            <CardFooter className="flex justify-center">
+                {totalPages > 1 && (
+                    <Pagination className="mx-0 w-auto mt-4 justify-end">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                />
+                            </PaginationItem>
+
+                            {generatePagination(page, totalPages).map((p, i) => {
+                                if (p === '...') {
+                                    return (
+                                        <PaginationItem key={`ellipsis-${i}`}>
+                                            <PaginationEllipsis />
+                                        </PaginationItem>
+                                    );
+                                }
+
+                                return (
+                                    <PaginationItem key={p}>
+                                        <PaginationLink
+                                            isActive={page === p}
+                                            onClick={() => setPage(p as number)}
+                                            className="cursor-pointer"
+                                        >
+                                            {p}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                );
+                            })}
+
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                    className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                )}
+            </CardFooter>
         </Card>
     );
 }

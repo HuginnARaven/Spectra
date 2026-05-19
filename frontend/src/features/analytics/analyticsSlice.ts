@@ -5,8 +5,6 @@ import type {UrlVisitData} from './types';
 interface UrlsAnalyticsState {
     urlVisits: UrlVisitData[];
     totalCount: number;
-    pageNumber: number;
-    pageSize: number;
     isLoading: boolean;
     error: string | null;
 }
@@ -14,8 +12,6 @@ interface UrlsAnalyticsState {
 const initialState: UrlsAnalyticsState = {
     urlVisits: [],
     totalCount: 0,
-    pageNumber: 1,
-    pageSize: 0,
     isLoading: false,
     error: null,
 };
@@ -46,8 +42,6 @@ const analyticsSlice = createSlice({
                 state.isLoading = false;
                 state.urlVisits = action.payload.items;
                 state.totalCount = action.payload.totalCount;
-                state.pageNumber = action.payload.pageNumber;
-                state.pageSize = action.payload.pageSize;
             })
             .addCase(fetchUrlVisits.rejected, (state, action) => {
                 state.isLoading = false;

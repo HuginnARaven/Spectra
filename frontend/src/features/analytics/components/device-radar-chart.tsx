@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart} from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "../../../components/ui/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart.tsx";
 
 const chartData = [
     { device: "Desktop", visits: 120 },
@@ -25,7 +25,7 @@ export function DeviceRadarChart() {
                 <CardTitle>Device Usage</CardTitle>
                 <CardDescription>Distribution across platforms</CardDescription>
             </CardHeader>
-            <CardContent className="h-[400px] w-full">
+            <CardContent className="h-100 w-full">
                 <ChartContainer
                     config={chartConfig}
                     className="mx-auto aspect-square w-full h-full"
