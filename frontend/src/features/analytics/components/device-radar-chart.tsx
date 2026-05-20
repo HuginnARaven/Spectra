@@ -20,27 +20,29 @@ const chartConfig = {
 
 export function DeviceRadarChart() {
     return (
-        <Card>
+        <Card className="flex flex-col h-full">
             <CardHeader>
                 <CardTitle>Device Usage</CardTitle>
                 <CardDescription>Distribution across platforms</CardDescription>
             </CardHeader>
-            <CardContent className="h-100 w-full">
-                <ChartContainer
-                    config={chartConfig}
-                    className="mx-auto aspect-square w-full h-full"
-                >
-                    <RadarChart data={chartData}>
-                        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                        <PolarAngleAxis dataKey="device" />
-                        <PolarGrid />
-                        <Radar
-                            dataKey="visits"
-                            fill="var(--color-visits)"
-                            fillOpacity={0.6}
-                        />
-                    </RadarChart>
-                </ChartContainer>
+            <CardContent className="flex-1 min-h-0 w-full pb-2">
+                <div className="relative w-full h-full">
+                    <ChartContainer
+                        config={chartConfig}
+                        className="absolute inset-0 mx-auto w-full h-full"
+                    >
+                        <RadarChart data={chartData}>
+                            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                            <PolarAngleAxis dataKey="device" />
+                            <PolarGrid />
+                            <Radar
+                                dataKey="visits"
+                                fill="var(--color-visits)"
+                                fillOpacity={0.6}
+                            />
+                        </RadarChart>
+                    </ChartContainer>
+                </div>
             </CardContent>
         </Card>
     );

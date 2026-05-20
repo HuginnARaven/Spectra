@@ -5,6 +5,7 @@ import DashboardPage from './pages/DashboardPage';
 import UrlManagementPage from './pages/UrlManagementPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import { useAppSelector } from './app/hooks';
+import {Toaster} from "@/components/ui/sonner.tsx";
 
 function App() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -17,8 +18,8 @@ function App() {
                     <Route path="/url-management" element={isAuthenticated ? <UrlManagementPage /> : <Navigate to="/" replace />} />
                     <Route path="/analytics" element={isAuthenticated ? <AnalyticsPage /> : <Navigate to="/" replace />} />
                 </Route>
-            
             </Routes>
+            <Toaster />
         </div>
     );
 }

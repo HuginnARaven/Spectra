@@ -70,6 +70,19 @@ export function VisitsTable() {
         setPage(1);
     };
 
+    const formatVisitsDate = (isoString: string) => {
+        if (!isoString) return "-";
+        const date = new Date(isoString);
+        return new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+        }).format(date);
+    }
+
     if (isLoading && urlVisits.length === 0) {
         return (
             <div className="flex justify-center items-center py-10">
@@ -95,7 +108,7 @@ export function VisitsTable() {
     }
 
     return (
-        <Card>
+        <Card className="flex flex-col h-full min-h-95 overflow-hidden">
             <CardHeader className="flex items-center justify-between flex-row">
                 <CardTitle>Recent Visits</CardTitle>
                 <Field orientation="horizontal" className="w-fit">
@@ -110,34 +123,40 @@ export function VisitsTable() {
                                 <SelectItem value="10">10</SelectItem>
                                 <SelectItem value="15">15</SelectItem>
                                 <SelectItem value="20">20</SelectItem>
+                                <SelectItem value="25">25</SelectItem>
+                                <SelectItem value="100">100</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
                 </Field>
             </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>IP Address</TableHead>
-                            <TableHead>Country</TableHead>
-                            <TableHead>Browser</TableHead>
-                            <TableHead className="text-right">Date</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {urlVisits.map((v, i) => (
-                            <TableRow key={i}>
-                                <TableCell className="font-medium">{v.ipAddress}</TableCell>
-                                <TableCell>{v.country}</TableCell>
-                                <TableCell>{v.browser}</TableCell>
-                                <TableCell className="text-right">{v.createdAt}</TableCell>
+            <CardContent className="flex-1 min-h-0 relative p-0">
+                <div className="absolute inset-0 px-6 pb-4 [&>div]:h-full [&>div]:overflow-auto">
+                    <Table>
+                        <TableHeader className="sticky top-0 bg-card z-10 shadow-sm">
+                            <TableRow>
+                                <TableHead>IP Address</TableHead>
+                                <TableHead>Country</TableHead>
+                                <TableHead>Browser</TableHead>
+                                <TableHead className="text-right">Date</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {urlVisits.map((v, i) => (
+                                <TableRow key={i}>
+                                    <TableCell className="font-medium">{v.ipAddress}</TableCell>
+                                    <TableCell>{v.country}</TableCell>
+                                    <TableCell>{v.browser}</TableCell>
+                                    <TableCell className="text-right whitespace-nowrap">
+                                        {formatVisitsDate(v.createdAt)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
             </CardContent>
-            <CardFooter className="flex justify-center">
+            <CardFooter className="flex justify-center border-t p-2 bg-card z-20">
                 {totalPages > 1 && (
                     <Pagination className="mx-0 w-auto mt-4 justify-end">
                         <PaginationContent>

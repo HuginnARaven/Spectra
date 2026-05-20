@@ -27,7 +27,6 @@ export function UrlActionsMenu({ urlId }: { urlId: string }) {
     };
 
     const handleAnalytics = () => {
-        // You might want to navigate to the analytics page with this urlId selected
         navigate(`/analytics?urlId=${urlId}`);
     };
 

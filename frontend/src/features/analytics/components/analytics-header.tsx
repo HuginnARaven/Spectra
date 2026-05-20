@@ -5,6 +5,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
 
 interface AnalyticsHeaderProps {
     selectedUrl: string;
@@ -26,6 +27,10 @@ export function AnalyticsHeader({ selectedUrl, onUrlChange }: AnalyticsHeaderPro
                     </SelectContent>
                 </Select>
             </div>
+            <TabsList>
+                <TabsTrigger value="charts" className="text-base">Charts</TabsTrigger>
+                <TabsTrigger value="visits" className="text-base">Visits</TabsTrigger>
+            </TabsList>
         </div>
     );
 }
