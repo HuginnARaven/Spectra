@@ -11,7 +11,7 @@ namespace Spectra.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UrlsController(IUrlShorteningService urlService, IBackgroundAnalyticsQueue analyticsService) : ControllerBase
+    public class UrlsController(IUrlShorteningService urlService, IBackgroundAnalyticsQueue backgroundAnalyticsQueue, IUrlAnalyticsService analyticsService) : ControllerBase
     {
         [Authorize]
         [HttpPost("create-shorten-url")]
@@ -85,9 +85,18 @@ namespace Spectra.API.Controllers
             var referer = Request.Headers["Referer"].ToString();
 
             // "Fire-and-Forget" strategy similar to Celery in Django
-            await analyticsService.QueueBackgroundWorkItemAsync(new VisitLogDto(code, ip, ua, referer));
+            await backgroundAnalyticsQueue.QueueBackgroundWorkItemAsync(new VisitLogDto(code, ip, ua, referer));
 
             return Redirect(originalUrl);
+        }
+        
+        [Authorize]
+        [HttpGet("get-url-analytics/{id}")]
+        public async Task<IActionResult> GetUrlAnalytics(string id)
+        {
+            var currentUserId = User.GetUserId();
+            var result = await analyticsService.GetUrlAnalyticsAsync(id, currentUserId);
+            return Ok(result);
         }
     }
 }

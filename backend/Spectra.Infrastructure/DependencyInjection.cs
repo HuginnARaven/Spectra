@@ -16,6 +16,7 @@ using Spectra.Infrastructure.Services.Utilities;
 using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
+using Spectra.Infrastructure.Queries;
 
 namespace Spectra.Infrastructure
 {
@@ -76,6 +77,8 @@ namespace Spectra.Infrastructure
 
             // Services (Application Services)
             services.AddSingleton<IUrlGenerator, RandomUrlGenerator>();
+
+            services.AddScoped<IUrlAnalyticsQueries, UrlAnalyticsQueries>();
 
             return services;
         }

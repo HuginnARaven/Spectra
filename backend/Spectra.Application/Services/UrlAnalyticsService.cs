@@ -5,10 +5,11 @@ using Spectra.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Spectra.Application.DTOs;
 
 namespace Spectra.Application.Services
 {
-    public class UrlAnalyticsService(IUrlRepository repository, IUserAgentParser uaParser, IGeoLocationService geoLocationService) : IUrlAnalyticsService
+    public class UrlAnalyticsService(IUrlRepository repository, IUserAgentParser uaParser, IGeoLocationService geoLocationService, IUrlAnalyticsQueries queries) : IUrlAnalyticsService
     {
         public async Task LogVisitAsync(string shortCode, string ipAddress, string? userAgent, string? referer)
         {
@@ -33,6 +34,11 @@ namespace Spectra.Application.Services
             };
 
             await repository.AddVisitAsync(visit);
+        }
+
+        public async Task<UrlAnalyticsDto> GetUrlAnalyticsAsync(string id, string userId)
+        {
+            return await queries.GetUrlAnalyticsByIdAsync(id, userId);
         }
     }
 }
