@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart} from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart.tsx";
+import {useAppSelector} from "@/app/hooks.ts";
 
 const chartData = [
     { device: "Desktop", visits: 120 },
@@ -19,6 +20,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function DeviceRadarChart() {
+    const { deviceDistribution } = useAppSelector((state) => state.analytics.urlAnalyticsData);
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
@@ -31,7 +33,7 @@ export function DeviceRadarChart() {
                         config={chartConfig}
                         className="absolute inset-0 mx-auto w-full h-full"
                     >
-                        <RadarChart data={chartData}>
+                        <RadarChart data={deviceDistribution.length > 0 ? deviceDistribution : chartData}>
                             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                             <PolarAngleAxis dataKey="device" />
                             <PolarGrid />

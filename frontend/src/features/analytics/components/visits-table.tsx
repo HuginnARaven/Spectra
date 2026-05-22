@@ -94,7 +94,7 @@ export function VisitsTable() {
     if (error) {
         return (
             <div className="text-center text-destructive py-10">
-                Error loading analytics: {error}
+                Error loading visits: {error}
             </div>
         );
     }

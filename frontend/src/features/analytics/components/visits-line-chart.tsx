@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { XAxis, CartesianGrid, Line, LineChart } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart.tsx";
+import {useAppSelector} from "@/app/hooks.ts";
 
 const chartData = [
     { date: "2024-04-01", visits: 222},
@@ -105,6 +106,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function VisitsLineChart() {
+    const { last30DaysVisits } = useAppSelector((state) => state.analytics.urlAnalyticsData);
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
@@ -118,7 +120,7 @@ export function VisitsLineChart() {
                 >
                     <LineChart
                         accessibilityLayer
-                        data={chartData}
+                        data={last30DaysVisits.length > 0 ? last30DaysVisits : chartData}
                         margin={{
                             left: 12,
                             right: 12,

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bar, BarChart, XAxis, CartesianGrid, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart.tsx";
+import {useAppSelector} from "@/app/hooks.ts";
 
 const chartData = [
     { country: "USA", visits: 1200 },
@@ -23,6 +24,7 @@ const chartConfig = {
 
 
 export function CountryBarChart() {
+    const { topCountries } = useAppSelector((state) => state.analytics.urlAnalyticsData);
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
@@ -34,7 +36,7 @@ export function CountryBarChart() {
                     <ChartContainer config={chartConfig} className="absolute inset-0 w-full h-full">
                         <BarChart
                             accessibilityLayer
-                            data={chartData}
+                            data={topCountries.length > 0 ? topCountries : chartData}
                             margin={{
                                 top: 30,
                             }}

@@ -9,3 +9,19 @@
     referrer: string
     createdAt: string
 }
+
+export type UrlAnalyticsData = {
+    totalVisits: number;
+    topCountries: {
+        country: string;
+        visits: number;
+    }[];
+    deviceDistribution: {
+        device: string;
+        visits: number;
+    }[];
+    last30DaysVisits: {
+        date: string;
+        visits: number;
+    }[];
+}

@@ -8,6 +8,10 @@ export const analyticsApi = {
             { params: { pageNumber, pageSize } }
         );
         return response.data;
+    },
+    getUrlAnalytics: async (urlId: string) => {
+        const response = await agent.get<any>(`/urls/get-url-analytics/${urlId}`);
+        return response.data;
     }
 };
 
