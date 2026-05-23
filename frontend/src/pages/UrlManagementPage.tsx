@@ -14,7 +14,7 @@ export default function UrlManagementPage() {
                 <div className="flex items-center justify-between">
                     <Input
                         placeholder="Filter links..."
-                        className="h-8 w-[150px] lg:w-[250px]"
+                        className="w-37.5 lg:w-62.5"
                     />
                 </div>
                 <div className="flex items-center space-x-2">

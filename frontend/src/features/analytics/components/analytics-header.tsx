@@ -6,6 +6,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
+import {useAppSelector} from "@/app/hooks.ts";
 
 interface AnalyticsHeaderProps {
     selectedUrl: string;
@@ -13,6 +14,8 @@ interface AnalyticsHeaderProps {
 }
 
 export function AnalyticsHeader({ selectedUrl, onUrlChange }: AnalyticsHeaderProps) {
+    const { urls } = useAppSelector((state) => state.urls);
+
     return (
         <div className="flex flex-col gap-4 mt-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center space-x-2">
@@ -21,9 +24,9 @@ export function AnalyticsHeader({ selectedUrl, onUrlChange }: AnalyticsHeaderPro
                         <SelectValue placeholder="Select a URL to analyze" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="1">spectra.app/dashboard</SelectItem>
-                        <SelectItem value="2">spectra.app/pricing</SelectItem>
-                        <SelectItem value="3">google.com/promo</SelectItem>
+                        {urls.map((url) => (
+                            <SelectItem value={url.id} key={url.id}>{url.originalUrl}</SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             </div>
