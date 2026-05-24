@@ -63,7 +63,10 @@ namespace Spectra.Application.Services
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-
+            
+            // This may be needed cus JWT claims are mapped to old XML-format
+            // tokenHandler.MapInboundClaims = false;
+            
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
 
             if (securityToken is not JwtSecurityToken jwtSecurityToken ||

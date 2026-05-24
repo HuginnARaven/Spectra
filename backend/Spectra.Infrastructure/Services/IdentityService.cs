@@ -5,6 +5,7 @@ using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 
 namespace Spectra.Infrastructure.Services
@@ -86,8 +87,10 @@ namespace Spectra.Infrastructure.Services
         public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request)
         {
             var principal = jwtTokenGenerator.GetPrincipalFromExpiredToken(request.Token);
-            var userId = principal.Claims.FirstOrDefault(c => c.Type == System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
-
+            var userId = principal.Claims.FirstOrDefault(c => 
+                c.Type == ClaimTypes.NameIdentifier || 
+                c.Type == System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+            
             if (userId == null) throw new ArgumentException("Invalid access token");
 
             var user = await userManager.FindByIdAsync(userId);
