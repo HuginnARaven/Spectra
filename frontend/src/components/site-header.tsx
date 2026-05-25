@@ -1,8 +1,8 @@
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { LoginForm } from "../features/auth/components/login-form"
-import { RegisterForm } from "../features/auth/components/register-form"
 import { useAppSelector } from "../app/hooks";
+import {Button} from "@/components/ui/button.tsx";
+import { Link } from "react-router-dom";
 
 export function SiteHeader() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -14,7 +14,7 @@ export function SiteHeader() {
 
                 <h1 className="text-base font-medium">Page name</h1>
                 <div className="ml-auto flex items-center gap-2">
-                    {!isAuthenticated ? (<><LoginForm />|<RegisterForm /></>) : (<></>)}
+                    {!isAuthenticated ? (<><Link to="/auth/login"><Button variant="outline">Sign in</Button></Link>|<Link to="/auth/register"><Button variant="outline">Sign up</Button></Link></>) : (<></>)}
                 </div>
             </div>
         </header>

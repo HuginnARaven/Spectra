@@ -6,6 +6,9 @@ import UrlManagementPage from './pages/UrlManagementPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import { useAppSelector } from './app/hooks';
 import {Toaster} from "@/components/ui/sonner.tsx";
+import AuthLayout from "@/layouts/auth-layout.tsx";
+import {LoginForm} from "@/features/auth/components/login-form.tsx";
+import {RegisterForm} from "@/features/auth/components/register-form.tsx";
 
 function App() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -14,6 +17,11 @@ function App() {
             <Routes>
                 <Route path="/" element={<SidebarLayout />}>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="/auth" element={isAuthenticated ? <Navigate to="/" replace /> : <AuthLayout/>}>
+                        <Route index element={<Navigate to="login" replace />} />
+                        <Route path="login" element={<LoginForm />} />
+                        <Route path="register" element={<RegisterForm />} />
+                    </Route> 
                     <Route path="/dashboard" element={isAuthenticated ? <DashboardPage /> : <Navigate to="/" replace />} />
                     <Route path="/url-management" element={isAuthenticated ? <UrlManagementPage /> : <Navigate to="/" replace />} />
                     <Route path="/analytics" element={isAuthenticated ? <AnalyticsPage /> : <Navigate to="/" replace />} />
