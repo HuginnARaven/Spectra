@@ -36,6 +36,17 @@ export const createUrl = createAsyncThunk(
     }
 );
 
+export const createTemporaryUrl = createAsyncThunk(
+    'urls/createTemporaryUrl',
+    async (originalUrl: string, { rejectWithValue }) => {
+        try {
+            return await urlsApi.createTemporaryUrl({ originalUrl });
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.error || 'Failed to create temporary URL');
+        }
+    }
+);
+
 export const deleteUrl = createAsyncThunk(
     'urls/deleteUrl',
     async (id: string, { rejectWithValue }) => {

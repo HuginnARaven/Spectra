@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, LinkIcon, BarChart3, Shield, Zap } from "lucide-react";
+import { LinkIcon, BarChart3, Shield, Zap } from "lucide-react";
 import {useAppSelector} from "@/app/hooks.ts";
 import { Link } from "react-router-dom"
+import {TemporaryUrlForm} from "@/features/urls/components/temporary-url-form.tsx";
 
 export default function HomePage() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -22,21 +22,12 @@ export default function HomePage() {
                         <p className="max-w-[700px] text-muted-foreground md:text-xl">
                             Transform your long URLs into powerful, trackable short links. Gain valuable insights into your audience with our comprehensive analytics platform.
                         </p>
-                        {!isAuthenticated ?
-                            <div className="w-full max-w-sm space-y-2">
-                                <form className="flex space-x-2" onSubmit={(e) => e.preventDefault()}>
-                                    <Input className="max-w-lg flex-1" placeholder="Paste your long link here..." type="url" required />
-                                    <Button type="submit">
-                                        Shorten
-                                        <ArrowRight className="ml-2 h-4 w-4" />
-                                    </Button>
-                                </form>
-                                <p className="text-xs text-muted-foreground">
-                                    By clicking Shorten, you agree to our Terms of Service and Privacy Policy.
-                                </p>
-                            </div> 
-                            : <></>
-                        }
+                        <div className="w-full max-w-sm space-y-2">
+                            <TemporaryUrlForm/>
+                            <p className="text-xs text-muted-foreground">
+                                By clicking Shorten, you agree to our Terms of Service and Privacy Policy.
+                            </p>
+                        </div>
                     </div>
                 </section>
                 <section className="w-full py-20 md:py-32">

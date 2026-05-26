@@ -8,7 +8,7 @@ namespace Spectra.Infrastructure.Services
 {
     internal class RedisUrlCacheService(IConnectionMultiplexer redis) : IUrlCacheService
     {
-        private readonly TimeSpan _cacheDuration = TimeSpan.FromHours(24);
+        private readonly TimeSpan _cacheDuration = TimeSpan.FromHours(24); // change to 30m later
         private readonly IDatabase _db = redis.GetDatabase();
 
         public async Task<string?> GetOriginalUrlAsync(string shortCode)

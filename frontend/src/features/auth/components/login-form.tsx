@@ -18,6 +18,7 @@ import {InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput} from "@/
 import { EyeOffIcon, EyeIcon, AlertCircle } from "lucide-react";
 import { useState } from "react"
 import {Alert, AlertDescription} from "@/components/ui/alert.tsx";
+
 const formSchema = z.object({
     email: z
         .email({ message: "Invalid email address" }),

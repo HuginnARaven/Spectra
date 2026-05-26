@@ -4,6 +4,7 @@ using Spectra.API.Middleware;
 using Spectra.Application;
 using Spectra.Infrastructure;
 using FluentValidation.AspNetCore;
+using Spectra.API.Extensions;
 
 namespace SpectraAPI
 {
@@ -64,7 +65,9 @@ namespace SpectraAPI
 
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);
-
+            
+            builder.Services.AddCustomRateLimiting();
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -81,6 +84,8 @@ namespace SpectraAPI
             // app.UseHttpsRedirection();
 
             app.UseAuthorization();
+            
+            app.UseRateLimiter();
 
             app.MapControllers();
 

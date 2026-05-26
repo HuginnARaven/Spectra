@@ -10,6 +10,7 @@ namespace Spectra.Application.Interfaces
     public interface IUrlShorteningService
     {
         Task<UrlResponse> ShortenUrlAsync(CreateUrlRequest request, string? userId);
+        Task<string> TemporarilyShortenUrlAsync(CreateUrlRequest request);
         Task<string> GetOriginalUrlAsync(string shortenUrl);
         Task<IReadOnlyList<UrlDto>> GetUserUrlsAsync(string userId);
         Task DeleteUrlsAsync(string urlId, string userId);

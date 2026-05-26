@@ -38,6 +38,13 @@ namespace Spectra.Application.Services
             };
         }
 
+        public async Task<string> TemporarilyShortenUrlAsync(CreateUrlRequest request)
+        {
+            var code = await GenerateVerifiedUniqueCodeAsync();
+            await cache.SetUrlAsync(code, $"t|{request.OriginalUrl}");
+            return $"http://localhost:8080/{code}";
+        }
+
         public async Task<string> GetOriginalUrlAsync(string code)
         {
             var cachedUrl = await cache.GetOriginalUrlAsync(code);

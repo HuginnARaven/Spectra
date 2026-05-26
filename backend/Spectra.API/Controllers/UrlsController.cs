@@ -6,6 +6,7 @@ using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
 using Spectra.Domain.Entities;
 using System.Security.Claims;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Spectra.API.Controllers
 {
@@ -64,6 +65,15 @@ namespace Spectra.API.Controllers
 
             var originalUrl = await urlService.GetOriginalUrlAsync(code);
 
+            // check for temporary url
+            if (originalUrl is ['t', '|', ..])
+            {
+                Console.WriteLine("[Console.WriteLine in GetOriginalFromShortenUrl]: temporary url detected");
+                return Redirect(originalUrl[2..]);
+            }
+                
+
+
             // check for Prefetch/Prerender
             var purpose = Request.Headers["Purpose"].ToString();
             var secPurpose = Request.Headers["Sec-Purpose"].ToString();
@@ -97,6 +107,14 @@ namespace Spectra.API.Controllers
             var currentUserId = User.GetUserId();
             var result = await analyticsService.GetUrlAnalyticsAsync(id, currentUserId);
             return Ok(result);
+        }
+        
+        
+        [HttpPost("create-temporary-url")]
+        [EnableRateLimiting("AnonymousUrlCreation")]
+        public async Task<IActionResult> CreateTemporaryUrl(CreateUrlRequest request)
+        {
+            return Ok(await urlService.TemporarilyShortenUrlAsync(request));
         }
     }
 }
