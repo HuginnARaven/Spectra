@@ -1,7 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import { XAxis, CartesianGrid, Line, LineChart } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart.tsx";
 import {useAppSelector} from "@/app/hooks.ts";
+import { useMemo, useState } from "react";
+import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group.tsx";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 
 const chartData = [
     { date: "2024-04-01", visits: 222},
@@ -107,10 +110,84 @@ const chartConfig = {
 
 export function VisitsLineChart() {
     const { last30DaysVisits } = useAppSelector((state) => state.analytics.urlAnalyticsData);
+    const [timeRange, setTimeRange] = useState("30d")
+
+    const completeChartData = useMemo(() => {
+        let daysToSubtract = 30;
+        if (timeRange === "14d") {
+            daysToSubtract = 14;
+        } else if (timeRange === "7d") {
+            daysToSubtract = 7;
+        }
+
+        const referenceDate = new Date();
+
+        const filledData = [];
+
+        const visitsMap = new Map();
+        last30DaysVisits.forEach((item) => {
+            const dateKey = item.date.split('T')[0];
+            visitsMap.set(dateKey, item.visits);
+        });
+
+        for (let i = daysToSubtract - 1; i >= 0; i--) {
+            const d = new Date(referenceDate);
+            d.setDate(referenceDate.getDate() - i);
+
+            const dateString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+            filledData.push({
+                date: dateString,
+                visits: visitsMap.get(dateString) || 0,
+            });
+        }
+
+        return filledData;
+    }, [last30DaysVisits, timeRange]);
+    
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
                 <CardTitle>Total Visits</CardTitle>
+                <CardDescription>
+                    <span className="hidden md:block">
+                        Total for the last 30 days
+                    </span>
+                    <span className="md:hidden">Last 30 days</span>
+                </CardDescription>
+                <CardAction>
+                    <ToggleGroup
+                        type="single"
+                        value={timeRange}
+                        onValueChange={setTimeRange}
+                        variant="outline"
+                        className="hidden *:data-[slot=toggle-group-item]:px-4! md:flex"
+                    >
+                        <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
+                        <ToggleGroupItem value="14d">Last 14 days</ToggleGroupItem>
+                        <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
+                    </ToggleGroup>
+                    <Select value={timeRange} onValueChange={setTimeRange}>
+                        <SelectTrigger
+                            className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate md:hidden"
+                            size="sm"
+                            aria-label="Select a value"
+                        >
+                            <SelectValue placeholder="Last 3 months" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                            <SelectItem value="30d" className="rounded-lg">
+                                Last 30 days
+                            </SelectItem>
+                            <SelectItem value="14d" className="rounded-lg">
+                                Last 14 days
+                            </SelectItem>
+                            <SelectItem value="14d" className="rounded-lg">
+                                Last 7 days
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </CardAction>
             </CardHeader>
             <CardContent className="px-2 sm:p-6 flex-1 min-h-0">
                 <div className="relative w-full h-full">
@@ -120,7 +197,7 @@ export function VisitsLineChart() {
                 >
                     <LineChart
                         accessibilityLayer
-                        data={last30DaysVisits.length > 0 ? last30DaysVisits : chartData}
+                        data={last30DaysVisits?.length > 0 ? completeChartData : chartData}
                         margin={{
                             left: 12,
                             right: 12,

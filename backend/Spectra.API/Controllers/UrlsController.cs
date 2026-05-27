@@ -68,12 +68,9 @@ namespace Spectra.API.Controllers
             // check for temporary url
             if (originalUrl is ['t', '|', ..])
             {
-                Console.WriteLine("[Console.WriteLine in GetOriginalFromShortenUrl]: temporary url detected");
                 return Redirect(originalUrl[2..]);
             }
-                
-
-
+            
             // check for Prefetch/Prerender
             var purpose = Request.Headers["Purpose"].ToString();
             var secPurpose = Request.Headers["Sec-Purpose"].ToString();

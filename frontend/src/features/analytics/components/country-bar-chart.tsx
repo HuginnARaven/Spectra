@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Bar, BarChart, XAxis, CartesianGrid, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart.tsx";
 import {useAppSelector} from "@/app/hooks.ts";
+import { useMemo } from "react";
 
 const chartData = [
     { country: "USA", visits: 1200 },
@@ -25,6 +26,25 @@ const chartConfig = {
 
 export function CountryBarChart() {
     const { topCountries } = useAppSelector((state) => state.analytics.urlAnalyticsData);
+
+    const processedChartData = useMemo(() => {
+        const rawData = topCountries.length > 0 ? topCountries : chartData;
+        
+        if (rawData.length <= 5) {
+            return rawData;
+        }
+        
+        const top5 = rawData.slice(0, 5);
+        
+        const others = rawData.slice(5);
+        const othersVisits = others.reduce((sum, item) => sum + item.visits, 0);
+        
+        return [
+            ...top5,
+            { country: "Other", visits: othersVisits }
+        ];
+    }, [topCountries]);
+    
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
@@ -36,7 +56,7 @@ export function CountryBarChart() {
                     <ChartContainer config={chartConfig} className="absolute inset-0 w-full h-full">
                         <BarChart
                             accessibilityLayer
-                            data={topCountries.length > 0 ? topCountries : chartData}
+                            data={processedChartData}
                             margin={{
                                 top: 30,
                             }}
@@ -48,12 +68,16 @@ export function CountryBarChart() {
                                 axisLine={false}
                                 tickMargin={10}
                                 minTickGap={32}
+                                interval={0}
+                                tickFormatter={(value) => {
+                                    return value.length > 10 ? `${value.substring(0, 10)}...` : value;
+                                }}
                             />
                             <ChartTooltip
                                 cursor={false}
                                 content={<ChartTooltipContent hideLabel />}
                             />
-                            <Bar dataKey="visits" fill="var(--color-visits)" radius={8}>
+                            <Bar dataKey="visits" fill="var(--color-visits)" radius={8} maxBarSize={150}>
                                 <LabelList
                                     position="top"
                                     offset={12}

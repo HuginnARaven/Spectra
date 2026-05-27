@@ -1,14 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart} from "recharts";
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart, PieChart, Pie, LabelList} from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart.tsx";
 import {useAppSelector} from "@/app/hooks.ts";
 
 const chartData = [
-    { device: "Desktop", visits: 120 },
+    { device: "Desktop", visits: 160 },
     { device: "Mobile", visits: 98 },
     { device: "Tablet", visits: 40 },
-    { device: "Console", visits: 0 },
-    { device: "Other", visits: 155 },
+    { device: "Console", visits: 10 },
+    { device: "Other", visits: 110 },
 ];
 
 
@@ -21,6 +21,7 @@ const chartConfig = {
 
 export function DeviceRadarChart() {
     const { deviceDistribution } = useAppSelector((state) => state.analytics.urlAnalyticsData);
+    const data = deviceDistribution.length > 0 ? deviceDistribution : chartData
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
@@ -33,7 +34,8 @@ export function DeviceRadarChart() {
                         config={chartConfig}
                         className="absolute inset-0 mx-auto w-full h-full"
                     >
-                        <RadarChart data={deviceDistribution.length > 0 ? deviceDistribution : chartData}>
+                        {data.length > 2 ?                         
+                            <RadarChart data={data}>
                             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                             <PolarAngleAxis dataKey="device" />
                             <PolarGrid />
@@ -43,6 +45,21 @@ export function DeviceRadarChart() {
                                 fillOpacity={0.6}
                             />
                         </RadarChart>
+                        :
+                            <PieChart>
+                                <ChartTooltip
+                                    content={<ChartTooltipContent nameKey="visits" hideLabel />}
+                                />
+                                <Pie data={data} dataKey="visits" label nameKey="visits" fill="var(--color-visits)">
+                                    <LabelList
+                                        dataKey="device"
+                                        className="fill-background"
+                                        stroke="none"
+                                        fontSize={12}
+                                    />
+                                </Pie>
+                            </PieChart>
+                        }
                     </ChartContainer>
                 </div>
             </CardContent>
