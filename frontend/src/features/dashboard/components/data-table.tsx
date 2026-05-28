@@ -251,19 +251,19 @@ export function DataTable({
     }
 
     return (
-        <div
-            className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
-        >
-            <div className="overflow-hidden rounded-lg border">
-                <DndContext
-                    collisionDetection={closestCenter}
-                    modifiers={[restrictToVerticalAxis]}
-                    onDragEnd={handleDragEnd}
-                    sensors={sensors}
-                    id={sortableId}
-                >
-                    <Table>
-                        <TableHeader className="bg-muted sticky top-0 z-10">
+        <div className="flex flex-col h-full min-h-0 w-full gap-4 pb-4">
+            <div className="flex-1 min-h-0 relative">
+                <div className="absolute inset-0 px-4 lg:px-6">
+                    <div className="h-full overflow-hidden rounded-lg border [&>div]:h-full [&>div]:overflow-auto">
+                        <DndContext
+                            collisionDetection={closestCenter}
+                            modifiers={[restrictToVerticalAxis]}
+                            onDragEnd={handleDragEnd}
+                            sensors={sensors}
+                            id={sortableId}
+                        >
+                            <Table>
+                                <TableHeader className="bg-muted sticky top-0 z-10 shadow-sm">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {
@@ -310,8 +310,10 @@ export function DataTable({
                         </TableBody>
                     </Table>
                 </DndContext>
+                    </div>
+                </div>
             </div>
-            <div className="flex items-center justify-between px-4">
+            <div className="flex items-center justify-between px-4 lg:px-6 z-20">
                 <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
                     {table.getFilteredRowModel().rows.length} row(s) selected.

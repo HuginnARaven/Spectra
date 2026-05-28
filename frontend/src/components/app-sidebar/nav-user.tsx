@@ -3,7 +3,6 @@ import {
     IconDotsVertical,
     IconLogout,
     IconNotification,
-    IconUserCircle,
 } from "@tabler/icons-react"
 
 import {
@@ -28,6 +27,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { loadUser, logout } from "@/features/auth/authSlice"
+import {AccountEditForm} from "@/components/app-sidebar/account-edit-form.tsx";
 
 export function NavUser() {
     const { isMobile } = useSidebar()
@@ -88,9 +88,8 @@ export function NavUser() {
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <IconUserCircle />
-                                Account
+                            <DropdownMenuItem onClick={(e) => {e.preventDefault();}}>
+                                <AccountEditForm />
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <IconCreditCard />
