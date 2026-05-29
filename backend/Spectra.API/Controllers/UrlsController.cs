@@ -53,6 +53,17 @@ namespace Spectra.API.Controllers
 
             return Ok(result);
         }
+        
+        [Authorize]
+        [HttpGet("get-all-visits")]
+        public async Task<IActionResult> GetAllVisits([FromQuery] PaginationRequest request)
+        {
+            var currentUserId = User.GetUserId();
+
+            var result = await urlService.GetAllVisitsAsync(currentUserId, request);
+
+            return Ok(result);
+        }
 
         [HttpGet]
         [Route("~/{code}")] // ~ -> to ingnore default route forming

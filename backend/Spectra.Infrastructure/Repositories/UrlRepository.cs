@@ -65,5 +65,22 @@ namespace Spectra.Infrastructure.Repositories
 
             return (items, totalCount);
         }
+
+        public async Task<(IReadOnlyList<UrlVisit> Items, int TotalCount)> GetUserUrlVisitsAsync(string userId, int skip, int take)
+        {
+            var query = context.UrlVisits
+                .AsNoTracking()
+                .Where(v => v.Url!.UserId == Guid.Parse(userId))
+                .OrderByDescending(v => v.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
     }
 }

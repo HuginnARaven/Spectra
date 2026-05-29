@@ -114,5 +114,16 @@ namespace Spectra.Application.Services
 
             return new PaginatedResult<UrlVisitDto>(visitDtos, totalCount, request.PageNumber, request.PageSize);
         }
+
+        public async Task<PaginatedResult<UrlVisitDto>> GetAllVisitsAsync(string userId, PaginationRequest request)
+        {
+            var skip = (request.PageNumber - 1) * request.PageSize;
+            
+            var (visits, totalCount) = await repository.GetUserUrlVisitsAsync(userId, skip, request.PageSize);
+            
+            var visitDtos = mapper.Map<IReadOnlyList<UrlVisitDto>>(visits);
+
+            return new PaginatedResult<UrlVisitDto>(visitDtos, totalCount, request.PageNumber, request.PageSize);
+        }
     }
 }
