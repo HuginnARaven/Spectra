@@ -49,6 +49,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
+import { useAppDispatch, useAppSelector } from "@/app/hooks"
+import { fetchAllVisits } from "@/features/dashboard/dashboardSlice"
+import type { UrlVisitData } from "@/features/analytics/types"
+import { Loader2 } from "lucide-react"
 import {
     Select,
     SelectContent,
@@ -65,18 +69,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
-export const schema = z.object({
-    id: z.string(),
-    ipAddress: z.string(),
-    country: z.string(),
-    city: z.string(),
-    browser: z.string(),
-    deviceType: z.string(),
-    referrer: z.string(),
-    createdAt: z.string(),
-})
-
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
+const columns: ColumnDef<UrlVisitData>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -104,7 +97,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "ipaddress",
+        accessorKey: "ipAddress",
         header: "IpAddress",
         cell: ({ row }) => {
             return row.original.ipAddress
@@ -136,7 +129,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "devicetype",
+        accessorKey: "deviceType",
         header: "Device type",
         cell: ({ row }) => {
             return row.original.deviceType
@@ -152,7 +145,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "createdat",
+        accessorKey: "createdAt",
         header: "Created At",
         cell: ({ row }) => {
             return new Date(row.original.createdAt).toLocaleString()
@@ -185,12 +178,16 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     },
 ]
 
-export function DataTable({
-    data: initialData,
-}: {
-    data: z.infer<typeof schema>[]
-}) {
-    const [data, setData] = React.useState(() => initialData)
+export function DataTable() {
+    const dispatch = useAppDispatch()
+    const { allVisits, totalCount, isLoading } = useAppSelector((state) => state.dashboard)
+
+    const [data, setData] = React.useState<UrlVisitData[]>([])
+    
+    React.useEffect(() => {
+        setData(allVisits)
+    }, [allVisits])
+
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
@@ -202,6 +199,11 @@ export function DataTable({
         pageIndex: 0,
         pageSize: 10,
     })
+
+    React.useEffect(() => {
+        dispatch(fetchAllVisits({ page: pagination.pageIndex + 1, pageSize: pagination.pageSize }))
+    }, [dispatch, pagination.pageIndex, pagination.pageSize])
+
     const sortableId = React.useId()
     const sensors = useSensors(
         useSensor(MouseSensor, {}),
@@ -217,6 +219,8 @@ export function DataTable({
     const table = useReactTable({
         data,
         columns,
+        pageCount: Math.ceil(totalCount / pagination.pageSize) || -1,
+        manualPagination: true,
         state: {
             sorting,
             columnVisibility,
@@ -282,13 +286,19 @@ export function DataTable({
                             ))}
                         </TableHeader>
                         <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                            {table.getRowModel().rows?.length ? (
+                            {isLoading && data.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                                        <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
+                                    </TableCell>
+                                </TableRow>
+                            ) : table.getRowModel().rows?.length ? (
                                 <SortableContext
                                     items={dataIds}
                                     strategy={verticalListSortingStrategy}
                                 >
                                     {table.getRowModel().rows.map((row) => (
-                                        <TableRow className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80">
+                                        <TableRow key={row.id} className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80">
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell key={cell.id}>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

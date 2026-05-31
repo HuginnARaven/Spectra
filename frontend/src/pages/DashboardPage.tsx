@@ -1,4 +1,3 @@
-import data from "../app/dashboard/visitsData.json"
 import { DataTable } from "../features/dashboard/components/data-table"
 import { StatsSection } from "../features/dashboard/components/stats-section"
 import {TotalVisitsBarChart} from "@/features/dashboard/components/total-visits-bar-chart.tsx";
@@ -12,7 +11,7 @@ export default function DashboardPage() {
                     <TotalVisitsBarChart />
                 </div>
                 <div className="flex flex-col h-full min-h-95 overflow-hidden">
-                    <DataTable data={data} />
+                    <DataTable />
                 </div>
                 
             </div>
