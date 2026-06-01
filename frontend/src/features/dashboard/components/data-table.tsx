@@ -21,7 +21,6 @@ import {
     IconChevronRight,
     IconChevronsLeft,
     IconChevronsRight,
-    IconDotsVertical,
 } from "@tabler/icons-react"
 import {
     flexRender,
@@ -37,17 +36,8 @@ import {
     type SortingState,
     type VisibilityState,
 } from "@tanstack/react-table"
-import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { useAppDispatch, useAppSelector } from "@/app/hooks"
 import { fetchAllVisits } from "@/features/dashboard/dashboardSlice"
@@ -70,32 +60,6 @@ import {
 } from "@/components/ui/table"
 
 const columns: ColumnDef<UrlVisitData>[] = [
-    {
-        id: "select",
-        header: ({ table }) => (
-            <div className="flex items-center justify-center">
-                <Checkbox
-                    checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
-                    }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                />
-            </div>
-        ),
-        cell: ({ row }) => (
-            <div className="flex items-center justify-center">
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            </div>
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
     {
         accessorKey: "ipAddress",
         header: "IpAddress",
@@ -140,7 +104,7 @@ const columns: ColumnDef<UrlVisitData>[] = [
         accessorKey: "referrer",
         header: "Referrer",
         cell: ({ row }) => {
-            return row.original.referrer
+            return row.original.referrer ? row.original.referrer : "Unknown"
         },
         enableHiding: false,
     },
@@ -151,31 +115,7 @@ const columns: ColumnDef<UrlVisitData>[] = [
             return new Date(row.original.createdAt).toLocaleString()
         },
         enableHiding: false,
-    },
-    {
-        id: "actions",
-        cell: () => (
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                        size="icon"
-                    >
-                        <IconDotsVertical />
-                        <span className="sr-only">Open menu</span>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-32">
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Make a copy</DropdownMenuItem>
-                    <DropdownMenuItem>Favorite</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        ),
-    },
+    }
 ]
 
 export function DataTable() {
@@ -298,7 +238,7 @@ export function DataTable() {
                                     strategy={verticalListSortingStrategy}
                                 >
                                     {table.getRowModel().rows.map((row) => (
-                                        <TableRow key={row.id} className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80">
+                                        <TableRow key={row.id} className="relative z-0">
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell key={cell.id}>
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -324,10 +264,7 @@ export function DataTable() {
                 </div>
             </div>
             <div className="flex items-center justify-between px-4 lg:px-6 z-20">
-                <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div>
+                <div className="text-muted-foreground hidden flex-1 text-sm lg:flex"/>
                 <div className="flex w-full items-center gap-8 lg:w-fit">
                     <div className="hidden items-center gap-2 lg:flex">
                         <Label htmlFor="rows-per-page" className="text-sm font-medium">
