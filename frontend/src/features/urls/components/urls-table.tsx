@@ -81,7 +81,7 @@ export function UrlsTable() {
                         </TableCell>
                         <TableCell>
                             <div className="flex items-center space-x-2">
-                                <span className="text-blue-500 font-medium">{row.shortUrl}</span>
+                                <a className="text-blue-500 font-medium" href={row.shortUrl} target="_blank" rel="noreferrer">{row.shortUrl}</a>
                                 <Button
                                     variant="ghost"
                                     size="icon"

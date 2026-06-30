@@ -45,4 +45,95 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
             Last30DaysVisits = await last30DaysTask
         };
     }
+
+    public async Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId)
+    {
+        var now = DateTime.UtcNow;
+        var thirtyDaysAgo = now.AddDays(-30);
+        var sixtyDaysAgo = now.AddDays(-60);
+        
+        var baseQuery = context.UrlVisits
+            .Where(v => v.Url!.UserId == Guid.Parse(userId) && v.CreatedAt >= sixtyDaysAgo)
+            .AsNoTracking()
+            .AsQueryable();
+
+        var visitsStats = await baseQuery
+            .GroupBy(v => 1)
+            .Select(gv => new
+            {
+                CurrentVisits = gv.Count(v => v.CreatedAt >= thirtyDaysAgo),
+                PreviousVisits = gv.Count(v => v.CreatedAt < thirtyDaysAgo)
+            })
+            .FirstOrDefaultAsync();
+        
+        var referrerStats = await baseQuery
+            .GroupBy(v => string.IsNullOrEmpty(v.Referrer) ? "Direct" : v.Referrer)
+            .Select(gv => new
+            {
+                Name = gv.Key,
+                CurrentVisits = gv.Count(v => v.CreatedAt >= thirtyDaysAgo),
+                PreviousVisits = gv.Count(v => v.CreatedAt < thirtyDaysAgo)
+            })
+            .OrderByDescending(x => x.CurrentVisits)
+            .Take(5)
+            .ToListAsync();
+
+        var deviceStats = await baseQuery
+            .GroupBy(v => string.IsNullOrEmpty(v.DeviceType) ? "Unknown" : v.DeviceType)
+            .Select(gv => new
+            {
+                Name = gv.Key,
+                CurrentVisits = gv.Count(v => v.CreatedAt >= thirtyDaysAgo),
+                PreviousVisits = gv.Count(v => v.CreatedAt < thirtyDaysAgo)
+            })
+            .OrderByDescending(x => x.CurrentVisits)
+            .Take(5)
+            .ToListAsync();
+        
+        var countriesStats = await baseQuery
+            .GroupBy(v => string.IsNullOrEmpty(v.Country) ? "Unknown" : v.Country)
+            .Select(gv => new
+            {
+                Name = gv.Key,
+                CurrentVisits = gv.Count(v => v.CreatedAt >= thirtyDaysAgo),
+                PreviousVisits = gv.Count(v => v.CreatedAt < thirtyDaysAgo)
+            })
+            .OrderByDescending(x => x.CurrentVisits)
+            .Take(5)
+            .ToListAsync();
+        
+        var visitsResult = visitsStats ?? new { CurrentVisits = 0, PreviousVisits = 0 };
+        
+        return new TrendAnalyticsDto
+        {
+            Visits = new VisitsTrendAnalyticsDto()
+            {
+                Value = visitsResult!.CurrentVisits,
+                TrendPercentage = CalculateTrendPercentage(visitsResult.CurrentVisits, visitsResult.PreviousVisits)
+            },
+            Devices = deviceStats.Select(stat => new DeviceTrendAnalyticsDto()
+            {
+                Name =  stat.Name,
+                Value = stat.CurrentVisits,
+                TrendPercentage = CalculateTrendPercentage(stat.CurrentVisits, stat.PreviousVisits)
+            }).ToList(),
+            Countries = countriesStats.Select(stat => new CountryTrendAnalyticsDto()
+            {
+                Name =  stat.Name,
+                Value = stat.CurrentVisits,
+                TrendPercentage = CalculateTrendPercentage(stat.CurrentVisits, stat.PreviousVisits)
+            }).ToList(),
+            Referrers = referrerStats.Select(stat => new ReferrerTrendAnalyticsDto()
+            {
+                Name =  stat.Name,
+                Value = stat.CurrentVisits,
+                TrendPercentage = CalculateTrendPercentage(stat.CurrentVisits, stat.PreviousVisits)
+            }).ToList()
+        };
+    }
+
+    private double CalculateTrendPercentage(int current30DaysVisits, int previous30DaysVisits)
+    {
+        return previous30DaysVisits == 0 ? (current30DaysVisits > 0 ? 100 : 0) : Math.Round((double)(current30DaysVisits - previous30DaysVisits) / previous30DaysVisits * 100, 2);
+    }
 }

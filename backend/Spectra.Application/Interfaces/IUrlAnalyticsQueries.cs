@@ -5,4 +5,5 @@ namespace Spectra.Application.Interfaces;
 public interface IUrlAnalyticsQueries
 {
     Task<UrlAnalyticsDto> GetUrlAnalyticsByIdAsync(string id, string userId);
+    Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId);
 }

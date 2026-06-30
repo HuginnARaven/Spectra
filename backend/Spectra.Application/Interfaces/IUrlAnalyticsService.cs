@@ -9,5 +9,6 @@ namespace Spectra.Application.Interfaces
     {
         Task LogVisitAsync(string shortCode, string ipAddress, string? userAgent, string? referer);
         Task<UrlAnalyticsDto> GetUrlAnalyticsAsync(string id, string userId);
+        Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId);
     }
 }

@@ -40,5 +40,10 @@ namespace Spectra.Application.Services
         {
             return await queries.GetUrlAnalyticsByIdAsync(id, userId);
         }
+        
+        public async Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId)
+        {
+            return await queries.GetTrendAnalyticsAsync(userId);
+        }
     }
 }

@@ -117,6 +117,13 @@ namespace Spectra.API.Controllers
             return Ok(result);
         }
         
+        [Authorize]
+        [HttpGet("get-trend-analytics")]public async Task<IActionResult> GetTrendAnalytics()
+        {
+            var currentUserId = User.GetUserId();
+            var result = await analyticsService.GetTrendAnalyticsAsync(currentUserId);
+            return Ok(result);
+        }
         
         [HttpPost("create-temporary-url")]
         [EnableRateLimiting("AnonymousUrlCreation")]
