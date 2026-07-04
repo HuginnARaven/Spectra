@@ -27,3 +27,14 @@ export interface Referrer {
     value: number
     trendPercentage: number
 }
+
+export interface DevicesDailyVisitsData {
+    date: string;
+    deviceVisits: DeviceVisits[];
+}
+
+
+export interface DeviceVisits {
+    device: string;
+    visits: number;
+}

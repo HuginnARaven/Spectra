@@ -1,14 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { dashboardApi } from './dashboardApi';
 import type { UrlVisitData } from '@/features/analytics/types';
-import type {TrendAnalytics} from "@/features/dashboard/types.ts";
+import type {DevicesDailyVisitsData, TrendAnalytics} from "@/features/dashboard/types.ts";
 
 interface DashboardState {
     allVisits: UrlVisitData[];
     trendAnalytics: TrendAnalytics
+    devicesDailyVisits: DevicesDailyVisitsData[];
     totalCount: number;
     isLoading: boolean;
     isTrendAnalyticsLoading: boolean;
+    isDevicesDailyVisitsLoading: boolean;
     error: string | null;
 }
 
@@ -23,9 +25,11 @@ const initialState: DashboardState = {
         countries: [],
         referrers: []
     },
+    devicesDailyVisits: [],
     totalCount: 0,
     isLoading: false,
     isTrendAnalyticsLoading: false,
+    isDevicesDailyVisitsLoading: false,
     error: null,
 };
 
@@ -47,6 +51,17 @@ export const fetchTrendAnalytics = createAsyncThunk(
             return await dashboardApi.getTrendAnalytics();
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Failed to fetch trend analytics');
+        }
+    }
+);
+
+export const fetchDevicesDailyVisits = createAsyncThunk(
+    'dashboard/fetchDevicesDailyVisits',
+    async (_, { rejectWithValue }) => {
+        try {
+            return await dashboardApi.getDevicesDailyVisits();
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Failed to fetch devices daily visits');
         }
     }
 );
@@ -81,6 +96,18 @@ const dashboardSlice = createSlice({
             })
             .addCase(fetchTrendAnalytics.rejected, (state, action) => {
                 state.isTrendAnalyticsLoading = false;
+                state.error = action.payload as string;
+            })
+            .addCase(fetchDevicesDailyVisits.pending, (state) => {
+                state.isDevicesDailyVisitsLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchDevicesDailyVisits.fulfilled, (state, action) => {
+                state.isDevicesDailyVisitsLoading = false;
+                state.devicesDailyVisits = action.payload;
+            })
+            .addCase(fetchDevicesDailyVisits.rejected, (state, action) => {
+                state.isDevicesDailyVisitsLoading = false;
                 state.error = action.payload as string;
             });
     },

@@ -45,5 +45,10 @@ namespace Spectra.Application.Services
         {
             return await queries.GetTrendAnalyticsAsync(userId);
         }
+
+        public Task<IEnumerable<DevicesVisitsByDayDto>> GetDevicesVisitsByDaysAsync(string userId)
+        {
+            return queries.GetDevicesVisitsByDaysAsync(userId);
+        }
     }
 }

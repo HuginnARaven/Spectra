@@ -10,7 +10,7 @@ import {
     type DragEndEvent,
     type UniqueIdentifier,
 } from "@dnd-kit/core"
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
+import {restrictToVerticalAxis} from "@dnd-kit/modifiers"
 import {
     arrayMove,
     SortableContext,
@@ -37,12 +37,12 @@ import {
     type VisibilityState,
 } from "@tanstack/react-table"
 
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { useAppDispatch, useAppSelector } from "@/app/hooks"
-import { fetchAllVisits } from "@/features/dashboard/dashboardSlice"
-import type { UrlVisitData } from "@/features/analytics/types"
-import { Loader2 } from "lucide-react"
+import {Button} from "@/components/ui/button"
+import {Label} from "@/components/ui/label"
+import {useAppDispatch, useAppSelector} from "@/app/hooks"
+import {fetchAllVisits} from "@/features/dashboard/dashboardSlice"
+import type {UrlVisitData} from "@/features/analytics/types"
+import {Loader2} from "lucide-react"
 import {
     Select,
     SelectContent,
@@ -58,12 +58,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import {Skeleton} from "@/components/ui/skeleton.tsx";
 
 const columns: ColumnDef<UrlVisitData>[] = [
     {
         accessorKey: "ipAddress",
         header: "IpAddress",
-        cell: ({ row }) => {
+        cell: ({row}) => {
             return row.original.ipAddress
         },
         enableHiding: false,
@@ -71,7 +72,7 @@ const columns: ColumnDef<UrlVisitData>[] = [
     {
         accessorKey: "country",
         header: "Country",
-        cell: ({ row }) => {
+        cell: ({row}) => {
             return row.original.country
         },
         enableHiding: false,
@@ -79,7 +80,7 @@ const columns: ColumnDef<UrlVisitData>[] = [
     {
         accessorKey: "city",
         header: "City",
-        cell: ({ row }) => {
+        cell: ({row}) => {
             return row.original.city
         },
         enableHiding: false,
@@ -87,7 +88,7 @@ const columns: ColumnDef<UrlVisitData>[] = [
     {
         accessorKey: "browser",
         header: "Browser",
-        cell: ({ row }) => {
+        cell: ({row}) => {
             return row.original.browser
         },
         enableHiding: false,
@@ -95,7 +96,7 @@ const columns: ColumnDef<UrlVisitData>[] = [
     {
         accessorKey: "deviceType",
         header: "Device type",
-        cell: ({ row }) => {
+        cell: ({row}) => {
             return row.original.deviceType
         },
         enableHiding: false,
@@ -103,15 +104,15 @@ const columns: ColumnDef<UrlVisitData>[] = [
     {
         accessorKey: "referrer",
         header: "Referrer",
-        cell: ({ row }) => {
-            return row.original.referrer ? row.original.referrer : "Unknown"
+        cell: ({row}) => {
+            return row.original.referrer ? row.original.referrer : "Direct"
         },
         enableHiding: false,
     },
     {
         accessorKey: "createdAt",
         header: "Created At",
-        cell: ({ row }) => {
+        cell: ({row}) => {
             return new Date(row.original.createdAt).toLocaleString()
         },
         enableHiding: false,
@@ -120,10 +121,10 @@ const columns: ColumnDef<UrlVisitData>[] = [
 
 export function DataTable() {
     const dispatch = useAppDispatch()
-    const { allVisits, totalCount, isLoading } = useAppSelector((state) => state.dashboard)
+    const {allVisits, totalCount, isLoading} = useAppSelector((state) => state.dashboard)
 
     const [data, setData] = React.useState<UrlVisitData[]>([])
-    
+
     React.useEffect(() => {
         setData(allVisits)
     }, [allVisits])
@@ -141,7 +142,7 @@ export function DataTable() {
     })
 
     React.useEffect(() => {
-        dispatch(fetchAllVisits({ page: pagination.pageIndex + 1, pageSize: pagination.pageSize }))
+        dispatch(fetchAllVisits({page: pagination.pageIndex + 1, pageSize: pagination.pageSize}))
     }, [dispatch, pagination.pageIndex, pagination.pageSize])
 
     const sortableId = React.useId()
@@ -152,7 +153,7 @@ export function DataTable() {
     )
 
     const dataIds = React.useMemo<UniqueIdentifier[]>(
-        () => data?.map(({ id }) => id) || [],
+        () => data?.map(({id}) => id) || [],
         [data]
     )
 
@@ -184,7 +185,7 @@ export function DataTable() {
     })
 
     function handleDragEnd(event: DragEndEvent) {
-        const { active, over } = event
+        const {active, over} = event
         if (active && over && active.id !== over.id) {
             setData((data) => {
                 const oldIndex = dataIds.indexOf(active.id)
@@ -198,72 +199,77 @@ export function DataTable() {
         <div className="flex flex-col h-full min-h-0 w-full gap-4 pb-4">
             <div className="flex-1 min-h-0 relative">
                 <div className="absolute inset-0 px-4 lg:px-6">
-                    <div className="h-full overflow-hidden rounded-lg border [&>div]:h-full [&>div]:overflow-auto">
-                        <DndContext
-                            collisionDetection={closestCenter}
-                            modifiers={[restrictToVerticalAxis]}
-                            onDragEnd={handleDragEnd}
-                            sensors={sensors}
-                            id={sortableId}
-                        >
-                            <Table>
-                                <TableHeader className="bg-muted sticky top-0 z-10 shadow-sm">
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id} colSpan={header.colSpan}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        )
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                            {isLoading && data.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                                        <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
-                                    </TableCell>
-                                </TableRow>
-                            ) : table.getRowModel().rows?.length ? (
-                                <SortableContext
-                                    items={dataIds}
-                                    strategy={verticalListSortingStrategy}
+                    {
+                        isLoading ?
+                            <Skeleton className="flex flex-col h-full"/>
+                            :
+                            <div className="h-full overflow-hidden rounded-lg border [&>div]:h-full [&>div]:overflow-auto">
+                                <DndContext
+                                    collisionDetection={closestCenter}
+                                    modifiers={[restrictToVerticalAxis]}
+                                    onDragEnd={handleDragEnd}
+                                    sensors={sensors}
+                                    id={sortableId}
                                 >
-                                    {table.getRowModel().rows.map((row) => (
-                                        <TableRow key={row.id} className="relative z-0">
-                                            {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id}>
-                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                                </TableCell>
+                                    <Table>
+                                        <TableHeader className="bg-muted sticky top-0 z-10 shadow-sm">
+                                            {table.getHeaderGroups().map((headerGroup) => (
+                                                <TableRow key={headerGroup.id}>
+                                                    {headerGroup.headers.map((header) => {
+                                                        return (
+                                                            <TableHead key={header.id} colSpan={header.colSpan}>
+                                                                {header.isPlaceholder
+                                                                    ? null
+                                                                    : flexRender(
+                                                                        header.column.columnDef.header,
+                                                                        header.getContext()
+                                                                    )}
+                                                            </TableHead>
+                                                        )
+                                                    })}
+                                                </TableRow>
                                             ))}
-                                        </TableRow>
-                                    ))}
-                                </SortableContext>
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        No results.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </DndContext>
-                    </div>
+                                        </TableHeader>
+                                        <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                                            {isLoading && data.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                                                        <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary"/>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : table.getRowModel().rows?.length ? (
+                                                <SortableContext
+                                                    items={dataIds}
+                                                    strategy={verticalListSortingStrategy}
+                                                >
+                                                    {table.getRowModel().rows.map((row) => (
+                                                        <TableRow key={row.id} className="relative z-0">
+                                                            {row.getVisibleCells().map((cell) => (
+                                                                <TableCell key={cell.id}>
+                                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                                </TableCell>
+                                                            ))}
+                                                        </TableRow>
+                                                    ))}
+                                                </SortableContext>
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell
+                                                        colSpan={columns.length}
+                                                        className="h-24 text-center"
+                                                    >
+                                                        No results.
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </DndContext>
+                            </div>
+                    }
                 </div>
             </div>
-            <div className="flex items-center justify-between px-4 lg:px-6 z-20">
+            <div className="flex items-center justify-between px-4 lg:px-6 z-20" hidden={isLoading}>
                 <div className="text-muted-foreground hidden flex-1 text-sm lg:flex"/>
                 <div className="flex w-full items-center gap-8 lg:w-fit">
                     <div className="hidden items-center gap-2 lg:flex">
@@ -302,7 +308,7 @@ export function DataTable() {
                             disabled={!table.getCanPreviousPage()}
                         >
                             <span className="sr-only">Go to first page</span>
-                            <IconChevronsLeft />
+                            <IconChevronsLeft/>
                         </Button>
                         <Button
                             variant="outline"
@@ -312,7 +318,7 @@ export function DataTable() {
                             disabled={!table.getCanPreviousPage()}
                         >
                             <span className="sr-only">Go to previous page</span>
-                            <IconChevronLeft />
+                            <IconChevronLeft/>
                         </Button>
                         <Button
                             variant="outline"
@@ -322,7 +328,7 @@ export function DataTable() {
                             disabled={!table.getCanNextPage()}
                         >
                             <span className="sr-only">Go to next page</span>
-                            <IconChevronRight />
+                            <IconChevronRight/>
                         </Button>
                         <Button
                             variant="outline"
@@ -332,7 +338,7 @@ export function DataTable() {
                             disabled={!table.getCanNextPage()}
                         >
                             <span className="sr-only">Go to last page</span>
-                            <IconChevronsRight />
+                            <IconChevronsRight/>
                         </Button>
                     </div>
                 </div>

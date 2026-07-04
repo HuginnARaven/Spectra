@@ -132,6 +132,38 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
         };
     }
 
+    public async Task<IEnumerable<DevicesVisitsByDayDto>> GetDevicesVisitsByDaysAsync(string userId)
+    {
+        var now = DateTime.UtcNow;
+        var thirtyDaysAgo = now.AddDays(-30);
+        
+        var rawData = await context.UrlVisits.AsNoTracking()
+            .Where(v => v.Url!.UserId == Guid.Parse(userId) && v.CreatedAt >= thirtyDaysAgo)
+            .GroupBy(v => new
+            {
+                DeviceType = v.DeviceType,
+                Date = v.CreatedAt.Date
+            })
+            .Select(gv => new
+            {
+                DeviceType = gv.Key.DeviceType,
+                Date = gv.Key.Date,
+                Visits = gv.Count()
+            }).ToListAsync();
+
+        return rawData
+            .GroupBy(d => d.Date)
+            .Select(gd => new DevicesVisitsByDayDto() 
+            { 
+                Date = gd.Key,
+                DeviceVisits = gd.Select(d => new DeviceVisitsByDay() 
+                { 
+                    Device = d.DeviceType, 
+                    Visits = d.Visits 
+                }).ToList() 
+            });
+    }
+
     private double CalculateTrendPercentage(int current30DaysVisits, int previous30DaysVisits)
     {
         return previous30DaysVisits == 0 ? (current30DaysVisits > 0 ? 100 : 0) : Math.Round((double)(current30DaysVisits - previous30DaysVisits) / previous30DaysVisits * 100, 2);

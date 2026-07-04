@@ -125,6 +125,15 @@ namespace Spectra.API.Controllers
             return Ok(result);
         }
         
+        [Authorize]
+        [HttpGet("get-devices-visits-by-days")]
+        public async Task<IActionResult> GetDevicesVisitsByDays()
+        {
+            var currentUserId = User.GetUserId();
+            var result = await analyticsService.GetDevicesVisitsByDaysAsync(currentUserId);
+            return Ok(result);
+        }
+        
         [HttpPost("create-temporary-url")]
         [EnableRateLimiting("AnonymousUrlCreation")]
         public async Task<IActionResult> CreateTemporaryUrl(CreateUrlRequest request)
