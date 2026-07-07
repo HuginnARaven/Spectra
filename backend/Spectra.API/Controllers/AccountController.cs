@@ -17,7 +17,6 @@ namespace Spectra.API.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var currentUserId = User.GetUserId();
-
             var userProfile = await accountService.GetUserAsync(currentUserId);
 
             return Ok(userProfile);

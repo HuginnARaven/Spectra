@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import type { User, LoginRequest, RegisterRequest } from './types';
+import type { LoginRequest, RegisterRequest } from './types';
 import authApi from './authApi';
+import {loadUser} from "@/features/account/accountSlice.ts";
 
 interface AuthState {
-    user: User | null;
     token: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
@@ -14,14 +13,11 @@ interface AuthState {
 const token = localStorage.getItem('accessToken');
 
 const initialState: AuthState = {
-    user: null,
     token: token,
     isAuthenticated: !!token,
     isLoading: false,
     error: null,
 };
-
-// --- Async Thunks ---
 
 export const loginUser = createAsyncThunk(
     'auth/login',
@@ -31,10 +27,8 @@ export const loginUser = createAsyncThunk(
 
             localStorage.setItem('accessToken', response.token);
             localStorage.setItem('refreshToken', response.refreshToken);
-
-            const user = await authApi.getCurrentUser();
-
-            return { token: response.token, user };
+            
+            return response;
         }
         catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Login failed');
@@ -51,37 +45,19 @@ export const registerUser = createAsyncThunk(
             localStorage.setItem('accessToken', response.token);
             localStorage.setItem('refreshToken', response.refreshToken);
 
-            const user = await authApi.getCurrentUser();
-
-            return { token: response.token, user };
+            return response;
         }
         catch (error: any) {
-            return rejectWithValue(error.response?.data?.message || 'Registration failed');
+            return rejectWithValue(error.response?.data?.Message || 'Registration failed');
         }
     }
 );
-
-export const loadUser = createAsyncThunk(
-    'auth/loadUser',
-    async (userId: string, { rejectWithValue }) => {
-        try {
-            const user = await authApi.getCurrentUser();
-            return user;
-        }
-        catch (error: any) {
-            return rejectWithValue(error.response?.data?.message || 'Failed to load user profile');
-        }
-    }
-);
-
-// --- Slice ---
 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
         logout: (state) => {
-            state.user = null;
             state.token = null;
             state.isAuthenticated = false;
             state.error = null;
@@ -102,7 +78,6 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = true;
                 state.token = action.payload.token;
-                state.user = action.payload.user;
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoading = false;
@@ -119,21 +94,16 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = true;
                 state.token = action.payload.token;
-                state.user = action.payload.user;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
             })
 
-            // Load User
-            .addCase(loadUser.fulfilled, (state, action) => {
-                state.user = action.payload;
-            })
+            // Account
             .addCase(loadUser.rejected, (state) => {
                 state.isAuthenticated = false;
                 state.token = null;
-                state.user = null;
                 localStorage.removeItem('accessToken');
             });
     },

@@ -35,9 +35,14 @@ namespace Spectra.Infrastructure.Services
 
             return new AuthResponse
             {
-                Id = user.Id.ToString(),
-                Email = user.Email!,
-                Username = user.UserName!,
+                User = new ProfileRsponse()
+                {
+                    Id = user.Id.ToString(),
+                    Email = user.Email,
+                    Username = user.UserName,
+                    DisplayName = user.DisplayName,
+                    CreatedAt = user.CreatedAt
+                },
                 Token = token,
                 RefreshToken = refreshToken
             };
@@ -76,15 +81,20 @@ namespace Spectra.Infrastructure.Services
 
             return new AuthResponse
             {
-                Id = user.Id.ToString(),
-                Email = user.Email,
-                Username = user.UserName,
+                User = new ProfileRsponse()
+                {
+                    Id = user.Id.ToString(),
+                    Email = user.Email,
+                    Username = user.UserName,
+                    DisplayName = user.DisplayName,
+                    CreatedAt = user.CreatedAt
+                },
                 Token = token,
                 RefreshToken = refreshToken
             };
         }
 
-        public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request)
+        public async Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request)
         {
             var principal = jwtTokenGenerator.GetPrincipalFromExpiredToken(request.Token);
             var userId = principal.Claims.FirstOrDefault(c => 
@@ -109,11 +119,8 @@ namespace Spectra.Infrastructure.Services
 
             await userManager.UpdateAsync(user);
 
-            return new AuthResponse
+            return new RefreshTokenResponse
             {
-                Id = user.Id.ToString(),
-                Email = user.Email!,
-                Username = user.UserName!,
                 Token = newAccessToken,
                 RefreshToken = newRefreshToken
             };

@@ -7,9 +7,7 @@ export interface User {
 }
 
 export interface AuthResponse {
-    id: string;
-    email: string;
-    username: string;
+    user: User;
     token: string;
     refreshToken: string;
 }

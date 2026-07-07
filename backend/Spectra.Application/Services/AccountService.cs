@@ -38,8 +38,20 @@ namespace Spectra.Application.Services
             {
                 throw new KeyNotFoundException($"User with id '{userId}' not found.");
             }
-
+            var existingUser = await userManager.FindByEmailAsync(request.Email);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                throw new InvalidOperationException("User with this email already exists.");
+            }
+            existingUser = await userManager.FindByNameAsync(request.Username);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                throw new InvalidOperationException("User with this username already exists.");
+            }
+            
             user.DisplayName = request.DisplayName;
+            await userManager.SetUserNameAsync(user, request.Username);
+            await userManager.SetEmailAsync(user, request.Email);
 
             await accountRepository.updateUserAsync(user);
         }
