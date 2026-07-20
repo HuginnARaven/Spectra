@@ -1,6 +1,4 @@
-﻿// Файл: Spectra.API/Extensions/RateLimitingExtensions.cs
-
-using System.Threading.RateLimiting;
+﻿using System.Threading.RateLimiting;
 
 namespace Spectra.API.Extensions;
 
@@ -19,8 +17,7 @@ public static class RateLimitingExtensions
                     Window = TimeSpan.FromMinutes(5) // change to 1h later
                 });
             });
-
-            // Налаштування відповіді при блокуванні
+            
             options.OnRejected = async (context, token) =>
             {
                 context.HttpContext.Response.StatusCode = 429;

@@ -24,15 +24,15 @@ namespace Spectra.Infrastructure.Services
             _logger = logger;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Analytics Worker started.");
 
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    var workItem = await _queue.DequeueAsync(stoppingToken);
+                    var workItem = await _queue.DequeueAsync(cancellationToken);
 
                     using var scope = _scopeFactory.CreateScope();
 
@@ -42,7 +42,8 @@ namespace Spectra.Infrastructure.Services
                         workItem.ShortCode,
                         workItem.IpAddress,
                         workItem.UserAgent,
-                        workItem.Referer
+                        workItem.Referer,
+                        cancellationToken
                     );
                 }
                 catch (OperationCanceledException)

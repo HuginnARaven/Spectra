@@ -7,34 +7,34 @@ namespace Spectra.Infrastructure.Queries;
 
 public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
 {
-    public async Task<UrlAnalyticsDto> GetUrlAnalyticsByIdAsync(string id, string userId)
+    public async Task<UrlAnalyticsDto> GetUrlAnalyticsByIdAsync(string id, string userId, CancellationToken cancellationToken = default)
     {
         var baseQuery = context.UrlVisits
             .Where(v => v.UrlId == Guid.Parse(id) && v.Url!.UserId == Guid.Parse(userId))
             .AsNoTracking()
             .AsQueryable();
         
-        var totalVisits = await baseQuery.CountAsync();
+        var totalVisits = await baseQuery.CountAsync(cancellationToken);
         
         var topCountries = await baseQuery
             .Where(c => c.Country != null)
             .GroupBy(v => v.Country)
             .Select(g => new CountryVisit{ Country = g.Key, Visits = g.Count() })
             .OrderByDescending(x => x.Visits)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         
         var deviceDistribution = await baseQuery
             .Where(x => x.DeviceType != null)
             .GroupBy(x => x.DeviceType)
             .Select(g => new DeviceVisit{ Device = g.Key, Visits = g.Count() })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         
         var last30DaysTask = baseQuery
             .Where(v => v.CreatedAt >= DateTime.UtcNow.AddDays(-30))
             .GroupBy(v => v.CreatedAt.Date)
             .Select(g => new DailyVisit { Date = g.Key, Visits = g.Count() })
             .OrderBy(v => v.Date)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         
         
         return new UrlAnalyticsDto
@@ -46,7 +46,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
         };
     }
 
-    public async Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId)
+    public async Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
         var thirtyDaysAgo = now.AddDays(-30);
@@ -64,7 +64,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
                 CurrentVisits = gv.Count(v => v.CreatedAt >= thirtyDaysAgo),
                 PreviousVisits = gv.Count(v => v.CreatedAt < thirtyDaysAgo)
             })
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
         
         var referrerStats = await baseQuery
             .GroupBy(v => string.IsNullOrEmpty(v.Referrer) ? "Direct" : v.Referrer)
@@ -76,7 +76,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
             })
             .OrderByDescending(x => x.CurrentVisits)
             .Take(5)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var deviceStats = await baseQuery
             .GroupBy(v => string.IsNullOrEmpty(v.DeviceType) ? "Unknown" : v.DeviceType)
@@ -88,7 +88,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
             })
             .OrderByDescending(x => x.CurrentVisits)
             .Take(5)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         
         var countriesStats = await baseQuery
             .GroupBy(v => string.IsNullOrEmpty(v.Country) ? "Unknown" : v.Country)
@@ -100,7 +100,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
             })
             .OrderByDescending(x => x.CurrentVisits)
             .Take(5)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         
         var visitsResult = visitsStats ?? new { CurrentVisits = 0, PreviousVisits = 0 };
         
@@ -132,7 +132,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
         };
     }
 
-    public async Task<IEnumerable<DevicesVisitsByDayDto>> GetDevicesVisitsByDaysAsync(string userId)
+    public async Task<IReadOnlyCollection<DevicesVisitsByDayDto>> GetDevicesVisitsByDaysAsync(string userId, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
         var thirtyDaysAgo = now.AddDays(-30);
@@ -149,7 +149,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
                 DeviceType = gv.Key.DeviceType,
                 Date = gv.Key.Date,
                 Visits = gv.Count()
-            }).ToListAsync();
+            }).ToListAsync(cancellationToken);
 
         return rawData
             .GroupBy(d => d.Date)
@@ -161,7 +161,8 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
                     Device = d.DeviceType, 
                     Visits = d.Visits 
                 }).ToList() 
-            });
+            })
+            .ToList();
     }
 
     private double CalculateTrendPercentage(int current30DaysVisits, int previous30DaysVisits)

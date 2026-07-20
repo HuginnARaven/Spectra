@@ -7,7 +7,7 @@ namespace Spectra.Application.Interfaces
 {
     public interface IAccountService
     {
-        Task<ProfileRsponse> GetUserAsync(string userId);
+        Task<ProfileRsponse> GetUserAsync(string userId, CancellationToken cancellationToken = default);
         Task EditUserAsync(string userId, ProfileRequest request);
         Task ChangePasswordAsync(string userId, ChangePasswordRequest request);
     }

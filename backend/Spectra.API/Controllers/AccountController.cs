@@ -14,10 +14,10 @@ namespace Spectra.API.Controllers
     public class AccountController(IAccountService accountService) : ControllerBase
     {
         [HttpGet("profile")]
-        public async Task<IActionResult> GetProfile()
+        public async Task<ActionResult<ProfileRsponse>> GetProfile(CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
-            var userProfile = await accountService.GetUserAsync(currentUserId);
+            var userProfile = await accountService.GetUserAsync(currentUserId, cancellationToken);
 
             return Ok(userProfile);
         }

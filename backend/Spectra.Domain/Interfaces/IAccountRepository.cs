@@ -7,7 +7,7 @@ namespace Spectra.Domain.Interfaces
 {
     public interface IAccountRepository
     {
-        Task<User?> getUserAsync(string userId);
-        Task updateUserAsync(User user);
+        Task<User?> GetUserAsync(string userId, CancellationToken cancellationToken = default);
+        Task UpdateUserAsync(User user);
     }
 }

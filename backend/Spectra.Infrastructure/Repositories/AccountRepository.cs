@@ -10,15 +10,15 @@ namespace Spectra.Infrastructure.Repositories
 {
     public class AccountRepository(AppDbContext context) : IAccountRepository
     {
-        public async Task updateUserAsync(User user)
+        public async Task UpdateUserAsync(User user)
         {
             context.Entry(user).State = EntityState.Modified;
             await context.SaveChangesAsync();
         }
 
-        public async Task<User?> getUserAsync(string userId)
+        public async Task<User?> GetUserAsync(string userId, CancellationToken cancellationToken = default)
         {
-            return await context.Users.FindAsync(Guid.Parse(userId));
+            return await context.Users.FindAsync([Guid.Parse(userId)], cancellationToken);
         }
     }
 }

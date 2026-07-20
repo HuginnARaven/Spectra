@@ -11,7 +11,7 @@ namespace Spectra.API.Controllers
     public class AuthController(IIdentityService identityService) : ControllerBase
     {
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
         {
             var result = await identityService.RegisterAsync(request);
 
@@ -19,7 +19,7 @@ namespace Spectra.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
         {
             var result = await identityService.LoginAsync(request);
 
@@ -27,7 +27,7 @@ namespace Spectra.API.Controllers
         }
 
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        public async Task<ActionResult<RefreshTokenResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             var result = await identityService.RefreshTokenAsync(request);
 

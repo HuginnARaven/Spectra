@@ -11,9 +11,9 @@ namespace Spectra.Application.Services
 {
     public class AccountService(IAccountRepository accountRepository, UserManager<User> userManager) : IAccountService
     {
-        public async Task<ProfileRsponse> GetUserAsync(string userId)
+        public async Task<ProfileRsponse> GetUserAsync(string userId, CancellationToken cancellationToken = default)
         {
-            var user = await accountRepository.getUserAsync(userId);
+            var user = await accountRepository.GetUserAsync(userId, cancellationToken);
             if (user == null) 
             {
                 throw new KeyNotFoundException($"User with id '{userId}' not found.");
@@ -33,7 +33,7 @@ namespace Spectra.Application.Services
 
         public async Task EditUserAsync(string userId, ProfileRequest request)
         {
-            var user = await accountRepository.getUserAsync(userId);
+            var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 throw new KeyNotFoundException($"User with id '{userId}' not found.");
@@ -50,10 +50,16 @@ namespace Spectra.Application.Services
             }
             
             user.DisplayName = request.DisplayName;
-            await userManager.SetUserNameAsync(user, request.Username);
-            await userManager.SetEmailAsync(user, request.Email);
-
-            await accountRepository.updateUserAsync(user);
+            user.UserName = request.Username; 
+            user.Email = request.Email;
+            
+            var result = await userManager.UpdateAsync(user);
+            
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to update user: {errors}");
+            }
         }
 
         public async Task ChangePasswordAsync(string userId, ChangePasswordRequest request)

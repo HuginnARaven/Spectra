@@ -9,9 +9,9 @@ using Spectra.Application.DTOs;
 
 namespace Spectra.Application.Services
 {
-    public class UrlAnalyticsService(IUrlRepository repository, IUserAgentParser uaParser, IGeoLocationService geoLocationService, IUrlAnalyticsQueries queries) : IUrlAnalyticsService
+    public class UrlAnalyticsService(IUrlRepository repository, IUserAgentParser uaParser, IGeoLocationService geoLocationService, IUrlAnalyticsQueries queries, IUrlCacheService cache) : IUrlAnalyticsService
     {
-        public async Task LogVisitAsync(string shortCode, string ipAddress, string? userAgent, string? referer)
+        public async Task LogVisitAsync(string shortCode, string ipAddress, string? userAgent, string? referer, CancellationToken cancellationToken = default)
         {
             var url = await repository.GetByCodeAsync(shortCode);
             if (url == null) return;
@@ -33,22 +33,43 @@ namespace Spectra.Application.Services
                 Referrer = referer
             };
 
-            await repository.AddVisitAsync(visit);
+            await repository.AddVisitAsync(visit, cancellationToken);
         }
 
-        public async Task<UrlAnalyticsDto> GetUrlAnalyticsAsync(string id, string userId)
+        public async Task<UrlAnalyticsDto> GetUrlAnalyticsAsync(string id, string userId, CancellationToken cancellationToken = default)
         {
-            return await queries.GetUrlAnalyticsByIdAsync(id, userId);
+            var urlAnalytics = await cache.GetUrlAnalyticsAsync(id);
+            if (urlAnalytics != null)
+                return urlAnalytics;
+
+            urlAnalytics = await queries.GetUrlAnalyticsByIdAsync(id, userId, cancellationToken);
+            await cache.SetUrlAnalyticsAsync(id, urlAnalytics);
+            
+            return urlAnalytics;
         }
         
-        public async Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId)
+        public async Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId, CancellationToken cancellationToken = default)
         {
-            return await queries.GetTrendAnalyticsAsync(userId);
+            var trendAnalytics = await cache.GetTrendAnalyticsAsync(userId);
+            if (trendAnalytics != null)
+                return trendAnalytics;
+            
+            trendAnalytics = await queries.GetTrendAnalyticsAsync(userId, cancellationToken);
+            await cache.SetTrendAnalyticsAsync(userId, trendAnalytics);
+            
+            return trendAnalytics;
         }
 
-        public Task<IEnumerable<DevicesVisitsByDayDto>> GetDevicesVisitsByDaysAsync(string userId)
+        public async Task<IReadOnlyCollection<DevicesVisitsByDayDto>> GetDevicesVisitsByDaysAsync(string userId, CancellationToken cancellationToken = default)
         {
-            return queries.GetDevicesVisitsByDaysAsync(userId);
+            var devicesVisitsByDays = await cache.GetDevicesVisitsByDaysAsync(userId);
+            if (devicesVisitsByDays != null)
+                return devicesVisitsByDays;
+            
+            devicesVisitsByDays = await queries.GetDevicesVisitsByDaysAsync(userId, cancellationToken);
+            await cache.SetDevicesVisitsByDaysAsync(userId, devicesVisitsByDays);
+            
+            return devicesVisitsByDays;
         }
     }
 }

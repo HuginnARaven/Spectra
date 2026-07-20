@@ -7,6 +7,7 @@ using Spectra.Application.Interfaces;
 using Spectra.Domain.Entities;
 using System.Security.Claims;
 using Microsoft.AspNetCore.RateLimiting;
+using Spectra.Application.Common;
 
 namespace Spectra.API.Controllers
 {
@@ -16,65 +17,65 @@ namespace Spectra.API.Controllers
     {
         [Authorize]
         [HttpPost("create-shorten-url")]
-        public async Task<IActionResult> CreateShortenUrl(CreateUrlRequest request)
+        public async Task<ActionResult<UrlResponse>> CreateShortenUrl(CreateUrlRequest request, CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
 
-            return Ok(await urlService.ShortenUrlAsync(request, currentUserId));
+            return Ok(await urlService.ShortenUrlAsync(request, currentUserId, $"{Request.Scheme}://{Request.Host}{Request.PathBase}", cancellationToken));
         }
 
         [Authorize]
         [HttpGet("get-shorten-urls")]
-        public async Task<IActionResult> GetUserUrls()
+        public async Task<ActionResult<IReadOnlyList<UrlDto>>> GetUserUrls(CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
 
-            return Ok(await urlService.GetUserUrlsAsync(currentUserId));
+            return Ok(await urlService.GetUserUrlsAsync(currentUserId, cancellationToken));
         }
 
         [Authorize]
         [HttpDelete("delete-shorten-url/{id}")]
-        public async Task<IActionResult> DeleteUrl(string id)
+        public async Task<IActionResult> DeleteUrl(string id, CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
 
-            await urlService.DeleteUrlsAsync(id, currentUserId);
+            await urlService.DeleteUrlsAsync(id, currentUserId, cancellationToken);
 
             return Ok();
         }
 
         [Authorize]
         [HttpGet("get-url-visits/{id}")]
-        public async Task<IActionResult> GetUrlVisits(string id, [FromQuery] PaginationRequest request)
+        public async Task<ActionResult<PaginatedResult<UrlVisitDto>>> GetUrlVisits(string id, [FromQuery] PaginationRequest request, CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
 
-            var result = await urlService.GetUrlVisitsAsync(id, currentUserId, request);
+            var result = await urlService.GetUrlVisitsAsync(id, currentUserId, request, cancellationToken);
 
             return Ok(result);
         }
         
         [Authorize]
         [HttpGet("get-all-visits")]
-        public async Task<IActionResult> GetAllVisits([FromQuery] PaginationRequest request)
+        public async Task<ActionResult<PaginatedResult<UrlVisitDto>>> GetAllVisits([FromQuery] PaginationRequest request, CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
 
-            var result = await urlService.GetAllVisitsAsync(currentUserId, request);
+            var result = await urlService.GetAllVisitsAsync(currentUserId, request, cancellationToken);
 
             return Ok(result);
         }
 
         [HttpGet]
         [Route("~/{code}")] // ~ -> to ingnore default route forming
-        public async Task<IActionResult> GetOriginalFromShortenUrl(string code)
+        public async Task<IActionResult> GetOriginalFromShortenUrl(string code, CancellationToken cancellationToken)
         {
             if (code == "favicon.ico" || code == "robots.txt")
             {
                 return NotFound();
             }
 
-            var originalUrl = await urlService.GetOriginalUrlAsync(code);
+            var originalUrl = await urlService.GetOriginalUrlAsync(code, cancellationToken);
 
             // check for temporary url
             if (originalUrl is ['t', '|', ..])
@@ -110,7 +111,7 @@ namespace Spectra.API.Controllers
         
         [Authorize]
         [HttpGet("get-url-analytics/{id}")]
-        public async Task<IActionResult> GetUrlAnalytics(string id)
+        public async Task<ActionResult<UrlAnalyticsDto>> GetUrlAnalytics(string id, CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
             var result = await analyticsService.GetUrlAnalyticsAsync(id, currentUserId);
@@ -118,7 +119,7 @@ namespace Spectra.API.Controllers
         }
         
         [Authorize]
-        [HttpGet("get-trend-analytics")]public async Task<IActionResult> GetTrendAnalytics()
+        [HttpGet("get-trend-analytics")]public async Task<ActionResult<TrendAnalyticsDto>> GetTrendAnalytics(CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
             var result = await analyticsService.GetTrendAnalyticsAsync(currentUserId);
@@ -127,7 +128,7 @@ namespace Spectra.API.Controllers
         
         [Authorize]
         [HttpGet("get-devices-visits-by-days")]
-        public async Task<IActionResult> GetDevicesVisitsByDays()
+        public async Task<ActionResult<IReadOnlyCollection<DevicesVisitsByDayDto>>> GetDevicesVisitsByDays(CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
             var result = await analyticsService.GetDevicesVisitsByDaysAsync(currentUserId);
@@ -136,9 +137,9 @@ namespace Spectra.API.Controllers
         
         [HttpPost("create-temporary-url")]
         [EnableRateLimiting("AnonymousUrlCreation")]
-        public async Task<IActionResult> CreateTemporaryUrl(CreateUrlRequest request)
+        public async Task<ActionResult<string>> CreateTemporaryUrl(CreateUrlRequest request, CancellationToken cancellationToken)
         {
-            return Ok(await urlService.TemporarilyShortenUrlAsync(request));
+            return Ok(await urlService.TemporarilyShortenUrlAsync(request, $"{Request.Scheme}://{Request.Host}{Request.PathBase}", cancellationToken));
         }
     }
 }
