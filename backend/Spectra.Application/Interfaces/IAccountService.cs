@@ -10,5 +10,6 @@ namespace Spectra.Application.Interfaces
         Task<ProfileRsponse> GetUserAsync(string userId, CancellationToken cancellationToken = default);
         Task EditUserAsync(string userId, ProfileRequest request);
         Task ChangePasswordAsync(string userId, ChangePasswordRequest request);
+        Task SetPasswordAsync(string userId, SetPasswordRequest request);
     }
 }

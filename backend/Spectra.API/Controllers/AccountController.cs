@@ -41,5 +41,15 @@ namespace Spectra.API.Controllers
 
             return Ok(new { message = "Password changed successfully" });
         }
+
+        [HttpPost("set-password")]
+        public async Task<IActionResult> SetPassword([FromBody] SetPasswordRequest request)
+        {
+            var currentUserId = User.GetUserId();
+
+            await accountService.SetPasswordAsync(currentUserId, request);
+
+            return Ok();
+        }
     }
 }

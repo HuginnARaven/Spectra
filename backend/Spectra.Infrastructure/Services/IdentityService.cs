@@ -6,11 +6,12 @@ using Spectra.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Spectra.Infrastructure.Services
 {
-    public class IdentityService(UserManager<User> userManager, IJwtTokenGenerator jwtTokenGenerator) : IIdentityService
+    public class IdentityService(UserManager<User> userManager, IJwtTokenGenerator jwtTokenGenerator, IExternalAuthService externalAuthService, IUrlGenerator urlGenerator) : IIdentityService
     {
         public async Task<AuthResponse> LoginAsync(LoginRequest request)
         {
@@ -48,6 +49,37 @@ namespace Spectra.Infrastructure.Services
             };
         }
 
+        public async Task<AuthResponse> LoginWithGoogleAsync(string code)
+        {
+            var userData = await externalAuthService.GetGoogleUserDataByCodeAsync(code);
+            var user = await userManager.FindByLoginAsync("Google", userData.Subject);
+            if (user == null)
+            {
+                user = await userManager.FindByEmailAsync(userData.Email);
+                if (user == null)
+                {
+                    user = new User
+                    {
+                        Email = userData.Email,
+                        UserName = $"{userData.Name.Replace(" ", "_")}_{urlGenerator.GenerateUniqueCode()}",
+                        DisplayName = userData.Name,
+                        SecurityStamp = Guid.NewGuid().ToString()
+                    };
+                    
+                    var result = await userManager.CreateAsync(user);
+
+                    if (!result.Succeeded)
+                    {
+                        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                        throw new ArgumentException($"{errors}");
+                    }
+                }
+                await userManager.AddLoginAsync(user, new UserLoginInfo("Google", userData.Subject, "Google"));
+            }
+
+            return await GenerateAuthResponseAsync(user);
+        }
+
         public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
         {
             var existingUser = await userManager.FindByEmailAsync(request.Email);
@@ -72,26 +104,7 @@ namespace Spectra.Infrastructure.Services
                 throw new ArgumentException($"{errors}");
             }
 
-            var token = jwtTokenGenerator.GenerateToken(user);
-            var refreshToken = jwtTokenGenerator.GenerateRefreshToken();
-
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-            await userManager.UpdateAsync(user);
-
-            return new AuthResponse
-            {
-                User = new ProfileRsponse()
-                {
-                    Id = user.Id.ToString(),
-                    Email = user.Email,
-                    Username = user.UserName,
-                    DisplayName = user.DisplayName,
-                    CreatedAt = user.CreatedAt
-                },
-                Token = token,
-                RefreshToken = refreshToken
-            };
+            return await GenerateAuthResponseAsync(user);
         }
 
         public async Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request)
@@ -123,6 +136,30 @@ namespace Spectra.Infrastructure.Services
             {
                 Token = newAccessToken,
                 RefreshToken = newRefreshToken
+            };
+        }
+
+        private async Task<AuthResponse> GenerateAuthResponseAsync(User user)
+        {
+            var token = jwtTokenGenerator.GenerateToken(user);
+            var refreshToken = jwtTokenGenerator.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await userManager.UpdateAsync(user);
+
+            return new AuthResponse
+            {
+                User = new ProfileRsponse()
+                {
+                    Id = user.Id.ToString(),
+                    Email = user.Email,
+                    Username = user.UserName,
+                    DisplayName = user.DisplayName,
+                    CreatedAt = user.CreatedAt
+                },
+                Token = token,
+                RefreshToken = refreshToken
             };
         }
     }

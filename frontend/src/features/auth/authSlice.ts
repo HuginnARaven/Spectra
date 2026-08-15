@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import type { LoginRequest, RegisterRequest } from './types';
+import type {GoogleAuthRequest, LoginRequest, RegisterRequest} from './types';
 import authApi from './authApi';
 import {loadUser} from "@/features/account/accountSlice.ts";
 
@@ -28,6 +28,23 @@ export const loginUser = createAsyncThunk(
             localStorage.setItem('accessToken', response.token);
             localStorage.setItem('refreshToken', response.refreshToken);
             
+            return response;
+        }
+        catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Login failed');
+        }
+    }
+);
+
+export const loginUserViaGoogle = createAsyncThunk(
+    'auth/google-login',
+    async (data: GoogleAuthRequest, { rejectWithValue }) => {
+        try {
+            const response = await authApi.loginViaGoogle(data);
+
+            localStorage.setItem('accessToken', response.token); 
+            localStorage.setItem('refreshToken', response.refreshToken);
+
             return response;
         }
         catch (error: any) {
@@ -80,6 +97,22 @@ const authSlice = createSlice({
                 state.token = action.payload.token;
             })
             .addCase(loginUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = false;
+                state.error = action.payload as string;
+            })
+
+            // Google Login
+            .addCase(loginUserViaGoogle.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(loginUserViaGoogle.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = true;
+                state.token = action.payload.token;
+            })
+            .addCase(loginUserViaGoogle.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
                 state.error = action.payload as string;

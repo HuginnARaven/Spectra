@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Spectra.Domain.Exceptions;
 
 namespace Spectra.API.Middleware
 {
@@ -42,6 +43,14 @@ namespace Spectra.API.Middleware
                         response.Status = (int)HttpStatusCode.BadRequest;
                         response.Message = e.Message;
                         break;
+                    
+                    case ExternalServiceException externalServiceException:
+                        logger.LogError(externalServiceException, "External service error occurred in {ServiceName} with status code {StatusCode}.\n {InnerMessage}", externalServiceException.ServiceName, externalServiceException.StatusCode, externalServiceException.InnerMessage);
+                        httpContext.Response.StatusCode = externalServiceException.StatusCode ?? (int)HttpStatusCode.ServiceUnavailable;
+                        response.Status = externalServiceException.StatusCode ?? (int)HttpStatusCode.ServiceUnavailable;
+                        response.Message = externalServiceException.Message;
+                        break;
+
 
                     default:
                         logger.LogError(e, "An unexpected error occurred.");

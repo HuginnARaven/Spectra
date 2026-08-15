@@ -78,5 +78,22 @@ namespace Spectra.Application.Services
                 throw new ArgumentException($"Password change failed: {errors}");
             }
         }
+
+        public async Task SetPasswordAsync(string userId, SetPasswordRequest request)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"User with id '{userId}' not found.");
+            }
+
+            var result = await userManager.AddPasswordAsync(user, request.Password);
+    
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new ArgumentException($"Password set failed: {errors}");
+            }
+        }
     }
 }

@@ -33,5 +33,13 @@ namespace Spectra.API.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost("google-login")]
+        public async Task<ActionResult<AuthResponse>> GoogleLogin([FromBody] GoogleAuthRequest request)
+        {
+            var result = await identityService.LoginWithGoogleAsync(request.Code);
+            
+            return Ok(result);
+        }
     }
 }

@@ -1,5 +1,5 @@
 import agent from '@/api/agent';
-import type { LoginRequest, RegisterRequest, AuthResponse, User } from './types';
+import type {LoginRequest, RegisterRequest, AuthResponse, User, GoogleAuthRequest} from './types';
 
 const authApi = {
     login: async (data: LoginRequest) => {
@@ -15,6 +15,11 @@ const authApi = {
     getCurrentUser: async () => {
         const response = await agent.get<User>(`/account/profile`);
         return response.data;
+    },
+    
+   loginViaGoogle: async (data: GoogleAuthRequest) => {
+       const response = await agent.post<AuthResponse>('/auth/google-login', data);
+       return response.data;
     }
 };
 

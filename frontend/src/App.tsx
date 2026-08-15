@@ -9,10 +9,12 @@ import {Toaster} from "@/components/ui/sonner.tsx";
 import AuthLayout from "@/layouts/auth-layout.tsx";
 import {LoginForm} from "@/features/auth/components/login-form.tsx";
 import {RegisterForm} from "@/features/auth/components/register-form.tsx";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
     return (
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
         <div className="min-h-screen bg-background text-foreground">
             <Routes>
                 <Route path="/" element={<SidebarLayout />}>
@@ -29,6 +31,7 @@ function App() {
             </Routes>
             <Toaster />
         </div>
+        </GoogleOAuthProvider>
     );
 }
 

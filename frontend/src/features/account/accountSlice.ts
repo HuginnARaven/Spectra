@@ -1,5 +1,5 @@
 ﻿import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import type {ChangePasswordRequest, ProfileRequest, User,} from './types';
+import type {ChangePasswordRequest, ProfileRequest, SetPasswordRequest, User,} from './types';
 import accountApi from './accountApi';
 import {loginUser, logout, registerUser} from "@/features/auth/authSlice.ts";
 
@@ -52,6 +52,18 @@ export const changePassword = createAsyncThunk(
     }
 );
 
+export const setPassword = createAsyncThunk(
+    'account/setPassword',
+    async (data: SetPasswordRequest, {rejectWithValue}) => {
+        try {
+            await accountApi.setPassword(data);
+            return;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.Message || 'Failed to set password');
+        }
+    }
+);
+
 const accountSlice = createSlice({
     name: 'account',
     initialState,
@@ -98,6 +110,18 @@ const accountSlice = createSlice({
                 state.isLoading = false;
             })
             .addCase(changePassword.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+
+            .addCase(setPassword.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(setPassword.fulfilled, (state) => {
+                state.isLoading = false;
+            })
+            .addCase(setPassword.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
             })

@@ -1,5 +1,5 @@
 import agent from '@/api/agent';
-import type {ProfileRequest, User, ChangePasswordRequest} from './types';
+import type {ProfileRequest, User, ChangePasswordRequest, SetPasswordRequest} from './types';
 
 const accountApi = {
     getCurrentUser: async () => {
@@ -12,6 +12,10 @@ const accountApi = {
     },
     changePassword: async (data: ChangePasswordRequest) => {
         const response = await agent.post(`/account/change-password`, data);
+        return response.data;
+    },
+    setPassword: async (data: SetPasswordRequest)=> {
+        const response = await agent.post(`/account/set-password`, data);
         return response.data;
     }
 };

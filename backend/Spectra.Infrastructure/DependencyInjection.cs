@@ -14,8 +14,8 @@ using Spectra.Infrastructure.Repositories;
 using Spectra.Infrastructure.Services;
 using Spectra.Infrastructure.Services.Utilities;
 using StackExchange.Redis;
-using System.Reflection;
 using System.Text;
+using Spectra.Application.DTOs;
 using Spectra.Infrastructure.Queries;
 
 namespace Spectra.Infrastructure
@@ -33,7 +33,7 @@ namespace Spectra.Infrastructure
             var redisConnectionString = configuration.GetConnectionString("Redis");
             services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisConnectionString));
             services.AddScoped<IUrlCacheService, RedisUrlCacheService>();
-
+            
             services.AddIdentityCore<User>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -65,6 +65,8 @@ namespace Spectra.Infrastructure
                     };
                 });
 
+            services.AddHttpClient();
+
             services.AddSingleton<IJwtTokenGenerator, JwtTokenGeneratorService>();
             services.AddScoped<IIdentityService, IdentityService>();
 
@@ -79,7 +81,11 @@ namespace Spectra.Infrastructure
             services.AddSingleton<IUrlGenerator, RandomUrlGenerator>();
 
             services.AddScoped<IUrlAnalyticsQueries, UrlAnalyticsQueries>();
-
+            
+            services.AddScoped<IExternalAuthService, ExternalAuthService>();
+            
+            services.Configure<GoogleAuthSettings>(configuration.GetSection("GoogleAuth"));
+            
             return services;
         }
     }
