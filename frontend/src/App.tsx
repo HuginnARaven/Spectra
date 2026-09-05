@@ -10,6 +10,7 @@ import AuthLayout from "@/layouts/auth-layout.tsx";
 import {LoginForm} from "@/features/auth/components/login-form.tsx";
 import {RegisterForm} from "@/features/auth/components/register-form.tsx";
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import EmailVerificationPage from "@/pages/EmailVerificationPage.tsx";
 
 function App() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -17,6 +18,7 @@ function App() {
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
         <div className="min-h-screen bg-background text-foreground">
             <Routes>
+                <Route path="/verify-email" element={<EmailVerificationPage />} />
                 <Route path="/" element={<SidebarLayout />}>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/auth" element={isAuthenticated ? <Navigate to="/" replace /> : <AuthLayout/>}>

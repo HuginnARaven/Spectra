@@ -30,6 +30,10 @@ import {Spinner} from "@/components/ui/spinner.tsx";
 import {Alert, AlertDescription} from "@/components/ui/alert.tsx";
 import {PasswordChangeForm} from "@/features/account/components/password-change-from.tsx";
 import {PasswordSetForm} from "@/features/account/components/password-set-from.tsx";
+import {ButtonGroup} from "@/components/ui/button-group.tsx";
+import {InputGroup, InputGroupAddon, InputGroupInput} from "@/components/ui/input-group.tsx";
+import {BadgeCheck, BadgeAlert} from "lucide-react";
+import accountApi from "@/features/account/accountApi.ts";
 
 const profileFormSchema = z.object({
     username: z
@@ -48,7 +52,7 @@ export function AccountEditForm(props: { isOpen: boolean, setOpen: (value: boole
     const dispatch = useAppDispatch();
     const { user, isLoading, error } = useAppSelector((state) => state.account);
     const [passwordFromState, changePasswordFromState] = useState<"change" | "set">("change");
-
+    
     const profileForm = useForm<z.infer<typeof profileFormSchema>>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
@@ -71,6 +75,18 @@ export function AccountEditForm(props: { isOpen: boolean, setOpen: (value: boole
         } catch (err) {
             console.error("Profile edit failed:", err);
             toast.error(err as string);
+        }
+    }
+
+    async function handleEmailVerificationButtonClick(e: React.MouseEvent<HTMLButtonElement>) {
+        e.preventDefault()
+        try {
+            await accountApi.sendEmailVerificationLetter();
+            toast.success("Email sent successfully. Check your inbox.");
+        } catch (error: unknown) {
+            toast.error(`Error sending email verification Letter: ${error}`);
+        } finally {
+            props.setOpen(false);
         }
     }
 
@@ -135,13 +151,31 @@ export function AccountEditForm(props: { isOpen: boolean, setOpen: (value: boole
                                                 <FieldLabel htmlFor="email">
                                                     Email
                                                 </FieldLabel>
-                                                <Input
-                                                    {...field}
-                                                    id="email"
-                                                    aria-invalid={fieldState.invalid}
-                                                    placeholder="Enter your email"
-                                                    required
-                                                />
+                                                <ButtonGroup>
+                                                    <InputGroup>
+                                                        <InputGroupInput
+                                                            {...field}
+                                                            id="email"
+                                                            aria-invalid={fieldState.invalid}
+                                                            placeholder="Enter your email"
+                                                            required
+                                                        />
+                                                        <InputGroupAddon align="inline-end" color="green" hidden={!user!.emailConfirmed || fieldState.isDirty}>
+                                                            <div className="text-green-700  dark:text-green-300">
+                                                                Verified
+                                                            </div>
+                                                            <BadgeCheck color="green"/>
+                                                        </InputGroupAddon>
+                                                    </InputGroup>
+                                                    {!user!.emailConfirmed && !fieldState.isDirty ? 
+                                                        <Button 
+                                                            variant="outline" 
+                                                            onClick={handleEmailVerificationButtonClick}>
+                                                            Verify 
+                                                            <BadgeAlert/>
+                                                        </Button> 
+                                                        : null}
+                                                </ButtonGroup>
                                                 <FieldDescription>
                                                     We'll never share your email with anyone else.
                                                 </FieldDescription>

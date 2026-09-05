@@ -84,7 +84,11 @@ namespace Spectra.Infrastructure
             
             services.AddScoped<IExternalAuthService, ExternalAuthService>();
             
+            services.AddScoped<IEmailService, EmailService>();
+            
             services.Configure<GoogleAuthSettings>(configuration.GetSection("GoogleAuth"));
+            services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+            services.Configure<FrontendSettings>(configuration.GetSection("FrontendSettings"));
             
             return services;
         }

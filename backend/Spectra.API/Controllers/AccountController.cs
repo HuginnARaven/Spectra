@@ -5,6 +5,7 @@ using Spectra.API.Extensions;
 using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace Spectra.API.Controllers
 {
@@ -49,6 +50,22 @@ namespace Spectra.API.Controllers
 
             await accountService.SetPasswordAsync(currentUserId, request);
 
+            return Ok();
+        }
+
+        [HttpPost("confirm-email")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ConfirmEmailResponse>> ConfirmEmail([FromBody] ConfirmEmailRequest request)
+        {
+            return Ok(await accountService.ConfirmEmailAsync(request));
+        }
+        
+        [HttpPost("send-email-verification-letter")]
+        public async Task<IActionResult> SendEmailVerificationLetter()
+        {
+            var currentUserId = User.GetUserId();
+            await accountService.SendEmailVerificationLetterAsync(currentUserId);
+            
             return Ok();
         }
     }

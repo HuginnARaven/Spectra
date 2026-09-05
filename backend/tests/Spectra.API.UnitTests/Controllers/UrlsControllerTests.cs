@@ -55,7 +55,7 @@ public class UrlsControllerTests
         
         var redirectResult = result as RedirectResult;
         redirectResult.Should().NotBeNull();
-        redirectResult.Url.Should().Be(expectedOriginalUrl);
+        redirectResult!.Url.Should().Be(expectedOriginalUrl);
         
         _backgroundAnalyticsQueue.Verify(x => x.QueueBackgroundWorkItemAsync(
             It.Is<VisitLogDto>(dto =>

@@ -93,6 +93,9 @@ const accountSlice = createSlice({
             })
             .addCase(editUser.fulfilled, (state, action) => {
                 state.isLoading = false;
+                if (state.user!.email !== action.payload.email) {
+                    state.user!.emailConfirmed = false;
+                }
                 state.user!.email = action.payload.email;
                 state.user!.username = action.payload.username;
                 state.user!.displayName = action.payload.displayName;

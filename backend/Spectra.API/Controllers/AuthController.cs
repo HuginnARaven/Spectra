@@ -41,5 +41,11 @@ namespace Spectra.API.Controllers
             
             return Ok(result);
         }
+        
+        [HttpPost("send-forgot-password-letter")]
+        public async Task<ActionResult<ConfirmEmailResponse>> SendForgotPasswordLetter()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

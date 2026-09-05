@@ -8,10 +8,11 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace Spectra.Infrastructure.Services
 {
-    public class IdentityService(UserManager<User> userManager, IJwtTokenGenerator jwtTokenGenerator, IExternalAuthService externalAuthService, IUrlGenerator urlGenerator) : IIdentityService
+    public class IdentityService(UserManager<User> userManager, IJwtTokenGenerator jwtTokenGenerator, IExternalAuthService externalAuthService, IUrlGenerator urlGenerator, IEmailService emailService, IOptions<FrontendSettings> frontendSettings) : IIdentityService
     {
         public async Task<AuthResponse> LoginAsync(LoginRequest request)
         {
@@ -42,6 +43,7 @@ namespace Spectra.Infrastructure.Services
                     Email = user.Email,
                     Username = user.UserName,
                     DisplayName = user.DisplayName,
+                    EmailConfirmed =  user.EmailConfirmed,
                     CreatedAt = user.CreatedAt
                 },
                 Token = token,
@@ -63,7 +65,8 @@ namespace Spectra.Infrastructure.Services
                         Email = userData.Email,
                         UserName = $"{userData.Name.Replace(" ", "_")}_{urlGenerator.GenerateUniqueCode()}",
                         DisplayName = userData.Name,
-                        SecurityStamp = Guid.NewGuid().ToString()
+                        SecurityStamp = Guid.NewGuid().ToString(),
+                        EmailConfirmed = true
                     };
                     
                     var result = await userManager.CreateAsync(user);
@@ -156,6 +159,7 @@ namespace Spectra.Infrastructure.Services
                     Email = user.Email,
                     Username = user.UserName,
                     DisplayName = user.DisplayName,
+                    EmailConfirmed =  user.EmailConfirmed,
                     CreatedAt = user.CreatedAt
                 },
                 Token = token,

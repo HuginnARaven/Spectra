@@ -15,6 +15,10 @@ services:
       - ConnectionStrings__Redis=${ConnectionStrings__Redis}
       - GoogleAuth__ClientId=${GoogleAuth__ClientId}
       - GoogleAuth__ClientSecret=${GoogleAuth__ClientSecret}
+      - EmailSettings__Username=${EmailSettings__Username}
+      - EmailSettings__Password=${EmailSettings__Password}
+      - EmailSettings__SmtpServer=${EmailSettings__SmtpServer}
+      - EmailSettings__Port=${EmailSettings__Port}
     depends_on:
       - spectra-db
       - spectra-redis

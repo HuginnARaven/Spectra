@@ -17,7 +17,11 @@ const accountApi = {
     setPassword: async (data: SetPasswordRequest)=> {
         const response = await agent.post(`/account/set-password`, data);
         return response.data;
-    }
+    },
+    sendEmailVerificationLetter: async ()=> {
+        const response = await agent.post(`/account/send-email-verification-letter`);
+        return response.data;
+    },
 };
 
 export default accountApi;

@@ -3,6 +3,7 @@ export interface User {
     email: string;
     username: string;
     displayName: string;
+    emailConfirmed: boolean;
     createdAt: string;
 }
 
