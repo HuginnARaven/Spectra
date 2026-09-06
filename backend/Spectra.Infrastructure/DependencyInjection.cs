@@ -88,7 +88,6 @@ namespace Spectra.Infrastructure
             
             services.Configure<GoogleAuthSettings>(configuration.GetSection("GoogleAuth"));
             services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-            services.Configure<FrontendSettings>(configuration.GetSection("FrontendSettings"));
             
             return services;
         }

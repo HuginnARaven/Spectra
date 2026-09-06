@@ -1,70 +1,90 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.Extensions.Options;
 
 namespace Spectra.Infrastructure.Services
 {
-    public class IdentityService(UserManager<User> userManager, IJwtTokenGenerator jwtTokenGenerator, IExternalAuthService externalAuthService, IUrlGenerator urlGenerator, IEmailService emailService, IOptions<FrontendSettings> frontendSettings) : IIdentityService
+    public class IdentityService(UserManager<User> userManager, IUrlGenerator urlGenerator) : IIdentityService
     {
-        public async Task<AuthResponse> LoginAsync(LoginRequest request)
+        public async Task<User?> GetUserWithCredentialsAsync(string email, string password)
         {
-            var user = await userManager.FindByEmailAsync(request.Email);
+            var user = await userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                throw new UnauthorizedAccessException("Invalid credentials.");
+                return null;
             }
 
-            var isPasswordValid = await userManager.CheckPasswordAsync(user, request.Password);
+            var isPasswordValid = await userManager.CheckPasswordAsync(user, password);
             if (!isPasswordValid)
             {
-                throw new UnauthorizedAccessException("Invalid credentials.");
+                return null;
             }
 
-            var token = jwtTokenGenerator.GenerateToken(user);
-            var refreshToken = jwtTokenGenerator.GenerateRefreshToken();
-
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-            await userManager.UpdateAsync(user);
-
-            return new AuthResponse
-            {
-                User = new ProfileRsponse()
-                {
-                    Id = user.Id.ToString(),
-                    Email = user.Email,
-                    Username = user.UserName,
-                    DisplayName = user.DisplayName,
-                    EmailConfirmed =  user.EmailConfirmed,
-                    CreatedAt = user.CreatedAt
-                },
-                Token = token,
-                RefreshToken = refreshToken
-            };
+            return user;
         }
 
-        public async Task<AuthResponse> LoginWithGoogleAsync(string code)
+        public async Task<User?> GetUserByIdAsync(string userId)
         {
-            var userData = await externalAuthService.GetGoogleUserDataByCodeAsync(code);
-            var user = await userManager.FindByLoginAsync("Google", userData.Subject);
+            return await userManager.FindByIdAsync(userId);
+        }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<User?> GetUserByUsernameAsync(string username)
+        {
+            return await userManager.FindByNameAsync(username);
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            var result = await userManager.UpdateAsync(user);
+            
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to update user: {errors}");
+            }
+        }
+
+        public async Task ChangePasswordAsync(User user, string currentPassword, string newPassword)
+        {
+            var result = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new ArgumentException($"Password change failed: {errors}");
+            }
+        }
+
+        public async Task AddPasswordAsync(User user, string password)
+        {
+            var result = await userManager.AddPasswordAsync(user, password);
+    
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new ArgumentException($"Password set failed: {errors}");
+            }
+        }
+
+        public async Task<User> LoginWithExternalProviderAsync(string provider, string providerSubject, string email, string name)
+        {
+            var user = await userManager.FindByLoginAsync(provider, providerSubject);
             if (user == null)
             {
-                user = await userManager.FindByEmailAsync(userData.Email);
+                user = await userManager.FindByEmailAsync(email);
                 if (user == null)
                 {
                     user = new User
                     {
-                        Email = userData.Email,
-                        UserName = $"{userData.Name.Replace(" ", "_")}_{urlGenerator.GenerateUniqueCode()}",
-                        DisplayName = userData.Name,
+                        Email = email,
+                        UserName = $"{name.Replace(" ", "_")}_{urlGenerator.GenerateUniqueCode()}",
+                        DisplayName = name,
                         SecurityStamp = Guid.NewGuid().ToString(),
                         EmailConfirmed = true
                     };
@@ -77,94 +97,58 @@ namespace Spectra.Infrastructure.Services
                         throw new ArgumentException($"{errors}");
                     }
                 }
-                await userManager.AddLoginAsync(user, new UserLoginInfo("Google", userData.Subject, "Google"));
+                await userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerSubject, provider));
             }
 
-            return await GenerateAuthResponseAsync(user);
+            return user;
         }
 
-        public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
+        public async Task<string> CreateEmailConfirmationTokenAsync(User user)
         {
-            var existingUser = await userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
+            if (string.IsNullOrEmpty(user.Email))
             {
-                throw new InvalidOperationException("User with this email already exists.");
+                throw new KeyNotFoundException("User must have an email.");
             }
+            
+            return await userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
 
-            var user = new User
-            {
-                Email = request.Email,
-                UserName = request.Username,
-                DisplayName = request.Username,
-                SecurityStamp = Guid.NewGuid().ToString()
-            };
+        public async Task<string> CreatePasswordResetTokenAsync(User user)
+        {
+            return await userManager.GeneratePasswordResetTokenAsync(user);
+        }
 
-            var result = await userManager.CreateAsync(user, request.Password);
+        public async Task ConfirmEmailAsync(User user, string token)
+        {
+            var result = await userManager.ConfirmEmailAsync(user, token);
 
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new ArgumentException($"{errors}");
+                throw new InvalidOperationException($"Failed to confirm email: {errors}");
             }
-
-            return await GenerateAuthResponseAsync(user);
         }
 
-        public async Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request)
+        public async Task ResetPasswordAsync(User user, string token, string newPassword)
         {
-            var principal = jwtTokenGenerator.GetPrincipalFromExpiredToken(request.Token);
-            var userId = principal.Claims.FirstOrDefault(c => 
-                c.Type == ClaimTypes.NameIdentifier || 
-                c.Type == System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
-            
-            if (userId == null) throw new ArgumentException("Invalid access token");
+            var result = await userManager.ResetPasswordAsync(user, token, newPassword);
 
-            var user = await userManager.FindByIdAsync(userId);
-            if (user == null) throw new KeyNotFoundException("User not found");
-
-            if (user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            if (!result.Succeeded)
             {
-                throw new InvalidOperationException("Invalid or expired refresh token");
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to reset password: {errors}");
             }
-
-            var newAccessToken = jwtTokenGenerator.GenerateToken(user);
-            var newRefreshToken = jwtTokenGenerator.GenerateRefreshToken();
-
-            user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-
-            await userManager.UpdateAsync(user);
-
-            return new RefreshTokenResponse
-            {
-                Token = newAccessToken,
-                RefreshToken = newRefreshToken
-            };
         }
 
-        private async Task<AuthResponse> GenerateAuthResponseAsync(User user)
+        public async Task CreateUserAsync(User user, string password)
         {
-            var token = jwtTokenGenerator.GenerateToken(user);
-            var refreshToken = jwtTokenGenerator.GenerateRefreshToken();
+            var result = await userManager.CreateAsync(user, password);
 
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-            await userManager.UpdateAsync(user);
-
-            return new AuthResponse
+            if (!result.Succeeded)
             {
-                User = new ProfileRsponse()
-                {
-                    Id = user.Id.ToString(),
-                    Email = user.Email,
-                    Username = user.UserName,
-                    DisplayName = user.DisplayName,
-                    EmailConfirmed =  user.EmailConfirmed,
-                    CreatedAt = user.CreatedAt
-                },
-                Token = token,
-                RefreshToken = refreshToken
-            };
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new ArgumentException($"User creation failed {errors}");
+            }
         }
     }
 }

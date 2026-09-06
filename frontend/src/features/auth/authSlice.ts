@@ -70,6 +70,19 @@ export const registerUser = createAsyncThunk(
     }
 );
 
+export const sendForgotPassword = createAsyncThunk(
+    'auth/sendEmailVerification',
+    async (email: string, {rejectWithValue}) => {
+        try {
+            await authApi.sendForgotPasswordLetter(email);
+            return;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.Message || 'Failed to send email');
+        }
+    }
+);
+
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -129,6 +142,18 @@ const authSlice = createSlice({
                 state.token = action.payload.token;
             })
             .addCase(registerUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+
+            .addCase(sendForgotPassword.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(sendForgotPassword.fulfilled, (state) => {
+                state.isLoading = false;
+            })
+            .addCase(sendForgotPassword.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
             })

@@ -19,6 +19,7 @@
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".env" />
+    <File Path=".gitattributes" />
     <File Path=".gitignore" />
     <File Path="README.md" />
   </Folder>

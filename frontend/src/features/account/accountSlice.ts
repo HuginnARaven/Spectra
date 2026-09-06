@@ -64,6 +64,18 @@ export const setPassword = createAsyncThunk(
     }
 );
 
+export const sendEmailVerification = createAsyncThunk(
+    'account/sendEmailVerification',
+    async (_, {rejectWithValue}) => {
+        try {
+            await accountApi.sendEmailVerificationLetter();
+            return;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.Message || 'Failed to send email');
+        }
+    }
+);
+
 const accountSlice = createSlice({
     name: 'account',
     initialState,
@@ -125,6 +137,18 @@ const accountSlice = createSlice({
                 state.isLoading = false;
             })
             .addCase(setPassword.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+
+            .addCase(sendEmailVerification.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(sendEmailVerification.fulfilled, (state) => {
+                state.isLoading = false;
+            })
+            .addCase(sendEmailVerification.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
             })

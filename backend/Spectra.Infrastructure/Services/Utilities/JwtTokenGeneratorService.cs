@@ -2,14 +2,12 @@
 using Microsoft.IdentityModel.Tokens;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
 
-namespace Spectra.Application.Services
+namespace Spectra.Infrastructure.Services.Utilities
 {
     internal class JwtTokenGeneratorService(IConfiguration configuration) : IJwtTokenGenerator
     {
@@ -46,7 +44,19 @@ namespace Spectra.Application.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        public string GetUserIdFromExpiredToken(string token)
+        {
+            var principal = GetPrincipalFromExpiredToken(token);
+            var userId = principal.Claims.FirstOrDefault(c => 
+                c.Type == ClaimTypes.NameIdentifier || 
+                c.Type == System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+            
+            if (userId == null) throw new ArgumentException("Invalid access token");
+            
+            return userId;
+        }
+        
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
             var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["Secret"];

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useParams, Link } from 'react-router-dom';
 import {
     Card,
@@ -28,7 +28,6 @@ async function verifyEmailToken(token: string, email: string): Promise<VerifyEma
 
 export default function EmailVerificationPage() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
-    const { user } = useAppSelector((state) => state.account);
     
     const [searchParams] = useSearchParams();
     const params = useParams<{ token?: string, email?: string }>();
@@ -43,11 +42,14 @@ export default function EmailVerificationPage() {
             : 'No verification token was found in the link. Please check your email verification link or request a new one.'
     );
 
+    const hasAttemptedRef = useRef(false);
+
     useEffect(() => {
         if (!token) {
             return;
         }
-
+        
+        hasAttemptedRef.current = true;
         let isCancelled = false;
 
          verifyEmailToken(token, email)
@@ -55,9 +57,6 @@ export default function EmailVerificationPage() {
                 if (!isCancelled) {
                     setStatus('success');
                     setMessage(response.message);
-                    if(isAuthenticated && user) {
-                        user.emailConfirmed = true;
-                    }
                 }
             })
             .catch((error: unknown) => {
@@ -74,7 +73,7 @@ export default function EmailVerificationPage() {
         return () => {
             isCancelled = true;
         };
-    }, [token]);
+    }, [token, email]);
 
     const handleRetry = () => {
         if (!token) return;
@@ -86,9 +85,6 @@ export default function EmailVerificationPage() {
             .then((response) => {
                 setStatus('success');
                 setMessage(response.message);
-                if(isAuthenticated && user) {
-                    user.emailConfirmed = true;
-                }
             })
             .catch((error: unknown) => {
                 setStatus('error');

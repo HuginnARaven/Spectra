@@ -24,7 +24,7 @@ import * as z from "zod"
 import {Controller, useForm} from "react-hook-form"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {useAppDispatch, useAppSelector} from "@/app/hooks.ts";
-import {clearErrors, editUser} from "@/features/account/accountSlice.ts";
+import {clearErrors, editUser, sendEmailVerification} from "@/features/account/accountSlice.ts";
 import { toast } from "sonner";
 import {Spinner} from "@/components/ui/spinner.tsx";
 import {Alert, AlertDescription} from "@/components/ui/alert.tsx";
@@ -33,7 +33,6 @@ import {PasswordSetForm} from "@/features/account/components/password-set-from.t
 import {ButtonGroup} from "@/components/ui/button-group.tsx";
 import {InputGroup, InputGroupAddon, InputGroupInput} from "@/components/ui/input-group.tsx";
 import {BadgeCheck, BadgeAlert} from "lucide-react";
-import accountApi from "@/features/account/accountApi.ts";
 
 const profileFormSchema = z.object({
     username: z
@@ -81,7 +80,7 @@ export function AccountEditForm(props: { isOpen: boolean, setOpen: (value: boole
     async function handleEmailVerificationButtonClick(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
         try {
-            await accountApi.sendEmailVerificationLetter();
+            await dispatch(sendEmailVerification()).unwrap();
             toast.success("Email sent successfully. Check your inbox.");
         } catch (error: unknown) {
             toast.error(`Error sending email verification Letter: ${error}`);

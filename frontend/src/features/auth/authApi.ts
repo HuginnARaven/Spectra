@@ -1,5 +1,5 @@
 import agent from '@/api/agent';
-import type {LoginRequest, RegisterRequest, AuthResponse, User, GoogleAuthRequest} from './types';
+import type {LoginRequest, RegisterRequest, AuthResponse, User, GoogleAuthRequest, ResetPasswordRequest} from './types';
 
 const authApi = {
     login: async (data: LoginRequest) => {
@@ -20,7 +20,17 @@ const authApi = {
    loginViaGoogle: async (data: GoogleAuthRequest) => {
        const response = await agent.post<AuthResponse>('/auth/google-login', data);
        return response.data;
-    }
+    },
+
+    sendForgotPasswordLetter: async (email: string)=> {
+        const response = await agent.post(`/auth/send-forgot-password-letter`, {email: email});
+        return response.data;
+    },
+
+    resetPassword: async (data: ResetPasswordRequest) => {
+        const response = await agent.post('/auth/reset-password', data);
+        return response.data;
+    },
 };
 
 export default authApi;

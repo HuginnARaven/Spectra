@@ -181,7 +181,7 @@ export function PasswordChangeForm(props: { isOpen: boolean, setOpen: (value: bo
                     <Button variant="outline" type="button" onClick={handleChangePasswordFromState}>Set password from</Button>
                     <FieldDescription>
                         Or set it via "
-                        <Link to="" className="ml-auto text-sm underline-offset-4 hover:underline" style={isLoading ? { pointerEvents: "none", opacity: 0.5 } : {}}>
+                        <Link to="/auth/forgot-password" className="ml-auto text-sm underline-offset-4 hover:underline" style={isLoading ? { pointerEvents: "none", opacity: 0.5 } : {}}>
                             Forgot your password?
                         </Link>
                         " email.

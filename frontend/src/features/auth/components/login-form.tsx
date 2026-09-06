@@ -1,4 +1,4 @@
-﻿import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
     Field,
     FieldDescription, FieldError,
@@ -54,7 +54,7 @@ export function LoginForm() {
         onError: errorResponse => toast.error(errorResponse.error),
     });
 
-    async function onSubmit(data: z.infer<typeof formSchema>) {
+    async function onLoginSubmit(data: z.infer<typeof formSchema>) {
         try {
             await dispatch(loginUser(data)).unwrap();
         } catch (err) {
@@ -63,7 +63,7 @@ export function LoginForm() {
     }
     
     return (
-        <form id="login-form" onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <form id="login-form" onSubmit={form.handleSubmit(onLoginSubmit)} className="flex flex-col gap-6">
             <FieldGroup>
                 <div className="flex flex-col items-center gap-1 text-center">
                     <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -103,7 +103,7 @@ export function LoginForm() {
                                 <FieldLabel htmlFor="password">
                                     Password
                                 </FieldLabel>
-                                <Link to="" className="ml-auto text-sm underline-offset-4 hover:underline" style={isLoading ? { pointerEvents: "none", opacity: 0.5 } : {}}>
+                                <Link to="/auth/forgot-password" className="ml-auto text-sm underline-offset-4 hover:underline" style={isLoading ? { pointerEvents: "none", opacity: 0.5 } : {}}>
                                     Forgot your password?
                                 </Link>
                             </div>

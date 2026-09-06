@@ -28,3 +28,9 @@ export interface RegisterRequest {
 export interface GoogleAuthRequest{
     code: string
 }
+
+export interface ResetPasswordRequest {
+    email: string;
+    token: string;
+    newPassword: string;
+}

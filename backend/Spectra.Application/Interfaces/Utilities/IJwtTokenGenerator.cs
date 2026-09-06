@@ -10,6 +10,6 @@ namespace Spectra.Application.Interfaces.Utilities
     {
         string GenerateToken(User user);
         string GenerateRefreshToken();
-        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        string GetUserIdFromExpiredToken(string token);
     }
 }
