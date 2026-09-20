@@ -1,22 +1,5 @@
 import * as React from "react"
 import {
-    closestCenter,
-    DndContext,
-    KeyboardSensor,
-    MouseSensor,
-    TouchSensor,
-    useSensor,
-    useSensors,
-    type DragEndEvent,
-    type UniqueIdentifier,
-} from "@dnd-kit/core"
-import {restrictToVerticalAxis} from "@dnd-kit/modifiers"
-import {
-    arrayMove,
-    SortableContext,
-    verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import {
     IconChevronLeft,
     IconChevronRight,
     IconChevronsLeft,
@@ -28,7 +11,6 @@ import {
     getFacetedRowModel,
     getFacetedUniqueValues,
     getFilteredRowModel,
-    getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
     type ColumnDef,
@@ -123,12 +105,6 @@ export function DataTable() {
     const dispatch = useAppDispatch()
     const {allVisits, totalCount, isLoading} = useAppSelector((state) => state.dashboard)
 
-    const [data, setData] = React.useState<UrlVisitData[]>([])
-
-    React.useEffect(() => {
-        setData(allVisits)
-    }, [allVisits])
-
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
@@ -145,20 +121,8 @@ export function DataTable() {
         dispatch(fetchAllVisits({page: pagination.pageIndex + 1, pageSize: pagination.pageSize}))
     }, [dispatch, pagination.pageIndex, pagination.pageSize])
 
-    const sortableId = React.useId()
-    const sensors = useSensors(
-        useSensor(MouseSensor, {}),
-        useSensor(TouchSensor, {}),
-        useSensor(KeyboardSensor, {})
-    )
-
-    const dataIds = React.useMemo<UniqueIdentifier[]>(
-        () => data?.map(({id}) => id) || [],
-        [data]
-    )
-
     const table = useReactTable({
-        data,
+        data: allVisits,
         columns,
         pageCount: Math.ceil(totalCount / pagination.pageSize) || -1,
         manualPagination: true,
@@ -178,39 +142,20 @@ export function DataTable() {
         onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFacetedRowModel: getFacetedRowModel(),
         getFacetedUniqueValues: getFacetedUniqueValues(),
     })
-
-    function handleDragEnd(event: DragEndEvent) {
-        const {active, over} = event
-        if (active && over && active.id !== over.id) {
-            setData((data) => {
-                const oldIndex = dataIds.indexOf(active.id)
-                const newIndex = dataIds.indexOf(over.id)
-                return arrayMove(data, oldIndex, newIndex)
-            })
-        }
-    }
 
     return (
         <div className="flex flex-col h-full min-h-0 w-full gap-4 pb-4">
             <div className="flex-1 min-h-0 relative">
                 <div className="absolute inset-0 px-4 lg:px-6">
                     {
-                        isLoading ?
+                        isLoading && table.getRowModel().rows?.length === 0 ?
                             <Skeleton className="flex flex-col h-full"/>
                             :
                             <div className="h-full overflow-hidden rounded-lg border [&>div]:h-full [&>div]:overflow-auto">
-                                <DndContext
-                                    collisionDetection={closestCenter}
-                                    modifiers={[restrictToVerticalAxis]}
-                                    onDragEnd={handleDragEnd}
-                                    sensors={sensors}
-                                    id={sortableId}
-                                >
                                     <Table>
                                         <TableHeader className="bg-muted sticky top-0 z-10 shadow-sm">
                                             {table.getHeaderGroups().map((headerGroup) => (
@@ -230,19 +175,15 @@ export function DataTable() {
                                                 </TableRow>
                                             ))}
                                         </TableHeader>
-                                        <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                                            {isLoading && data.length === 0 ? (
+                                        <TableBody>
+                                            {isLoading ? (
                                                 <TableRow>
                                                     <TableCell colSpan={columns.length} className="h-24 text-center">
                                                         <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary"/>
                                                     </TableCell>
                                                 </TableRow>
                                             ) : table.getRowModel().rows?.length ? (
-                                                <SortableContext
-                                                    items={dataIds}
-                                                    strategy={verticalListSortingStrategy}
-                                                >
-                                                    {table.getRowModel().rows.map((row) => (
+                                                    table.getRowModel().rows.map((row) => (
                                                         <TableRow key={row.id} className="relative z-0">
                                                             {row.getVisibleCells().map((cell) => (
                                                                 <TableCell key={cell.id}>
@@ -250,8 +191,7 @@ export function DataTable() {
                                                                 </TableCell>
                                                             ))}
                                                         </TableRow>
-                                                    ))}
-                                                </SortableContext>
+                                                    ))
                                             ) : (
                                                 <TableRow>
                                                     <TableCell
@@ -264,12 +204,11 @@ export function DataTable() {
                                             )}
                                         </TableBody>
                                     </Table>
-                                </DndContext>
                             </div>
                     }
                 </div>
             </div>
-            <div className="flex items-center justify-between px-4 lg:px-6 z-20" hidden={isLoading}>
+            <div className="flex items-center justify-between px-4 lg:px-6 z-20">
                 <div className="text-muted-foreground hidden flex-1 text-sm lg:flex"/>
                 <div className="flex w-full items-center gap-8 lg:w-fit">
                     <div className="hidden items-center gap-2 lg:flex">
@@ -305,7 +244,7 @@ export function DataTable() {
                             variant="outline"
                             className="hidden h-8 w-8 p-0 lg:flex"
                             onClick={() => table.setPageIndex(0)}
-                            disabled={!table.getCanPreviousPage()}
+                            disabled={!table.getCanPreviousPage() || isLoading}
                         >
                             <span className="sr-only">Go to first page</span>
                             <IconChevronsLeft/>
@@ -315,7 +254,7 @@ export function DataTable() {
                             className="size-8"
                             size="icon"
                             onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
+                            disabled={!table.getCanPreviousPage() || isLoading}
                         >
                             <span className="sr-only">Go to previous page</span>
                             <IconChevronLeft/>
@@ -325,7 +264,7 @@ export function DataTable() {
                             className="size-8"
                             size="icon"
                             onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
+                            disabled={!table.getCanNextPage() || isLoading}
                         >
                             <span className="sr-only">Go to next page</span>
                             <IconChevronRight/>
@@ -335,7 +274,7 @@ export function DataTable() {
                             className="hidden size-8 lg:flex"
                             size="icon"
                             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                            disabled={!table.getCanNextPage()}
+                            disabled={!table.getCanNextPage() || isLoading}
                         >
                             <span className="sr-only">Go to last page</span>
                             <IconChevronsRight/>

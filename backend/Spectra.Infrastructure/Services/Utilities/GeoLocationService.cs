@@ -2,6 +2,8 @@
 using MaxMind.GeoIP2.Exceptions;
 using Spectra.Application.Interfaces.Utilities;
 using System.Net;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 
 namespace Spectra.Infrastructure.Services.Utilities
@@ -9,8 +11,9 @@ namespace Spectra.Infrastructure.Services.Utilities
     public class GeoLocationService : IGeoLocationService
     {
         private readonly DatabaseReader? _reader;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public GeoLocationService()
+        public GeoLocationService(IWebHostEnvironment webHostEnvironment)
         {
             var dbPath = Path.Combine(AppContext.BaseDirectory, "Assets", "GeoLite2-City.mmdb");
 
@@ -18,6 +21,8 @@ namespace Spectra.Infrastructure.Services.Utilities
             {
                 _reader = new DatabaseReader(dbPath);
             }
+
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public GeoLocationInfo GetLocation(string ipAddress)
@@ -30,9 +35,9 @@ namespace Spectra.Infrastructure.Services.Utilities
             if (!IPAddress.TryParse(ipAddress, out var ip)) // !!! if ipAddress is valid writing it to variable ip
                 return unknown;
 
-            if (IsLocalIp(ip))
+            if (IsLocalIp(ip) && _webHostEnvironment.IsDevelopment())
                 IPAddress.TryParse("8.8.8.8", out ip);
-
+            
             try
             {
                 var response = _reader.City(ip!);

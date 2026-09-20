@@ -51,7 +51,7 @@ export function MetricCardItem({ title, items, bottomText }: MetricCardProps) {
         >
             <CardHeader>
                 <CardDescription>
-                    {hasMultipleItems ? `${title}: ${activeItem.name}` : title}
+                    {hasMultipleItems ? `${title}: ${activeItem.name}` : `${activeItem.name}`}
                 </CardDescription>
                 <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
                     {activeItem.value}

@@ -11,6 +11,7 @@ namespace Spectra.Infrastructure.Services
     internal class RedisUrlCacheService(IConnectionMultiplexer redis) : IUrlCacheService
     {
         private readonly TimeSpan _cacheDuration = TimeSpan.FromHours(24); // change to 30m later
+        private readonly TimeSpan _cacheDurationAnalytics = TimeSpan.FromSeconds(5); // change to 1h later
         private readonly IDatabase _db = redis.GetDatabase();
 
         public async Task<string?> GetOriginalUrlAsync(string shortCode)
@@ -27,7 +28,7 @@ namespace Spectra.Infrastructure.Services
 
         public async Task SetUrlAnalyticsAsync(string urlId, UrlAnalyticsDto urlAnalytics)
         {
-            await _db.StringSetAsync($"analytics:{urlId}", JsonSerializer.Serialize(urlAnalytics), _cacheDuration);
+            await _db.StringSetAsync($"analytics:{urlId}", JsonSerializer.Serialize(urlAnalytics), _cacheDurationAnalytics);
         }
 
         public async Task<UrlAnalyticsDto?> GetUrlAnalyticsAsync(string urlId)
@@ -46,7 +47,7 @@ namespace Spectra.Infrastructure.Services
 
         public async Task SetDevicesVisitsByDaysAsync(string userId, IReadOnlyCollection<DevicesVisitsByDayDto> devicesVisitsByDays)
         {
-            await _db.StringSetAsync($"devices_visits_by_days:{userId}", JsonSerializer.Serialize(devicesVisitsByDays), _cacheDuration);
+            await _db.StringSetAsync($"devices_visits_by_days:{userId}", JsonSerializer.Serialize(devicesVisitsByDays), _cacheDurationAnalytics);
         }
 
         public async Task<TrendAnalyticsDto?> GetTrendAnalyticsAsync(string userId)
@@ -58,7 +59,7 @@ namespace Spectra.Infrastructure.Services
 
         public async Task SetTrendAnalyticsAsync(string userId, TrendAnalyticsDto trendAnalytics)
         {
-            await _db.StringSetAsync($"trend_analytics:{userId}", JsonSerializer.Serialize(trendAnalytics), _cacheDuration);
+            await _db.StringSetAsync($"trend_analytics:{userId}", JsonSerializer.Serialize(trendAnalytics), _cacheDurationAnalytics);
         }
 
         public async Task SetUrlAsync(string shortCode, string originalUrl)

@@ -9,8 +9,10 @@ namespace Spectra.Domain.Interfaces
     {
         Task AddAsync(Url url, CancellationToken cancellationToken = default);
         Task<Url?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
+        Task<Dictionary<string, Guid>> GetUrlsIdsByShortCodesAsync(List<string> shortCodes,CancellationToken cancellationToken = default);
         Task<bool> CodeExistsAsync(string code, CancellationToken cancellationToken = default);
         Task AddVisitAsync(UrlVisit visit, CancellationToken cancellationToken = default);
+        Task BatchAddVisitAsync(List<UrlVisit> batch, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<Url?>> GetUserUrlsAsync(string userId, CancellationToken cancellationToken = default);
         Task<Url?> GetUserUrlByIdAsync(string id, string userId, CancellationToken cancellationToken = default);
         Task DeleteUrlAsync(Url url, CancellationToken cancellationToken = default);

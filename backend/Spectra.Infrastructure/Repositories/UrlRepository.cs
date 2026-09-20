@@ -17,6 +17,15 @@ namespace Spectra.Infrastructure.Repositories
             await context.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task<Dictionary<string, Guid>> GetUrlsIdsByShortCodesAsync(List<string> shortCodes, CancellationToken cancellationToken = default) // temp method till I decide to add url id into Redis kvp
+        {
+            var uniqueShortCodes = shortCodes.Distinct().ToList();
+            return await context.Urls
+                .Where(u => uniqueShortCodes.Contains(u.ShortCode))
+                .Select(u => new { u.ShortCode, u.Id })
+                .ToDictionaryAsync(u => u.ShortCode, u => u.Id, cancellationToken);
+        }
+
         public async Task<bool> CodeExistsAsync(string code, CancellationToken cancellationToken = default)
         {
             return await context.Urls.AnyAsync(u => u.ShortCode == code, cancellationToken);
@@ -30,6 +39,12 @@ namespace Spectra.Infrastructure.Repositories
         public async Task AddVisitAsync(UrlVisit visit, CancellationToken cancellationToken = default)
         {
             await context.UrlVisits.AddAsync(visit, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task BatchAddVisitAsync(List<UrlVisit> batch, CancellationToken cancellationToken = default)
+        {
+            await context.UrlVisits.AddRangeAsync(batch, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
         }
 

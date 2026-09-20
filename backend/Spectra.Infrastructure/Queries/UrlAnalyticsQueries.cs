@@ -9,8 +9,14 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
 {
     public async Task<UrlAnalyticsDto> GetUrlAnalyticsByIdAsync(string id, string userId, CancellationToken cancellationToken = default)
     {
+        bool hasAccess = await context.Urls.AnyAsync(u => u.Id == Guid.Parse(id) && u.UserId == Guid.Parse(userId), cancellationToken);
+        if (!hasAccess)
+        {
+            throw new ArgumentException("User does not own this url");
+        }
+        
         var baseQuery = context.UrlVisits
-            .Where(v => v.UrlId == Guid.Parse(id) && v.Url!.UserId == Guid.Parse(userId))
+            .Where(v => v.UrlId == Guid.Parse(id))
             .AsNoTracking()
             .AsQueryable();
         
@@ -29,7 +35,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
             .Select(g => new DeviceVisit{ Device = g.Key, Visits = g.Count() })
             .ToListAsync(cancellationToken);
         
-        var last30DaysTask = baseQuery
+        var last30DaysTask = await baseQuery
             .Where(v => v.CreatedAt >= DateTime.UtcNow.AddDays(-30))
             .GroupBy(v => v.CreatedAt.Date)
             .Select(g => new DailyVisit { Date = g.Key, Visits = g.Count() })
@@ -42,7 +48,7 @@ public class UrlAnalyticsQueries(AppDbContext context): IUrlAnalyticsQueries
             TotalVisits = totalVisits,
             TopCountries = topCountries,
             DeviceDistribution = deviceDistribution,
-            Last30DaysVisits = await last30DaysTask
+            Last30DaysVisits = last30DaysTask
         };
     }
 

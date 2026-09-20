@@ -14,21 +14,25 @@ namespace Spectra.Infrastructure.Services
         {
             var options = new BoundedChannelOptions(1000)
             {
-                FullMode = BoundedChannelFullMode.Wait,
+                FullMode = BoundedChannelFullMode.DropWrite,
                 SingleReader = true
             };
 
             _queue = Channel.CreateBounded<VisitLogDto>(options);
         }
 
-        public async ValueTask QueueBackgroundWorkItemAsync(VisitLogDto workItem)
+        public ValueTask QueueBackgroundWorkItemAsync(VisitLogDto workItem)
         {
-            await _queue.Writer.WriteAsync(workItem);
+            _queue.Writer.TryWrite(workItem); 
+            return ValueTask.CompletedTask;
         }
 
-        public async ValueTask<VisitLogDto> DequeueAsync(CancellationToken cancellationToken)
+        public async ValueTask<VisitLogDto?> DequeueAsync(CancellationToken cancellationToken)
         {
-            return await _queue.Reader.ReadAsync(cancellationToken);
+            if (_queue.Reader.TryRead(out var item)) 
+                return item;
+
+            return null;
         }
     }
 }
