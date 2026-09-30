@@ -15,8 +15,11 @@ using Spectra.Infrastructure.Services;
 using Spectra.Infrastructure.Services.Utilities;
 using StackExchange.Redis;
 using System.Text;
+using Microsoft.Extensions.Options;
 using Spectra.Application.DTOs;
 using Spectra.Infrastructure.Queries;
+using Stripe;
+using IdentityService = Spectra.Infrastructure.Services.IdentityService;
 
 namespace Spectra.Infrastructure
 {
@@ -29,6 +32,7 @@ namespace Spectra.Infrastructure
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
             services.AddScoped<IUrlRepository, UrlRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
 
             var redisConnectionString = configuration.GetConnectionString("Redis");
             services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisConnectionString));
@@ -83,11 +87,19 @@ namespace Spectra.Infrastructure
             services.AddScoped<IUrlAnalyticsQueries, UrlAnalyticsQueries>();
             
             services.AddScoped<IExternalAuthService, ExternalAuthService>();
-            
             services.AddScoped<IEmailService, EmailService>();
+            
+            services.AddScoped<IPaymentService, StripeService>();
             
             services.Configure<GoogleAuthSettings>(configuration.GetSection("GoogleAuth"));
             services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+            services.Configure<StripeSettings>(configuration.GetSection("StripeSettings"));
+            
+            services.AddSingleton(provider =>
+            {
+                var options = provider.GetRequiredService<IOptions<StripeSettings>>();
+                return new StripeClient(options.Value.SecretKey); 
+            });
             
             return services;
         }

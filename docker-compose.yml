@@ -19,6 +19,9 @@ services:
       - EmailSettings__Password=${EmailSettings__Password}
       - EmailSettings__SmtpServer=${EmailSettings__SmtpServer}
       - EmailSettings__Port=${EmailSettings__Port}
+      - StripeSettings__SecretKey=${STRIPE_SECRET_KEY}
+      - StripeSettings__PublishableKey=${STRIPE_PUBLISHABLE_KEY}
+      - StripeSettings__WebhookSecret=${STRIPE_WEBHOOK_SECRET}
     depends_on:
       - spectra-db
       - spectra-redis

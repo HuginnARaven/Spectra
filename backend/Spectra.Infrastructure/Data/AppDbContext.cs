@@ -14,6 +14,8 @@ namespace Spectra.Infrastructure.Data
 
         public DbSet<Url> Urls => Set<Url>();
         public DbSet<UrlVisit> UrlVisits => Set<UrlVisit>();
+        public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+        public DbSet<SubscriptionPlanPrice> SubscriptionPlanPrices => Set<SubscriptionPlanPrice>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

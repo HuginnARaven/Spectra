@@ -22,6 +22,7 @@ namespace Spectra.Application
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IEmailNotificationService, EmailNotificationService>();
+            services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
             
             services.Configure<FrontendSettings>(configuration.GetSection("FrontendSettings"));
 

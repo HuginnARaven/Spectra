@@ -5,6 +5,7 @@ using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Spectra.Domain.Exceptions;
+using Stripe;
 
 namespace Spectra.API.Middleware
 {
@@ -39,6 +40,12 @@ namespace Spectra.API.Middleware
 
                     case ArgumentException:
                     case InvalidOperationException:
+                        httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        response.Status = (int)HttpStatusCode.BadRequest;
+                        response.Message = e.Message;
+                        break;
+                    
+                    case StripeException:
                         httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                         response.Status = (int)HttpStatusCode.BadRequest;
                         response.Message = e.Message;

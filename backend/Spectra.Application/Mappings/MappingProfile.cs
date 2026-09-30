@@ -12,6 +12,9 @@ namespace Spectra.Application.Mappings
             CreateMap<Url, UrlDto>().ForMember(dest => dest.ShortUrl, opt => opt.MapFrom<ShortUrlResolver>());
             // Mapping UrlVisit -> UrlVisitDto
             CreateMap<UrlVisit, UrlVisitDto>().ReverseMap();
+            
+            CreateMap<SubscriptionPlanPrice, SubscriptionPriceDto>().ReverseMap();
+            CreateMap<SubscriptionPlan, SubscriptionPlanDto>().ReverseMap();
         }
     }
 
