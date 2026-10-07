@@ -17,5 +17,12 @@ public class SubscriptionPlanPriceConfiguration : IEntityTypeConfiguration<Subsc
         builder.Property(sp => sp.Interval)
             .IsRequired()
             .HasMaxLength(50);
+        
+        builder.Property(us => us.StripePriceId)
+            .IsRequired()
+            .HasMaxLength(255);
+        
+        builder.HasIndex(spp => spp.StripePriceId)
+            .IsUnique();
     }
 }

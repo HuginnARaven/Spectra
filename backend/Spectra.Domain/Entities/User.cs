@@ -16,5 +16,6 @@ namespace Spectra.Domain.Entities
         public DateTime RefreshTokenExpiryTime { get; set; }
 
         public ICollection<Url> Urls { get; set; } = new List<Url>();
+        public UserSubscription? Subscription { get; set; }
     }
 }

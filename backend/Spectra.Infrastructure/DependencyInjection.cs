@@ -90,6 +90,8 @@ namespace Spectra.Infrastructure
             services.AddScoped<IEmailService, EmailService>();
             
             services.AddScoped<IPaymentService, StripeService>();
+            services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+            services.AddScoped<IPaymentSynchronizationService, RedisPaymentSynchronizationService>();
             
             services.Configure<GoogleAuthSettings>(configuration.GetSection("GoogleAuth"));
             services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));

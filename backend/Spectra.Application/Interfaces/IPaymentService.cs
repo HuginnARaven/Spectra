@@ -1,4 +1,6 @@
-﻿namespace Spectra.Application.Interfaces;
+using Spectra.Application.DTOs;
+
+namespace Spectra.Application.Interfaces;
 
 public interface IPaymentService
 {
@@ -13,4 +15,11 @@ public interface IPaymentService
     
     Task<string> CreateSubscriptionPlanPrice(string planId, string currency, int priceCents, string interval);
     Task ChangeActiveStatusInSubscriptionPrice(string priceId, bool isActive);
+
+    Task<string> CreateSubscriptionAsync(string customerId, string priceId);
+    Task<string> CreateCheckoutSessionAsync(string customerId, string stripePriceId, string successUrl, string cancelUrl, string? clientReferenceId = null);
+    Task UpdateSubscriptionPriceAsync(string stripeSubscriptionId, string newStripePriceId);
+    Task CancelSubscriptionAsync(string stripeSubscriptionId, bool atPeriodEnd = true);
+    Task ResumeSubscriptionAsync(string stripeSubscriptionId);
+    Task<StripeSubscriptionDataDto> GetSubscriptionAsync(string stripeSubscriptionId);
 }

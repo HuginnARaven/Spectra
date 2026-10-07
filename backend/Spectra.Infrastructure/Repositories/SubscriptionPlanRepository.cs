@@ -28,11 +28,11 @@ public class SubscriptionPlanRepository(AppDbContext context): ISubscriptionPlan
 
     public async Task DeleteSubscriptionPlanAsync(SubscriptionPlan plan, bool isSoftDelete = false)
     {
-        // if (isSoftDelete)
-        // {
-        //     plan.IsActive =  false;
-        //     await context.SaveChangesAsync();
-        // }
+        if (isSoftDelete)
+        {
+            plan.IsActive =  false;
+            await context.SaveChangesAsync();
+        }
         
         context.SubscriptionPlans.Remove(plan);
         await context.SaveChangesAsync();

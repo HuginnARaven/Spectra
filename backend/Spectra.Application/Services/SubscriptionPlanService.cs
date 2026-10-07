@@ -184,7 +184,7 @@ public class SubscriptionPlanService(ISubscriptionPlanRepository subscriptionPla
         
         plan.Name = name;
         plan.Description = description;
-        // plan.Active =  isActive; TODO: add Active field to SubPlan
+        plan.IsActive =  isActive;
         
         await subscriptionPlanRepository.UpdateSubscriptionPlanAsync(plan);
     }

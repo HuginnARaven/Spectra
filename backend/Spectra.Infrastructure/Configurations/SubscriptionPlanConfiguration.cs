@@ -18,9 +18,17 @@ public class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Subscripti
             .IsRequired()
             .HasMaxLength(255);
         
+        builder.Property(us => us.StripeProductId)
+            .IsRequired(false)
+            .HasMaxLength(255);
+        
         builder.HasIndex(p => p.IsDefault)
             .IsUnique()
             .HasFilter("\"IsDefault\" = TRUE"); // change to is_default if SnakeCaseNamingConvention
+        
+        builder.HasIndex(sp => sp.StripeProductId)
+            .IsUnique()
+            .HasFilter("\"StripeProductId\" IS NOT NULL");
         
         // Relations
         builder.HasMany(u => u.Prices)
