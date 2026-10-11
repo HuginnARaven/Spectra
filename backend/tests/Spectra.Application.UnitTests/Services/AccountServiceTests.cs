@@ -5,6 +5,7 @@ using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Application.Services;
 using Spectra.Domain.Entities;
+using Spectra.Domain.Interfaces;
 
 namespace Spectra.Application.UnitTests.Services;
 
@@ -12,17 +13,20 @@ public class AccountServiceTests
 {
     private readonly Mock<IEmailNotificationService> _emailNotificationServiceMock;
     private readonly Mock<IIdentityService> _identityServiceMock;
-
+    private readonly Mock<IUserSubscriptionRepository> _userSubscriptionRepository;
+    
     private readonly AccountService _sut;
 
     public AccountServiceTests()
     {
         _emailNotificationServiceMock = new Mock<IEmailNotificationService>();
         _identityServiceMock = new Mock<IIdentityService>();
-
+        _userSubscriptionRepository = new Mock<IUserSubscriptionRepository>();
+        
         _sut = new AccountService(
             _emailNotificationServiceMock.Object,
-            _identityServiceMock.Object
+            _identityServiceMock.Object,
+            _userSubscriptionRepository.Object
         );
     }
 

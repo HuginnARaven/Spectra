@@ -4,8 +4,23 @@ export interface User {
     username: string;
     displayName: string;
     emailConfirmed: boolean;
+    subscriptionPlan?: Subscription;
     createdAt: string;
 }
+
+export interface Subscription {
+    id: string;
+    name: string;
+    description: string;
+    isDefault: boolean;
+    hasAccessToGeneralAnalytics: boolean;
+    hasAccessToUrlAnalytics: boolean;
+    hasCustomAliasAccess: boolean;
+    hasEarlyFeatureAccess: boolean;
+    maxUrlsLimit: number;
+    analyticsRetentionDays: number;
+}
+
 
 export interface ProfileRequest {
     username: string;

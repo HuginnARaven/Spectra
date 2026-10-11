@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Spectra.Domain.Entities;
+using Spectra.Domain.Enums;
 using Spectra.Domain.Interfaces;
 using Spectra.Infrastructure.Data;
 
@@ -26,6 +27,23 @@ public class UserSubscriptionRepository(AppDbContext context): IUserSubscription
     public async Task<UserSubscription?> GetByStripeCustomerIdAsync(string stripeCustomerId)
     {
         return await context.UserSubscriptions.FirstOrDefaultAsync(us => us.StripeCustomerId == stripeCustomerId);
+    }
+
+    public async Task<SubscriptionPlan> GetEffectivePlanByUserIdAsync(string userId)
+    {
+        if (!Guid.TryParse(userId, out var guidUserId)) 
+            throw new ArgumentException("Invalid user id");
+        
+        var subscription = await context.UserSubscriptions
+            .Include(us => us.SubscriptionPlan)
+            .FirstOrDefaultAsync(us => us.UserId == guidUserId);
+        
+        if (subscription != null && subscription.IsActive)
+        {
+            return subscription.SubscriptionPlan;
+        }
+        
+        return await context.SubscriptionPlans.FirstAsync(sp => sp.IsDefault);
     }
 
     public async Task<UserSubscription> CreateAsync(UserSubscription subscription)

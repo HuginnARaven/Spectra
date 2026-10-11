@@ -4,10 +4,17 @@ using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
+using Spectra.Domain.Interfaces;
 
 namespace Spectra.Application.Services;
 
-public class AuthService(IJwtTokenGenerator jwtTokenGenerator, IExternalAuthService externalAuthService, IIdentityService identityService, IEmailNotificationService emailNotificationService) : IAuthService
+public class AuthService(
+    IJwtTokenGenerator jwtTokenGenerator, 
+    IExternalAuthService externalAuthService, 
+    IIdentityService identityService, 
+    IEmailNotificationService emailNotificationService,
+    IUserSubscriptionRepository userSubscriptionRepository
+    ) : IAuthService
 {
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
@@ -102,7 +109,9 @@ public class AuthService(IJwtTokenGenerator jwtTokenGenerator, IExternalAuthServ
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
         await identityService.UpdateUserAsync(user);
-
+        
+        var userSubscription = await userSubscriptionRepository.GetEffectivePlanByUserIdAsync(user.Id.ToString());
+        
         return new AuthResponse
         {
             User = new ProfileResponse()
@@ -112,6 +121,16 @@ public class AuthService(IJwtTokenGenerator jwtTokenGenerator, IExternalAuthServ
                 Username = user.UserName,
                 DisplayName = user.DisplayName,
                 EmailConfirmed =  user.EmailConfirmed,
+                SubscriptionPlan = new SubscriptionPlanBaseDto()
+                {
+                    Id = userSubscription.Id,
+                    Name = userSubscription.Name,
+                    Description =  userSubscription.Description,
+                    IsDefault = userSubscription.IsDefault,
+                    HasAccessToGeneralAnalytics = userSubscription.HasAccessToGeneralAnalytics,
+                    HasAccessToUrlAnalytics = userSubscription.HasAccessToUrlAnalytics
+                    //TODO add new props
+                },
                 CreatedAt = user.CreatedAt
             },
             Token = token,

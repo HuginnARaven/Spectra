@@ -7,6 +7,8 @@ public interface IUserSubscriptionRepository
     Task<UserSubscription?> GetByUserIdAsync(string userId);
     Task<UserSubscription?> GetByStripeSubscriptionIdAsync(string stripeSubscriptionId);
     Task<UserSubscription?> GetByStripeCustomerIdAsync(string stripeCustomerId);
+    Task<SubscriptionPlan> GetEffectivePlanByUserIdAsync(string userId);
+    
     Task<UserSubscription> CreateAsync(UserSubscription subscription);
     Task UpdateAsync(UserSubscription subscription);
     Task DeleteAsync(UserSubscription subscription);

@@ -11,6 +11,7 @@ namespace Spectra.Application.DTOs
         public string Username { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public bool EmailConfirmed { get; set; } = false;
+        public SubscriptionPlanBaseDto SubscriptionPlan { get; set; } = new SubscriptionPlanDto();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

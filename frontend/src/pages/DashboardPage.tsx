@@ -13,7 +13,6 @@ export default function DashboardPage() {
                 <div className="flex flex-col h-full min-h-95 overflow-hidden">
                     <DataTable />
                 </div>
-                
             </div>
         </div>
     )

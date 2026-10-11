@@ -24,7 +24,7 @@ import {logout} from "@/features/auth/authSlice.ts";
 import type {ReactNode} from "react"
 import {useEffect, useState} from "react"
 import {IconUserCircle} from "@tabler/icons-react"
-
+import { Link } from "react-router"
 
 export function ProfileMenu({children, isMobile}: { children: ReactNode, isMobile: boolean }) {
     const dispatch = useAppDispatch();
@@ -78,10 +78,12 @@ export function ProfileMenu({children, isMobile}: { children: ReactNode, isMobil
                             <IconUserCircle/>
                             Account
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <IconCreditCard/>
-                            Billing
-                        </DropdownMenuItem>
+                        <Link to="/pricing">
+                            <DropdownMenuItem>
+                                <IconCreditCard/>
+                                Billing
+                            </DropdownMenuItem>
+                        </Link>
                         <DropdownMenuItem>
                             <IconNotification/>
                             Notifications

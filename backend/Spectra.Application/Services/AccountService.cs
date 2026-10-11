@@ -1,10 +1,11 @@
 ﻿using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
+using Spectra.Domain.Interfaces;
 
 namespace Spectra.Application.Services
 {
-    public class AccountService(IEmailNotificationService emailNotificationService, IIdentityService identityService) : IAccountService
+    public class AccountService(IEmailNotificationService emailNotificationService, IIdentityService identityService, IUserSubscriptionRepository userSubscriptionRepository) : IAccountService
     {
         public async Task<ProfileResponse> GetUserAsync(string userId, CancellationToken cancellationToken = default)
         {
@@ -13,7 +14,9 @@ namespace Spectra.Application.Services
             {
                 throw new KeyNotFoundException($"User with id '{userId}' not found.");
             };
-
+            
+            var userSubscription = await userSubscriptionRepository.GetEffectivePlanByUserIdAsync(userId);
+            
             var response = new ProfileResponse()
             {
                 Id = userId,
@@ -22,6 +25,16 @@ namespace Spectra.Application.Services
                 DisplayName = user.DisplayName,
                 EmailConfirmed =  user.EmailConfirmed,
                 CreatedAt = user.CreatedAt,
+                SubscriptionPlan = new SubscriptionPlanBaseDto()
+                {
+                    Id = userSubscription.Id,
+                    Name = userSubscription.Name,
+                    Description =  userSubscription.Description,
+                    IsDefault = userSubscription.IsDefault,
+                    HasAccessToGeneralAnalytics = userSubscription.HasAccessToGeneralAnalytics,
+                    HasAccessToUrlAnalytics = userSubscription.HasAccessToUrlAnalytics
+                    //TODO add new props
+                }
             };
 
             return response;

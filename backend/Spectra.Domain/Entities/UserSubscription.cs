@@ -22,4 +22,6 @@ public class UserSubscription: BaseEntity
     
     public Guid SubscriptionPlanPriceId { get; set; }
     public SubscriptionPlanPrice SubscriptionPlanPrice { get; set; }
+    
+    public bool IsActive => Status == SubscriptionStatus.Active || (CancelAtPeriodEnd && CurrentPeriodEnd >= DateTime.UtcNow);
 }

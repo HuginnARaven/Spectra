@@ -6,6 +6,7 @@ using Spectra.Application.Interfaces.Utilities;
 using Spectra.Application.Services;
 using Spectra.Application.Services.Utilities;
 using Spectra.Domain.Entities;
+using Spectra.Domain.Interfaces;
 
 namespace Spectra.Application.UnitTests.Services;
 
@@ -15,7 +16,8 @@ public class AuthServiceTests
     private readonly Mock<IExternalAuthService> _externalAuthServiceMock;
     private readonly Mock<IIdentityService> _identityServiceMock;
     private readonly Mock<IEmailNotificationService> _emailNotificationServiceMock;
-
+    private readonly Mock<IUserSubscriptionRepository> _userSubscriptionRepository;
+    
     private readonly AuthService _sut;
 
     public AuthServiceTests()
@@ -24,12 +26,14 @@ public class AuthServiceTests
         _externalAuthServiceMock = new Mock<IExternalAuthService>();
         _identityServiceMock = new Mock<IIdentityService>();
         _emailNotificationServiceMock = new Mock<IEmailNotificationService>();
+        _userSubscriptionRepository = new Mock<IUserSubscriptionRepository>();
 
         _sut = new AuthService(
             _jwtTokenGeneratorMock.Object,
             _externalAuthServiceMock.Object,
             _identityServiceMock.Object,
-            _emailNotificationServiceMock.Object
+            _emailNotificationServiceMock.Object,
+            _userSubscriptionRepository.Object
         );
     }
 

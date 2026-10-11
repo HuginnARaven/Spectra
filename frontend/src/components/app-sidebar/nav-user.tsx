@@ -36,9 +36,7 @@ export function NavUser() {
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
                             <span className="truncate font-medium">{user?.username}</span>
-                            <span className="text-muted-foreground truncate text-xs">
-                                    {user?.email}
-                                </span>
+                            <span className="text-muted-foreground truncate text-xs">{user?.email}</span>
                         </div>
                         <IconDotsVertical className="ml-auto size-4"/>
                     </SidebarMenuButton>

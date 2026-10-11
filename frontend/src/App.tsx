@@ -13,6 +13,7 @@ import {RequestResetPasswordForm} from "@/features/auth/components/request-reset
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import EmailVerificationPage from "@/pages/EmailVerificationPage.tsx";
 import PasswordResetPage from "@/pages/PasswordResetPage.tsx";
+import PricingPage from "@/pages/PricingPage.tsx";
 
 function App() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/forgot-password" element={<PasswordResetPage />} />
                 <Route path="/" element={<SidebarLayout />}>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="/pricing" element={<PricingPage />} />
                     <Route path="/auth" element={isAuthenticated ? <Navigate to="/" replace /> : <AuthLayout/>}>
                         <Route index element={<Navigate to="login" replace />} />
                         <Route path="login" element={<LoginForm />} />
