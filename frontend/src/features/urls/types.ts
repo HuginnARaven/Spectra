@@ -5,3 +5,8 @@
     shortCode: string;
     createdAt: string;
 };
+
+export type CreateUrlRequest = {
+    originalUrl: string;
+    customCode: string | null;
+}

@@ -9,15 +9,40 @@ using System.Text;
 using AutoMapper;
 using System.Security.AccessControl;
 using Spectra.Application.Common;
+using Spectra.Domain.Exceptions;
 
 namespace Spectra.Application.Services
 {
-    public class UrlShorteningService(IUrlRepository repository, IUrlGenerator urlGenerator, IUrlCacheService cache, IMapper mapper) : IUrlShorteningService
+    public class UrlShorteningService(
+        IUrlRepository repository, 
+        IUrlGenerator urlGenerator, 
+        IUrlCacheService cache, 
+        IUserSubscriptionRepository userSubscriptionRepository, 
+        IMapper mapper) : IUrlShorteningService
     {
         public async Task<UrlResponse> ShortenUrlAsync(CreateUrlRequest request, string userId, string baseUrl, CancellationToken cancellationToken = default)
         {
-            var code = await GenerateVerifiedUniqueCodeAsync(cancellationToken);
+            var userSub = await userSubscriptionRepository.GetEffectivePlanByUserIdAsync(userId);
+            string code;
+            
+            if (userSub is null || (userSub.MaxUrlsLimit != -1 && await repository.GetUserUrlsCountAsync(userId, cancellationToken) >= userSub.MaxUrlsLimit))
+                throw new SubscriptionLimitException("You reached urls count limit of your subscription plan.");
+            
+            if (!string.IsNullOrEmpty(request.CustomCode))
+            {
+                if (!userSub.HasCustomAliasAccess)
+                    throw new SubscriptionLimitException("Your subscription tier does not support custom url codes.");
+                
+                if (await repository.CodeExistsAsync(request.CustomCode, cancellationToken))
+                    throw new InvalidOperationException("Such code already exists. Please try again.");
 
+                code = request.CustomCode;
+            }
+            else
+            {
+                code = await GenerateVerifiedUniqueCodeAsync(cancellationToken);
+            }
+            
             var url = new Url
             {
                 Id = Guid.NewGuid(),

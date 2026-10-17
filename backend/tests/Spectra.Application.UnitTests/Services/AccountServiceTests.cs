@@ -22,6 +22,20 @@ public class AccountServiceTests
         _emailNotificationServiceMock = new Mock<IEmailNotificationService>();
         _identityServiceMock = new Mock<IIdentityService>();
         _userSubscriptionRepository = new Mock<IUserSubscriptionRepository>();
+        _userSubscriptionRepository.Setup(x => x.GetEffectivePlanByUserIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(new SubscriptionPlan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Free",
+                Description = "Free plan",
+                IsDefault = true,
+                HasAccessToGeneralAnalytics = true,
+                HasAccessToUrlAnalytics = false,
+                HasCustomAliasAccess = false,
+                HasEarlyFeatureAccess = false,
+                MaxUrlsLimit = 10,
+                AnalyticsRetentionDays = 7
+            });
         
         _sut = new AccountService(
             _emailNotificationServiceMock.Object,

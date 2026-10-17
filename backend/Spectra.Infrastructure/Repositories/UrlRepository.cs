@@ -53,6 +53,14 @@ namespace Spectra.Infrastructure.Repositories
             return await context.Urls.Where(u => u.UserId == Guid.Parse(userId)).ToListAsync(cancellationToken);
         }
 
+        public async Task<int> GetUserUrlsCountAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            if (!Guid.TryParse(userId, out var guidUserId)) 
+                return 0;
+            
+            return await context.Urls.Where(u => u.UserId == guidUserId).CountAsync(cancellationToken);
+        }
+
         public async Task<Url?> GetUserUrlByIdAsync(string id, string userId, CancellationToken cancellationToken = default)
         {
             return await context.Urls.FirstOrDefaultAsync(u => u.Id == Guid.Parse(id) && u.UserId == Guid.Parse(userId), cancellationToken);

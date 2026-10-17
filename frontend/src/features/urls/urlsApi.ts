@@ -1,9 +1,6 @@
 ﻿import agent from '@/api/agent';
-import type {UrlData} from './types';
+import type {CreateUrlRequest, UrlData} from './types';
 
-interface CreateUrlRequest {
-    originalUrl: string;
-}
 
 export const urlsApi = {
     getUserUrls: async () => {

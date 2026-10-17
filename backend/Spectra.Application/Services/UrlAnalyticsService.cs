@@ -6,10 +6,18 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Spectra.Application.DTOs;
+using Spectra.Domain.Exceptions;
 
 namespace Spectra.Application.Services
 {
-    public class UrlAnalyticsService(IUrlRepository repository, IUserAgentParser uaParser, IGeoLocationService geoLocationService, IUrlAnalyticsQueries queries, IUrlCacheService cache) : IUrlAnalyticsService
+    public class UrlAnalyticsService(
+        IUrlRepository repository, 
+        IUserAgentParser uaParser, 
+        IGeoLocationService geoLocationService, 
+        IUrlAnalyticsQueries queries, 
+        IUrlCacheService cache,
+        IUserSubscriptionRepository userSubscriptionRepository
+        ) : IUrlAnalyticsService
     {
         public async Task LogVisitAsync(string shortCode, string ipAddress, string? userAgent, string? referer, CancellationToken cancellationToken = default)
         {
@@ -38,6 +46,10 @@ namespace Spectra.Application.Services
 
         public async Task<UrlAnalyticsDto> GetUrlAnalyticsAsync(string id, string userId, CancellationToken cancellationToken = default)
         {
+            var userPlan = await userSubscriptionRepository.GetEffectivePlanByUserIdAsync(userId);
+            if(userPlan is null || !userPlan.HasAccessToUrlAnalytics)
+                throw new SubscriptionLimitException("Your subscription tier does not support url analytics.");
+            
             var urlAnalytics = await cache.GetUrlAnalyticsAsync(id);
             if (urlAnalytics != null)
                 return urlAnalytics;
@@ -50,6 +62,10 @@ namespace Spectra.Application.Services
         
         public async Task<TrendAnalyticsDto> GetTrendAnalyticsAsync(string userId, CancellationToken cancellationToken = default)
         {
+            var userPlan = await userSubscriptionRepository.GetEffectivePlanByUserIdAsync(userId);
+            if(userPlan is null || !userPlan.HasAccessToGeneralAnalytics)
+                throw new SubscriptionLimitException("Your subscription tier does not support general analytics.");
+            
             var trendAnalytics = await cache.GetTrendAnalyticsAsync(userId);
             if (trendAnalytics != null)
                 return trendAnalytics;
@@ -62,6 +78,10 @@ namespace Spectra.Application.Services
 
         public async Task<IReadOnlyCollection<DevicesVisitsByDayDto>> GetDevicesVisitsByDaysAsync(string userId, CancellationToken cancellationToken = default)
         {
+            var userPlan = await userSubscriptionRepository.GetEffectivePlanByUserIdAsync(userId);
+            if(userPlan is null || !userPlan.HasAccessToGeneralAnalytics)
+                throw new SubscriptionLimitException("Your subscription tier does not support general analytics.");
+            
             var devicesVisitsByDays = await cache.GetDevicesVisitsByDaysAsync(userId);
             if (devicesVisitsByDays != null)
                 return devicesVisitsByDays;

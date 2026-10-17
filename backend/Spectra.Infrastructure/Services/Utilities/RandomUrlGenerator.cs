@@ -7,7 +7,7 @@ namespace Spectra.Infrastructure.Services.Utilities
 {
     public class RandomUrlGenerator : IUrlGenerator
     {
-        private const string Alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz";
+        private const string Alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz"; // Unambiguous Alphanumeric
         private readonly Random _random = new Random();
 
         public string GenerateUniqueCode(int length = 7)

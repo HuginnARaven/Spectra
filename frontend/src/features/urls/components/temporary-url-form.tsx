@@ -13,6 +13,10 @@ import {createTemporaryUrl} from "@/features/urls/urlsSlice.ts";
 const formSchema = z.object({
     originalUrl: z
         .url({ message: "Please enter a valid URL" }),
+
+    customCode: z
+        .string()
+        .nullable(),
 });
 
 export function TemporaryUrlForm() {
@@ -23,12 +27,13 @@ export function TemporaryUrlForm() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             originalUrl: "",
+            customCode: null,
         },
     })
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         try {
-            const res = await dispatch(createTemporaryUrl(data.originalUrl)).unwrap();
+            const res = await dispatch(createTemporaryUrl(data)).unwrap();
             toast.success("Short URL created successfully: ", {
                 description: <div className="text-primary underline">{res}</div>,
                 action: {

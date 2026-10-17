@@ -158,6 +158,9 @@ namespace Spectra.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("AnalyticsRetentionDays")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -172,11 +175,20 @@ namespace Spectra.Infrastructure.Data.Migrations
                     b.Property<bool>("HasAccessToUrlAnalytics")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("HasCustomAliasAccess")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasEarlyFeatureAccess")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("MaxUrlsLimit")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -200,7 +212,12 @@ namespace Spectra.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasFilter("\"StripeProductId\" IS NOT NULL");
 
-                    b.ToTable("SubscriptionPlans");
+                    b.ToTable("SubscriptionPlans", t =>
+                        {
+                            t.HasCheckConstraint("CK_SubscriptionPlan_AnalyticsRetentionDays_Min", "\"AnalyticsRetentionDays\" >= 0");
+
+                            t.HasCheckConstraint("CK_SubscriptionPlan_MaxUrlsLimit_Min", "\"MaxUrlsLimit\" >= -1");
+                        });
                 });
 
             modelBuilder.Entity("Spectra.Domain.Entities.SubscriptionPlanPrice", b =>

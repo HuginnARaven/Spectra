@@ -52,8 +52,10 @@ export function getPlanFeatures(plan: SubscriptionPlan): string[] {
     const features: string[] = []
 
     // Max URLs limit
-    if (plan.maxUrlsLimit <= 0) {
+    if (plan.maxUrlsLimit <= -1) {
         features.push("Unlimited active URLs")
+    } else if (plan.maxUrlsLimit === 0) {
+        features.push("No active URLs")
     } else {
         features.push(`Up to ${plan.maxUrlsLimit.toLocaleString()} active URLs`)
     }

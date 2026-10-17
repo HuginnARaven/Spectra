@@ -7,6 +7,10 @@ public class CreateSubscriptionPlanRequest
     public required bool IsDefault { get; set; }
     public required bool HasAccessToGeneralAnalytics { get; set; }
     public required bool HasAccessToUrlAnalytics { get; set; }
+    public bool HasCustomAliasAccess { get; set; }
+    public bool HasEarlyFeatureAccess { get; set; }
+    public int MaxUrlsLimit { get; set; }
+    public int AnalyticsRetentionDays { get; set; }
     
     // Price settings: only if IsDefault = false
     public int? Price { get; set; }

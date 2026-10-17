@@ -31,8 +31,12 @@ public class SubscriptionPlanService(ISubscriptionPlanRepository subscriptionPla
             Name = subscriptionPlanRequest.Name,
             Description =  subscriptionPlanRequest.Description,
             IsDefault = subscriptionPlanRequest.IsDefault,
-            HasAccessToGeneralAnalytics =  subscriptionPlanRequest.HasAccessToGeneralAnalytics,
-            HasAccessToUrlAnalytics =  subscriptionPlanRequest.HasAccessToUrlAnalytics
+            HasAccessToGeneralAnalytics = subscriptionPlanRequest.HasAccessToGeneralAnalytics,
+            HasAccessToUrlAnalytics = subscriptionPlanRequest.HasAccessToUrlAnalytics,
+            HasCustomAliasAccess = subscriptionPlanRequest.HasCustomAliasAccess,
+            HasEarlyFeatureAccess = subscriptionPlanRequest.HasEarlyFeatureAccess,
+            MaxUrlsLimit = subscriptionPlanRequest.MaxUrlsLimit,
+            AnalyticsRetentionDays = subscriptionPlanRequest.AnalyticsRetentionDays
         };
         
         if (subscriptionPlanRequest.IsDefault)
@@ -131,6 +135,10 @@ public class SubscriptionPlanService(ISubscriptionPlanRepository subscriptionPla
         plan.Description = request.Description;
         plan.HasAccessToGeneralAnalytics = request.HasAccessToGeneralAnalytics;
         plan.HasAccessToUrlAnalytics = request.HasAccessToUrlAnalytics;
+        plan.HasCustomAliasAccess = request.HasCustomAliasAccess;
+        plan.HasEarlyFeatureAccess = request.HasEarlyFeatureAccess;
+        plan.MaxUrlsLimit = request.MaxUrlsLimit;
+        plan.AnalyticsRetentionDays = request.AnalyticsRetentionDays;
         
         await subscriptionPlanRepository.UpdateSubscriptionPlanAsync(plan);
     }

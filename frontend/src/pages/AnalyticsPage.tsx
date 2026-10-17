@@ -7,13 +7,17 @@ import {AnalyticsChartsTab} from "@/features/analytics/components/analytics-char
 import {useAppDispatch, useAppSelector} from "@/app/hooks.ts";
 import {fetchUrls} from "@/features/urls/urlsSlice.ts";
 import { useSearchParams } from 'react-router-dom';
+import {AnalyticsChartsPlaceholder} from "@/features/analytics/components/analytics-charts-placeholder.tsx";
 
 const AnalyticsPage = () => {
     const dispatch = useAppDispatch();
     const [selectedUrl, setSelectedUrl] = useState<string>("");
     const [searchParams, setSearchParams] = useSearchParams();
     const { urls, isLoading } = useAppSelector((state) => state.urls);
-
+    const { user } = useAppSelector((state) => state.account);
+    
+    const hasAccessToUrlAnalytics = !!user?.subscriptionPlan?.hasAccessToUrlAnalytics;
+    
     const selectUrl = (id: string) =>{
         setSelectedUrl(id);
         setSearchParams({ urlId: id })
@@ -46,13 +50,17 @@ const AnalyticsPage = () => {
     }
     
     return (
-        <Tabs className="flex flex-1 flex-col h-full min-h-0 gap-4 p-4 pt-0 w-full" defaultValue="charts">
+        <Tabs className="flex flex-1 flex-col h-full min-h-0 gap-4 p-4 pt-0 w-full" defaultValue={hasAccessToUrlAnalytics ? "charts" : "visits"}>
                 <AnalyticsHeader
                     selectedUrl={selectedUrl}
                     onUrlChange={selectUrl}
                 />
                 <TabsContent value="charts" className="flex-1 flex flex-col gap-4 min-h-0 m-0">
-                    <AnalyticsChartsTab/>
+                    {hasAccessToUrlAnalytics ? (
+                        <AnalyticsChartsTab />
+                    ) : (
+                        <AnalyticsChartsPlaceholder />
+                    )}
                 </TabsContent>
                 <TabsContent value="visits" className="flex-1 flex flex-col min-h-0 m-0 overflow-y-auto">
                     <VisitsTable />

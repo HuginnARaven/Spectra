@@ -32,8 +32,11 @@ namespace Spectra.Application.Services
                     Description =  userSubscription.Description,
                     IsDefault = userSubscription.IsDefault,
                     HasAccessToGeneralAnalytics = userSubscription.HasAccessToGeneralAnalytics,
-                    HasAccessToUrlAnalytics = userSubscription.HasAccessToUrlAnalytics
-                    //TODO add new props
+                    HasAccessToUrlAnalytics = userSubscription.HasAccessToUrlAnalytics,
+                    HasCustomAliasAccess = userSubscription.HasCustomAliasAccess,
+                    HasEarlyFeatureAccess = userSubscription.HasEarlyFeatureAccess,
+                    MaxUrlsLimit = userSubscription.MaxUrlsLimit,
+                    AnalyticsRetentionDays = userSubscription.AnalyticsRetentionDays
                 }
             };
 

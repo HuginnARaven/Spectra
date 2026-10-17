@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FluentAssertions;
 using Moq;
 using Spectra.Application.DTOs;
@@ -7,6 +7,7 @@ using Spectra.Application.Interfaces.Utilities;
 using Spectra.Application.Mappings;
 using Spectra.Application.Services;
 using Spectra.Domain.Entities;
+using Spectra.Domain.Exceptions;
 using Spectra.Domain.Interfaces;
 
 namespace Spectra.Application.UnitTests.Services;
@@ -16,6 +17,7 @@ public class UrlShorteningServiceTests
     private readonly Mock<IUrlRepository> _urlRepositoryMock;
     private readonly Mock<IUrlCacheService> _cacheServiceMock;
     private readonly Mock<IUrlGenerator> _urlGeneratorMock;
+    private readonly Mock<IUserSubscriptionRepository> _userSubscriptionRepositoryMock;
     private readonly IMapper _mapper;
     
     private readonly UrlShorteningService _sut;
@@ -25,6 +27,23 @@ public class UrlShorteningServiceTests
         _urlRepositoryMock = new Mock<IUrlRepository>();
         _cacheServiceMock = new Mock<IUrlCacheService>();
         _urlGeneratorMock = new Mock<IUrlGenerator>();
+        _userSubscriptionRepositoryMock = new Mock<IUserSubscriptionRepository>();
+
+        _userSubscriptionRepositoryMock.Setup(x => x.GetEffectivePlanByUserIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(new SubscriptionPlan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Pro",
+                Description = "Pro plan",
+                IsDefault = false,
+                HasAccessToGeneralAnalytics = true,
+                HasAccessToUrlAnalytics = true,
+                HasCustomAliasAccess = true,
+                HasEarlyFeatureAccess = true,
+                MaxUrlsLimit = -1,
+                AnalyticsRetentionDays = 30
+            });
+        
         var config = new MapperConfiguration(configuration =>
         {
             configuration.AddProfile(new MappingProfile());
@@ -35,6 +54,7 @@ public class UrlShorteningServiceTests
             _urlRepositoryMock.Object, 
             _urlGeneratorMock.Object,
             _cacheServiceMock.Object, 
+            _userSubscriptionRepositoryMock.Object,
             _mapper
             );
     }
@@ -76,7 +96,107 @@ public class UrlShorteningServiceTests
         
         _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Never);
     }
-    
+
+    [Fact]
+    public async Task ShortenUrlAsync_LimitReached_ThrowsSubscriptionLimitException()
+    {
+        var request = new CreateUrlRequest { OriginalUrl = "https://xunit.net/?tabs=cs" };
+        var userId = Guid.NewGuid();
+
+        _userSubscriptionRepositoryMock.Setup(x => x.GetEffectivePlanByUserIdAsync(userId.ToString()))
+            .ReturnsAsync(new SubscriptionPlan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Free",
+                MaxUrlsLimit = 5
+            });
+
+        _urlRepositoryMock.Setup(x => x.GetUserUrlsCountAsync(userId.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(5);
+
+        await FluentActions.Awaiting(() => _sut.ShortenUrlAsync(request, userId.ToString(), "http://localhost:5173"))
+            .Should()
+            .ThrowAsync<SubscriptionLimitException>()
+            .WithMessage("You reached urls count limit of your subscription plan.");
+
+        _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ShortenUrlAsync_WithCustomCode_WhenNoCustomAliasAccess_ThrowsSubscriptionLimitException()
+    {
+        var request = new CreateUrlRequest { OriginalUrl = "https://xunit.net/?tabs=cs", CustomCode = "custom1" };
+        var userId = Guid.NewGuid();
+
+        _userSubscriptionRepositoryMock.Setup(x => x.GetEffectivePlanByUserIdAsync(userId.ToString()))
+            .ReturnsAsync(new SubscriptionPlan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Free",
+                MaxUrlsLimit = -1,
+                HasCustomAliasAccess = false
+            });
+
+        await FluentActions.Awaiting(() => _sut.ShortenUrlAsync(request, userId.ToString(), "http://localhost:5173"))
+            .Should()
+            .ThrowAsync<SubscriptionLimitException>()
+            .WithMessage("Your subscription tier does not support custom url codes.");
+
+        _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ShortenUrlAsync_WithCustomCode_WhenCodeAlreadyExists_ThrowsInvalidOperationException()
+    {
+        var request = new CreateUrlRequest { OriginalUrl = "https://xunit.net/?tabs=cs", CustomCode = "custom1" };
+        var userId = Guid.NewGuid();
+
+        _userSubscriptionRepositoryMock.Setup(x => x.GetEffectivePlanByUserIdAsync(userId.ToString()))
+            .ReturnsAsync(new SubscriptionPlan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Pro",
+                MaxUrlsLimit = -1,
+                HasCustomAliasAccess = true
+            });
+
+        _urlRepositoryMock.Setup(x => x.CodeExistsAsync("custom1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        await FluentActions.Awaiting(() => _sut.ShortenUrlAsync(request, userId.ToString(), "http://localhost:5173"))
+            .Should()
+            .ThrowAsync<InvalidOperationException>()
+            .WithMessage("Such code already exists. Please try again.");
+
+        _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ShortenUrlAsync_WithValidCustomCode_ReturnsShortUrlWithCustomCode()
+    {
+        var request = new CreateUrlRequest { OriginalUrl = "https://xunit.net/?tabs=cs", CustomCode = "custom1" };
+        var userId = Guid.NewGuid();
+
+        _userSubscriptionRepositoryMock.Setup(x => x.GetEffectivePlanByUserIdAsync(userId.ToString()))
+            .ReturnsAsync(new SubscriptionPlan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Pro",
+                MaxUrlsLimit = -1,
+                HasCustomAliasAccess = true
+            });
+
+        _urlRepositoryMock.Setup(x => x.CodeExistsAsync("custom1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var result = await _sut.ShortenUrlAsync(request, userId.ToString(), "http://localhost:5173");
+
+        result.Should().NotBeNull();
+        result.ShortCode.Should().Be("custom1");
+        result.ShortUrl.Should().Be("http://localhost:5173/custom1");
+
+        _urlRepositoryMock.Verify(x => x.AddAsync(It.Is<Url>(u => u.ShortCode == "custom1")), Times.Once);
+    }
     
     [Fact]
     public async Task TemporarilyShortenUrlAsync_ValidRequest_ReturnsShortUrlAndCachesIt()

@@ -57,6 +57,12 @@ namespace Spectra.API.Middleware
                         response.Status = externalServiceException.StatusCode ?? (int)HttpStatusCode.ServiceUnavailable;
                         response.Message = externalServiceException.Message;
                         break;
+                    
+                    case SubscriptionLimitException:
+                        httpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        response.Status = (int)HttpStatusCode.Forbidden;
+                        response.Message = e.Message;
+                        break;
 
 
                     default:

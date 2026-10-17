@@ -14,6 +14,7 @@ namespace Spectra.Domain.Interfaces
         Task AddVisitAsync(UrlVisit visit, CancellationToken cancellationToken = default);
         Task BatchAddVisitAsync(List<UrlVisit> batch, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<Url?>> GetUserUrlsAsync(string userId, CancellationToken cancellationToken = default);
+        Task<int> GetUserUrlsCountAsync(string userId, CancellationToken cancellationToken = default);
         Task<Url?> GetUserUrlByIdAsync(string id, string userId, CancellationToken cancellationToken = default);
         Task DeleteUrlAsync(Url url, CancellationToken cancellationToken = default);
         Task<(IReadOnlyList<UrlVisit> Items, int TotalCount)> GetUrlVisitsAsync(Guid urlId, int skip, int take, CancellationToken cancellationToken = default);

@@ -21,6 +21,12 @@ public class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Subscripti
         builder.Property(us => us.StripeProductId)
             .IsRequired(false)
             .HasMaxLength(255);
+
+        builder.ToTable(t =>
+        {
+            t.HasCheckConstraint("CK_SubscriptionPlan_MaxUrlsLimit_Min", "\"MaxUrlsLimit\" >= -1");
+            t.HasCheckConstraint("CK_SubscriptionPlan_AnalyticsRetentionDays_Min", "\"AnalyticsRetentionDays\" >= 0");
+        });
         
         builder.HasIndex(p => p.IsDefault)
             .IsUnique()

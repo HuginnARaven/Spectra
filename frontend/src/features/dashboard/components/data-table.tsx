@@ -121,10 +121,12 @@ export function DataTable() {
         dispatch(fetchAllVisits({page: pagination.pageIndex + 1, pageSize: pagination.pageSize}))
     }, [dispatch, pagination.pageIndex, pagination.pageSize])
 
+    const pageCount = Math.max(1, Math.ceil(totalCount / pagination.pageSize))
+
     const table = useReactTable({
         data: allVisits,
         columns,
-        pageCount: Math.ceil(totalCount / pagination.pageSize) || -1,
+        pageCount,
         manualPagination: true,
         state: {
             sorting,
@@ -273,7 +275,7 @@ export function DataTable() {
                             variant="outline"
                             className="hidden size-8 lg:flex"
                             size="icon"
-                            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                            onClick={() => table.setPageIndex(Math.max(0, table.getPageCount() - 1))}
                             disabled={!table.getCanNextPage() || isLoading}
                         >
                             <span className="sr-only">Go to last page</span>

@@ -1,6 +1,6 @@
 ﻿import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { urlsApi } from './urlsApi';
-import type {UrlData} from './types';
+import type {CreateUrlRequest, UrlData} from './types';
 
 interface UrlsState {
     urls: UrlData[];
@@ -27,9 +27,9 @@ export const fetchUrls = createAsyncThunk(
 
 export const createUrl = createAsyncThunk(
     'urls/createUrl',
-    async (originalUrl: string, { rejectWithValue }) => {
+    async (request: CreateUrlRequest, { rejectWithValue }) => {
         try {
-            return await urlsApi.createUrl({ originalUrl });
+            return await urlsApi.createUrl(request);
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Failed to create URL');
         }
@@ -38,9 +38,9 @@ export const createUrl = createAsyncThunk(
 
 export const createTemporaryUrl = createAsyncThunk(
     'urls/createTemporaryUrl',
-    async (originalUrl: string, { rejectWithValue }) => {
+    async (request: CreateUrlRequest, { rejectWithValue }) => {
         try {
-            return await urlsApi.createTemporaryUrl({ originalUrl });
+            return await urlsApi.createTemporaryUrl(request);
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.error || 'Failed to create temporary URL');
         }
