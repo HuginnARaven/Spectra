@@ -48,7 +48,16 @@ export function formatPrice(amount: number, currencyCode: string = "usd"): strin
     }
 }
 
-export function getPlanFeatures(plan: SubscriptionPlan): string[] {
+export interface PlanFeaturesSource {
+    maxUrlsLimit: number;
+    hasAccessToGeneralAnalytics: boolean;
+    hasAccessToUrlAnalytics: boolean;
+    analyticsRetentionDays: number;
+    hasCustomAliasAccess: boolean;
+    hasEarlyFeatureAccess: boolean;
+}
+
+export function getPlanFeatures(plan: PlanFeaturesSource | SubscriptionPlan): string[] {
     const features: string[] = []
 
     // Max URLs limit

@@ -24,12 +24,13 @@ import {logout} from "@/features/auth/authSlice.ts";
 import type {ReactNode} from "react"
 import {useEffect, useState} from "react"
 import {IconUserCircle} from "@tabler/icons-react"
-import { Link } from "react-router"
+import {BillingForm} from "@/features/account/components/billing-form.tsx";
 
 export function ProfileMenu({children, isMobile}: { children: ReactNode, isMobile: boolean }) {
     const dispatch = useAppDispatch();
     const {user} = useAppSelector((state) => state.account);
     const [isProfileEditFormOpen, setIsProfileEditFormOpen] = useState(false);
+    const [isBillingFormOpen, setIsBillingFormOpen] = useState(false);
     
     const avatar = 'https://static.vecteezy.com/system/resources/thumbnails/063/477/529/small/neutral-gray-silhouette-of-male-avatar-defoult-photo-placeholder-with-short-hair-for-anonymous-profile-picture-with-minimalist-style-suitable-for-various-social-media-platforms-and-websites-vector.jpg'
 
@@ -78,12 +79,13 @@ export function ProfileMenu({children, isMobile}: { children: ReactNode, isMobil
                             <IconUserCircle/>
                             Account
                         </DropdownMenuItem>
-                        <Link to="/pricing">
-                            <DropdownMenuItem>
-                                <IconCreditCard/>
-                                Billing
-                            </DropdownMenuItem>
-                        </Link>
+                        <DropdownMenuItem 
+                            onSelect={() => { setIsBillingFormOpen(true)}}
+                            className="flex items-center gap-2 cursor-pointer w-full"
+                        >
+                            <IconCreditCard/>
+                            Billing
+                        </DropdownMenuItem>
                         <DropdownMenuItem>
                             <IconNotification/>
                             Notifications
@@ -97,6 +99,7 @@ export function ProfileMenu({children, isMobile}: { children: ReactNode, isMobil
                 </DropdownMenuContent>
             </DropdownMenu>
             <AccountEditForm isOpen={isProfileEditFormOpen} setOpen={setIsProfileEditFormOpen}/>
+            <BillingForm isOpen={isBillingFormOpen} setOpen={setIsBillingFormOpen}/>
         </>
     )
 }

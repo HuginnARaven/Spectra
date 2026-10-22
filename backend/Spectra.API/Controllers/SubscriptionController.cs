@@ -16,7 +16,7 @@ namespace Spectra.API.Controllers
         {
             var userId = User.GetUserId();
             var subscription = await userSubscriptionService.GetSubscriptionAsync(userId);
-            return Ok(subscription); // TODO: implement fallback to default sub stats
+            return Ok(subscription);
         }
 
         [HttpPost("checkout")]

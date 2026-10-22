@@ -1,5 +1,5 @@
 import * as React from "react"
-import { IconChartBar, IconDashboard, IconHelp, IconListDetails, IconSearch, IconSettings, } from "@tabler/icons-react"
+import { IconChartBar, IconDashboard, IconHelp, IconListDetails, IconPaywall, IconSettings, } from "@tabler/icons-react"
 import { NavMain } from "./nav-main"
 import { NavSecondary } from "./nav-secondary"
 import { NavUser } from "./nav-user"
@@ -34,16 +34,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 title: "Settings",
                 url: "#",
                 icon: IconSettings,
+                isActive: useLocation().pathname === `/settings` ? true : false
             },
             {
                 title: "Get Help",
                 url: "#",
                 icon: IconHelp,
+                isActive: useLocation().pathname === `/help` ? true : false
             },
             {
-                title: "Search",
-                url: "#",
-                icon: IconSearch,
+                title: "Pricing",
+                url: "pricing",
+                icon: IconPaywall,
+                isActive: useLocation().pathname === `/pricing` ? true : false
             },
         ],
     }

@@ -180,7 +180,8 @@ public class StripeService(StripeClient stripeClient): IPaymentService
                 {
                     new() { Id = existingItemId, Price = newStripePriceId }
                 },
-                ProrationBehavior = "create_prorations"
+                ProrationBehavior = "create_prorations",
+                PaymentBehavior = "error_if_incomplete"
             });
     }
 

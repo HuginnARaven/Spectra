@@ -38,3 +38,26 @@ export interface SetPasswordRequest {
     password: string;
     confirmPassword: string;
 }
+
+export interface UserSubscription {
+    id: string;
+    status: string;
+    currentPeriodStart: string;
+    currentPeriodEnd: string;
+    canceledAt?: string | null;
+    cancelAtPeriodEnd: boolean;
+    subscriptionPlanId: string;
+    planName: string;
+    subscriptionPlanPriceId: string;
+    amount: number;
+    currencyCode: string;
+    interval: string;
+}
+
+export interface CancelSubscriptionRequest {
+    immediate: boolean;
+}
+
+export interface ChangePlanRequest {
+    newPriceId: string;
+}
