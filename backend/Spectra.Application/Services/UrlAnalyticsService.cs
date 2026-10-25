@@ -2,10 +2,7 @@
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
 using Spectra.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Analytics;
 using Spectra.Domain.Exceptions;
 
 namespace Spectra.Application.Services

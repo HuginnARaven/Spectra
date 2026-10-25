@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Auth;
 using Spectra.Application.Interfaces;
-using LoginRequest = Spectra.Application.DTOs.LoginRequest;
-using RegisterRequest = Spectra.Application.DTOs.RegisterRequest;
-using ResetPasswordRequest = Spectra.Application.DTOs.ResetPasswordRequest;
+using LoginRequest = Spectra.Application.DTOs.Auth.LoginRequest;
+using RegisterRequest = Spectra.Application.DTOs.Auth.RegisterRequest;
+using ResetPasswordRequest = Spectra.Application.DTOs.Auth.ResetPasswordRequest;
 
 namespace Spectra.API.Controllers
 {

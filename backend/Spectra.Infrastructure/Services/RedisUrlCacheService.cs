@@ -1,10 +1,7 @@
 ﻿using Spectra.Application.Interfaces;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
-using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Analytics;
 
 namespace Spectra.Infrastructure.Services
 {

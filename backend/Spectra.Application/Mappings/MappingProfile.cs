@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.SubscriptionPlans;
+using Spectra.Application.DTOs.Urls;
 using Spectra.Domain.Entities;
 
 namespace Spectra.Application.Mappings

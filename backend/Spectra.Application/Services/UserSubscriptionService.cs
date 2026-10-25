@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Spectra.Application.DTOs;
+using Spectra.Application.Common.Settings;
+using Spectra.Application.DTOs.Subscriptions;
 using Spectra.Application.Interfaces;
 using Spectra.Domain.Entities;
 using Spectra.Domain.Enums;

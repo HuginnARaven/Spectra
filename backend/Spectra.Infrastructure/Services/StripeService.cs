@@ -1,5 +1,4 @@
-using Microsoft.Extensions.Options;
-using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Subscriptions;
 using Spectra.Application.Interfaces;
 using Stripe;
 using Stripe.Checkout;

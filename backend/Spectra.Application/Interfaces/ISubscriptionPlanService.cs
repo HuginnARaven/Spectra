@@ -1,5 +1,4 @@
-﻿using Spectra.Application.DTOs;
-using Spectra.Domain.Entities;
+﻿using Spectra.Application.DTOs.SubscriptionPlans;
 
 namespace Spectra.Application.Interfaces;
 

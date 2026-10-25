@@ -1,9 +1,8 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.Options;
-using Spectra.Application.DTOs;
+using Spectra.Application.Common.Settings;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
-using Spectra.Domain.Entities;
 
 namespace Spectra.Application.Services.Utilities;
 

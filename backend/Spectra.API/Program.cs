@@ -4,13 +4,16 @@ using Spectra.API.Middleware;
 using Spectra.Application;
 using Spectra.Infrastructure;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
 using Spectra.API.Extensions;
+using Spectra.Domain.Entities;
+using Spectra.Domain.Enums;
 
 namespace SpectraAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -88,8 +91,25 @@ namespace SpectraAPI
             app.UseRateLimiter();
 
             app.MapControllers();
+            
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+                
+                foreach (var role in UserRoles.All)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                        await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+                }
 
-            app.Run();
+                //TODO: dev only, remove later
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                var superUser = await userManager.FindByEmailAsync("bob@test.com");
+                if(superUser != null)
+                    await userManager.AddToRoleAsync(superUser, UserRoles.Admin);
+            }
+
+            await app.RunAsync();
         }
     }
 }

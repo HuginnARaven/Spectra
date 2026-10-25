@@ -1,0 +1,16 @@
+﻿namespace Spectra.Application.DTOs.SubscriptionPlans;
+
+public class SubscriptionPlanBaseDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public bool IsDefault { get; set; }
+    
+    public bool HasAccessToGeneralAnalytics { get; set; }
+    public bool HasAccessToUrlAnalytics { get; set; }
+    public bool HasCustomAliasAccess { get; set; } = false;
+    public bool HasEarlyFeatureAccess { get; set; } = false;
+    public int MaxUrlsLimit { get; set; } = -1;
+    public int AnalyticsRetentionDays { get; set; } = 7; 
+}

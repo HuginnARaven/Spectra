@@ -1,14 +1,10 @@
-﻿using Spectra.Application.DTOs;
-using Spectra.Application.Interfaces;
+﻿using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Interfaces;
 using Spectra.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using AutoMapper;
-using System.Security.AccessControl;
 using Spectra.Application.Common;
+using Spectra.Application.DTOs.Urls;
 using Spectra.Domain.Exceptions;
 
 namespace Spectra.Application.Services

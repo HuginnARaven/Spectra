@@ -1,6 +1,6 @@
-﻿using System.Security.Claims;
-using Microsoft.Extensions.Options;
-using Spectra.Application.DTOs;
+﻿using Spectra.Application.DTOs.Account;
+using Spectra.Application.DTOs.Auth;
+using Spectra.Application.DTOs.SubscriptionPlans;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
@@ -62,8 +62,10 @@ public class AuthService(
         {
             throw new InvalidOperationException("Invalid or expired refresh token");
         }
+        
+        var roles = await identityService.GetUserRolesAsync(user);
 
-        var newAccessToken = jwtTokenGenerator.GenerateToken(user);
+        var newAccessToken = jwtTokenGenerator.GenerateToken(user, roles);
         var newRefreshToken = jwtTokenGenerator.GenerateRefreshToken();
 
         user.RefreshToken = newRefreshToken;
@@ -103,7 +105,9 @@ public class AuthService(
 
     private async Task<AuthResponse> GenerateAuthResponseAsync(User user)
     {
-        var token = jwtTokenGenerator.GenerateToken(user);
+        var roles = await identityService.GetUserRolesAsync(user);
+        
+        var token = jwtTokenGenerator.GenerateToken(user, roles);
         var refreshToken = jwtTokenGenerator.GenerateRefreshToken();
 
         user.RefreshToken = refreshToken;

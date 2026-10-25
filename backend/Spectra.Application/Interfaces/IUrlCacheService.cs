@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Spectra.Application.DTOs;
+﻿using Spectra.Application.DTOs.Analytics;
 
 namespace Spectra.Application.Interfaces
 {

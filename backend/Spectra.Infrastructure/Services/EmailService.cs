@@ -2,7 +2,7 @@
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using Spectra.Application.DTOs;
+using Spectra.Application.Common.Settings;
 using Spectra.Application.Interfaces;
 
 namespace Spectra.Infrastructure.Services;

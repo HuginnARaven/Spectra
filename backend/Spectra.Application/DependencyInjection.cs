@@ -4,6 +4,7 @@ using Spectra.Application.Interfaces;
 using Spectra.Application.Services;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
+using Spectra.Application.Common.Settings;
 using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Application.Services.Utilities;

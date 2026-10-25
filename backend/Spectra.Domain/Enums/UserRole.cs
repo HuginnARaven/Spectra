@@ -4,9 +4,10 @@ using System.Text;
 
 namespace Spectra.Domain.Enums
 {
-    public enum UserRole
+    public static class UserRoles
     {
-        User = 0,
-        Admin = 1
+        public const string Admin = "Admin";
+    
+        public static readonly IReadOnlyList<string> All = [Admin];
     }
 }

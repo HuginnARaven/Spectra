@@ -13,6 +13,7 @@ namespace Spectra.Application.Interfaces
         Task<User?> GetUserByIdAsync(string userId);
         Task<User?> GetUserByEmailAsync(string email);
         Task<User?> GetUserByUsernameAsync(string username);
+        Task<IList<string>> GetUserRolesAsync(User user);
         
         Task CreateUserAsync(User user, string password);
         Task UpdateUserAsync(User user);

@@ -1,7 +1,5 @@
-﻿using Spectra.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Spectra.Application.DTOs.Account;
+
 
 namespace Spectra.Application.Interfaces
 {

@@ -1,4 +1,5 @@
-﻿using Spectra.Application.DTOs;
+﻿using Spectra.Application.DTOs.Account;
+using Spectra.Application.DTOs.SubscriptionPlans;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Interfaces;

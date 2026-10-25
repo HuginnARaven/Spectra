@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Spectra.API.Extensions;
-using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Identity.Data;
+using Spectra.Application.DTOs.Account;
 
 namespace Spectra.API.Controllers
 {

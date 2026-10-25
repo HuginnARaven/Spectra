@@ -1,10 +1,10 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Google.Apis.Auth;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Flows;
 using Microsoft.Extensions.Options;
+using Spectra.Application.Common.Settings;
 using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Auth;
 using Spectra.Application.Interfaces;
 using Spectra.Domain.Exceptions;
 

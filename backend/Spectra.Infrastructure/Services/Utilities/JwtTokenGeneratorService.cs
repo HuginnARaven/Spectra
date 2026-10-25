@@ -19,7 +19,7 @@ namespace Spectra.Infrastructure.Services.Utilities
             return Convert.ToBase64String(randomNumber);
         }
 
-        public string GenerateToken(User user)
+        public string GenerateToken(User user, IList<string>? roles = null)
         {
             var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["Secret"];
@@ -33,6 +33,10 @@ namespace Spectra.Infrastructure.Services.Utilities
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+            
+            if (roles is { Count: > 0 })
+                claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],

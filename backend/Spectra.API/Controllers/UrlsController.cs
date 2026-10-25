@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Spectra.API.Extensions;
-using Spectra.Application.DTOs;
 using Spectra.Application.Interfaces;
-using Spectra.Domain.Entities;
-using System.Security.Claims;
 using Microsoft.AspNetCore.RateLimiting;
 using Spectra.Application.Common;
+using Spectra.Application.DTOs.Analytics;
+using Spectra.Application.DTOs.Urls;
 
 namespace Spectra.API.Controllers
 {

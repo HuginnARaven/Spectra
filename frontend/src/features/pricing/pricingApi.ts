@@ -3,7 +3,7 @@ import type { SubscriptionPlan, CheckoutRequest, CheckoutResponse } from './type
 
 const pricingApi = {
     getSubscriptionPlans: async () => {
-        const response = await agent.get<SubscriptionPlan[]>('/stripe/get-subscription-plans');
+        const response = await agent.get<SubscriptionPlan[]>('/subscriptionplans/get-subscription-plans');
         return response.data;
     },
     createCheckoutSession: async (data: CheckoutRequest) => {

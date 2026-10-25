@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Spectra.API.Controllers;
 using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Analytics;
 using Spectra.Application.Interfaces;
 
 namespace Spectra.API.UnitTests.Controllers;

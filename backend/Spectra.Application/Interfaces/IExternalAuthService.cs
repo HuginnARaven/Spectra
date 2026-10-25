@@ -1,4 +1,4 @@
-﻿using Spectra.Application.DTOs;
+﻿using Spectra.Application.DTOs.Auth;
 
 namespace Spectra.Application.Interfaces;
 

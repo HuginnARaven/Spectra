@@ -16,6 +16,7 @@ using Spectra.Infrastructure.Services.Utilities;
 using StackExchange.Redis;
 using System.Text;
 using Microsoft.Extensions.Options;
+using Spectra.Application.Common.Settings;
 using Spectra.Application.DTOs;
 using Spectra.Infrastructure.Queries;
 using Stripe;

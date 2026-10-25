@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Moq;
 using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Auth;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Application.Services;

@@ -1,9 +1,5 @@
 ﻿using Spectra.Application.Common;
-using Spectra.Application.DTOs;
-using Spectra.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Spectra.Application.DTOs.Urls;
 
 namespace Spectra.Application.Interfaces
 {

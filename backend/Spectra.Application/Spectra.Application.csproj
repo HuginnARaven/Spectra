@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Spectra.Domain\Spectra.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Validators\Analytics\" />
+  </ItemGroup>
+
 </Project>

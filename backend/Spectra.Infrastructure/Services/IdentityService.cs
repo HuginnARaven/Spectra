@@ -38,6 +38,11 @@ namespace Spectra.Infrastructure.Services
         {
             return await userManager.FindByNameAsync(username);
         }
+        
+        public async Task<IList<string>> GetUserRolesAsync(User user)
+        {
+            return await userManager.GetRolesAsync(user);
+        }
 
         public async Task UpdateUserAsync(User user)
         {

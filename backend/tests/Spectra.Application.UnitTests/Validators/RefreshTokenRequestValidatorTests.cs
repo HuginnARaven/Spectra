@@ -1,6 +1,8 @@
 using FluentValidation.TestHelper;
 using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Auth;
 using Spectra.Application.Validators;
+using Spectra.Application.Validators.Auth;
 
 namespace Spectra.Application.UnitTests.Validators;
 

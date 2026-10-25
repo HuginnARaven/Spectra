@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Spectra.API.Extensions;
-using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Subscriptions;
 using Spectra.Application.Interfaces;
 
 namespace Spectra.API.Controllers

@@ -1,7 +1,5 @@
-﻿using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using Spectra.Application.DTOs;
+﻿using System.Threading.Channels;
+using Spectra.Application.DTOs.Analytics;
 using Spectra.Application.Interfaces;
 
 namespace Spectra.Infrastructure.Services

@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Analytics;
 using Spectra.Application.Interfaces;
 using StackExchange.Redis;
 

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
-using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.SubscriptionPlans;
 using Spectra.Application.Interfaces;
 using Spectra.Domain.Entities;
 using Spectra.Domain.Interfaces;

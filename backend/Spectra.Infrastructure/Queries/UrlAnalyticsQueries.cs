@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Analytics;
 using Spectra.Application.Interfaces;
 using Spectra.Infrastructure.Data;
 
