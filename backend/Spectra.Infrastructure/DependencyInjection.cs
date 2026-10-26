@@ -32,6 +32,7 @@ namespace Spectra.Infrastructure
 
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
             services.AddScoped<IUrlRepository, UrlRepository>();
+            services.AddScoped<IUrlVisitRepository, UrlVisitRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
 

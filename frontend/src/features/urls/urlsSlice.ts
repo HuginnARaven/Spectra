@@ -4,21 +4,23 @@ import type {CreateUrlRequest, UrlData} from './types';
 
 interface UrlsState {
     urls: UrlData[];
+    totalCount: number;
     isLoading: boolean;
     error: string | null;
 }
 
 const initialState: UrlsState = {
     urls: [],
+    totalCount: 0,
     isLoading: false,
     error: null,
 };
 
 export const fetchUrls = createAsyncThunk(
     'urls/fetchUrls',
-    async (_, { rejectWithValue }) => {
+    async ({page, pageSize}: {page: number, pageSize: number}, { rejectWithValue }) => {
         try {
-            return await urlsApi.getUserUrls();
+            return await urlsApi.getUserUrls(page, pageSize);
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Failed to fetch URLs');
         }
@@ -72,7 +74,8 @@ const urlsSlice = createSlice({
             })
             .addCase(fetchUrls.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.urls = action.payload;
+                state.urls = action.payload.items;
+                state.totalCount = action.payload.totalCount;
             })
             .addCase(fetchUrls.rejected, (state, action) => {
                 state.isLoading = false;

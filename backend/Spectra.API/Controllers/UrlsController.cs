@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Spectra.Application.Common;
 using Spectra.Application.DTOs.Analytics;
 using Spectra.Application.DTOs.Urls;
+using Spectra.Domain.Enums;
 
 namespace Spectra.API.Controllers
 {
@@ -24,11 +25,11 @@ namespace Spectra.API.Controllers
 
         [Authorize]
         [HttpGet("get-shorten-urls")]
-        public async Task<ActionResult<IReadOnlyList<UrlDto>>> GetUserUrls(CancellationToken cancellationToken)
+        public async Task<ActionResult<PaginatedResult<UrlDto>>> GetUserUrls([FromQuery] PaginationRequest request, CancellationToken cancellationToken)
         {
             var currentUserId = User.GetUserId();
 
-            return Ok(await urlService.GetUserUrlsAsync(currentUserId, cancellationToken));
+            return Ok(await urlService.GetUserUrlsAsync(currentUserId, request, cancellationToken));
         }
 
         [Authorize]
@@ -48,7 +49,7 @@ namespace Spectra.API.Controllers
         {
             var currentUserId = User.GetUserId();
 
-            var result = await urlService.GetUrlVisitsAsync(id, currentUserId, request, cancellationToken);
+            var result = await analyticsService.GetUrlVisitsAsync(id, currentUserId, request, cancellationToken);
 
             return Ok(result);
         }
@@ -59,7 +60,7 @@ namespace Spectra.API.Controllers
         {
             var currentUserId = User.GetUserId();
 
-            var result = await urlService.GetAllVisitsAsync(currentUserId, request, cancellationToken);
+            var result = await analyticsService.GetAllVisitsAsync(currentUserId, request, cancellationToken);
 
             return Ok(result);
         }
@@ -138,6 +139,44 @@ namespace Spectra.API.Controllers
         public async Task<ActionResult<string>> CreateTemporaryUrl(CreateUrlRequest request, CancellationToken cancellationToken)
         {
             return Ok(await urlService.TemporarilyShortenUrlAsync(request, $"{Request.Scheme}://{Request.Host}{Request.PathBase}", cancellationToken));
+        }
+
+
+        [Authorize(Roles = UserRoles.Admin)]
+        [HttpGet("admin/get-urls")]
+        public async Task<ActionResult<PaginatedResult<UrlAdminDto>>> AdminGetUrls([FromQuery] PaginationRequest request, CancellationToken cancellationToken)
+        {
+            return Ok(await urlService.AdminGetUrlsAsync(request, cancellationToken));
+        }
+        
+        [Authorize(Roles = UserRoles.Admin)]
+        [HttpGet("admin/get-url/{id}")]
+        public async Task<ActionResult<UrlAdminDto>> AdminGetUrl(string id, CancellationToken cancellationToken)
+        {
+            return Ok(await urlService.AdminGetUrlByIdAsync(id, cancellationToken));
+        }
+        
+        [Authorize(Roles = UserRoles.Admin)]
+        [HttpPost("admin/create-url")]
+        public async Task<ActionResult<UrlAdminDto>> AdminCreateUrl(UrlAdminRequest request, CancellationToken cancellationToken)
+        {
+            return Ok(await urlService.AdminCreateUrlAsync(request, cancellationToken));
+        }
+        
+        [Authorize(Roles = UserRoles.Admin)]
+        [HttpPut("admin/edit-url/{id}")]
+        public async Task<ActionResult<UrlAdminDto>> AdminEditUrl(UrlAdminRequest request, string id, CancellationToken cancellationToken)
+        {
+            return Ok(await urlService.AdminEditUrlAsync(request, id, cancellationToken));
+        }
+        
+        [Authorize(Roles = UserRoles.Admin)]
+        [HttpDelete("admin/delete-url/{id}")]
+        public async Task<IActionResult> AdminDeleteUrl(string id, CancellationToken cancellationToken)
+        {
+            await urlService.AdminDeleteUrlAsync(id, cancellationToken);
+            
+            return Ok();
         }
     }
 }

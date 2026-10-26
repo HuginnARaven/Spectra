@@ -7,17 +7,15 @@ namespace Spectra.Domain.Interfaces
 {
     public interface IUrlRepository
     {
-        Task AddAsync(Url url, CancellationToken cancellationToken = default);
+        Task<Url?> GetUrlByIdAsync(Guid urlId, Guid? userId, CancellationToken cancellationToken = default);
+        Task<(IReadOnlyList<Url> Items, int TotalCount)> GetUrlsAsync(int skip, int take, Guid? userId = null, CancellationToken cancellationToken = default);
         Task<Url?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
+        Task<int> GetUserUrlsCountAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<Dictionary<string, Guid>> GetUrlsIdsByShortCodesAsync(List<string> shortCodes,CancellationToken cancellationToken = default);
         Task<bool> CodeExistsAsync(string code, CancellationToken cancellationToken = default);
-        Task AddVisitAsync(UrlVisit visit, CancellationToken cancellationToken = default);
-        Task BatchAddVisitAsync(List<UrlVisit> batch, CancellationToken cancellationToken = default);
-        Task<IReadOnlyList<Url?>> GetUserUrlsAsync(string userId, CancellationToken cancellationToken = default);
-        Task<int> GetUserUrlsCountAsync(string userId, CancellationToken cancellationToken = default);
-        Task<Url?> GetUserUrlByIdAsync(string id, string userId, CancellationToken cancellationToken = default);
+        
+        Task AddUrlAsync(Url url, CancellationToken cancellationToken = default);
+        Task<Url> UpdateUrlAsync(Url url, CancellationToken cancellationToken = default);
         Task DeleteUrlAsync(Url url, CancellationToken cancellationToken = default);
-        Task<(IReadOnlyList<UrlVisit> Items, int TotalCount)> GetUrlVisitsAsync(Guid urlId, int skip, int take, CancellationToken cancellationToken = default);
-        Task<(IReadOnlyList<UrlVisit> Items, int TotalCount)> GetUserUrlVisitsAsync(string userId, int skip, int take, CancellationToken cancellationToken = default);
     }
 }

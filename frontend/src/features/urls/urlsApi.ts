@@ -3,8 +3,10 @@ import type {CreateUrlRequest, UrlData} from './types';
 
 
 export const urlsApi = {
-    getUserUrls: async () => {
-        const response = await agent.get<UrlData[]>('/urls/get-shorten-urls');
+    getUserUrls: async (pageNumber: number = 1, pageSize: number = 100) => {
+        const response = await agent.get<{ items: UrlData[], totalCount: number, pageNumber: number, pageSize: number}>(
+            '/urls/get-shorten-urls',
+            { params: { pageNumber, pageSize } });
         return response.data;
     },
     createUrl: async (data: CreateUrlRequest) => {

@@ -19,7 +19,7 @@ export function UrlsTable() {
     const { urls, isLoading, error } = useAppSelector((state) => state.urls);
 
     useEffect(() => {
-        dispatch(fetchUrls());
+        dispatch(fetchUrls({page: 1, pageSize: 50})); // TODO: create ui for pagination
     }, [dispatch]);
 
     const handleCopy = (text: string) => {

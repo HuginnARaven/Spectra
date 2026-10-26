@@ -39,6 +39,7 @@ namespace Spectra.Infrastructure.Services
                     {
                         using var scope = scopeFactory.CreateScope();
                         var urlRepository = scope.ServiceProvider.GetRequiredService<IUrlRepository>();
+                        var urlVisitRepository = scope.ServiceProvider.GetRequiredService<IUrlVisitRepository>();
                         var uaParser = scope.ServiceProvider.GetRequiredService<IUserAgentParser>();
                         var geoLocationService = scope.ServiceProvider.GetRequiredService<IGeoLocationService>();
                         
@@ -70,7 +71,7 @@ namespace Spectra.Infrastructure.Services
                             });
                         }
                         
-                        await urlRepository.BatchAddVisitAsync(urlVisits, cancellationToken);
+                        await urlVisitRepository.BatchAddVisitAsync(urlVisits, cancellationToken);
                         
                         _batch.Clear();
                         _lastFlush = DateTime.UtcNow;

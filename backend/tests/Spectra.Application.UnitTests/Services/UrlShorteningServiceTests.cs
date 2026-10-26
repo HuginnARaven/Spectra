@@ -76,7 +76,7 @@ public class UrlShorteningServiceTests
         result.Should().NotBeNull();
         result.ShortUrl.Should().Be($"http://localhost:5173/{testUniqueCode}");
         
-        _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Once);
+        _urlRepositoryMock.Verify(x => x.AddUrlAsync(It.IsAny<Url>()), Times.Once);
         _cacheServiceMock.Verify(x => x.SetUrlAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
     
@@ -95,7 +95,7 @@ public class UrlShorteningServiceTests
             .ThrowAsync<InvalidOperationException>()
             .WithMessage("Failed to generate a unique code. Please try again.");
         
-        _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Never);
+        _urlRepositoryMock.Verify(x => x.AddUrlAsync(It.IsAny<Url>()), Times.Never);
     }
 
     [Fact]
@@ -112,7 +112,7 @@ public class UrlShorteningServiceTests
                 MaxUrlsLimit = 5
             });
 
-        _urlRepositoryMock.Setup(x => x.GetUserUrlsCountAsync(userId.ToString(), It.IsAny<CancellationToken>()))
+        _urlRepositoryMock.Setup(x => x.GetUserUrlsCountAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(5);
 
         await FluentActions.Awaiting(() => _sut.ShortenUrlAsync(request, userId.ToString(), "http://localhost:5173"))
@@ -120,7 +120,7 @@ public class UrlShorteningServiceTests
             .ThrowAsync<SubscriptionLimitException>()
             .WithMessage("You reached urls count limit of your subscription plan.");
 
-        _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Never);
+        _urlRepositoryMock.Verify(x => x.AddUrlAsync(It.IsAny<Url>()), Times.Never);
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public class UrlShorteningServiceTests
             .ThrowAsync<SubscriptionLimitException>()
             .WithMessage("Your subscription tier does not support custom url codes.");
 
-        _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Never);
+        _urlRepositoryMock.Verify(x => x.AddUrlAsync(It.IsAny<Url>()), Times.Never);
     }
 
     [Fact]
@@ -169,7 +169,7 @@ public class UrlShorteningServiceTests
             .ThrowAsync<InvalidOperationException>()
             .WithMessage("Such code already exists. Please try again.");
 
-        _urlRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Url>()), Times.Never);
+        _urlRepositoryMock.Verify(x => x.AddUrlAsync(It.IsAny<Url>()), Times.Never);
     }
 
     [Fact]
@@ -196,7 +196,7 @@ public class UrlShorteningServiceTests
         result.ShortCode.Should().Be("custom1");
         result.ShortUrl.Should().Be("http://localhost:5173/custom1");
 
-        _urlRepositoryMock.Verify(x => x.AddAsync(It.Is<Url>(u => u.ShortCode == "custom1")), Times.Once);
+        _urlRepositoryMock.Verify(x => x.AddUrlAsync(It.Is<Url>(u => u.ShortCode == "custom1")), Times.Once);
     }
     
     [Fact]

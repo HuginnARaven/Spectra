@@ -1,24 +1,29 @@
-﻿using Spectra.Application.Interfaces;
+﻿using AutoMapper;
+using Spectra.Application.Common;
+using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
 using Spectra.Domain.Interfaces;
 using Spectra.Application.DTOs.Analytics;
+using Spectra.Application.DTOs.Urls;
 using Spectra.Domain.Exceptions;
 
 namespace Spectra.Application.Services
 {
     public class UrlAnalyticsService(
         IUrlRepository repository, 
+        IUrlVisitRepository urlVisitRepository,
         IUserAgentParser uaParser, 
         IGeoLocationService geoLocationService, 
         IUrlAnalyticsQueries queries, 
         IUrlCacheService cache,
-        IUserSubscriptionRepository userSubscriptionRepository
+        IUserSubscriptionRepository userSubscriptionRepository,
+        IMapper mapper
         ) : IUrlAnalyticsService
     {
         public async Task LogVisitAsync(string shortCode, string ipAddress, string? userAgent, string? referer, CancellationToken cancellationToken = default)
         {
-            var url = await repository.GetByCodeAsync(shortCode);
+            var url = await repository.GetByCodeAsync(shortCode, cancellationToken);
             if (url == null) return;
 
             var clientInfo = uaParser.Parse(userAgent ?? "");
@@ -38,7 +43,44 @@ namespace Spectra.Application.Services
                 Referrer = referer
             };
 
-            await repository.AddVisitAsync(visit, cancellationToken);
+            await urlVisitRepository.AddVisitAsync(visit, cancellationToken);
+        }
+        
+        public async Task<PaginatedResult<UrlVisitDto>> GetUrlVisitsAsync(string urlId, string userId, PaginationRequest request, CancellationToken cancellationToken = default)
+        {
+            if (!Guid.TryParse(userId, out var guidUserId))
+                throw new ArgumentException("Invalid user id");
+            
+            if (!Guid.TryParse(urlId, out var guidUrlId))
+                throw new ArgumentException("Invalid url id");
+            
+            var url = await repository.GetUrlByIdAsync(guidUrlId, guidUserId, cancellationToken);
+            if (url == null)
+            {
+                throw new KeyNotFoundException($"URL with id '{urlId}' not found.");
+            }
+
+            var skip = (request.PageNumber - 1) * request.PageSize;
+
+            var (visits, totalCount) = await urlVisitRepository.GetUrlVisitsAsync(skip, request.PageSize, urlId: url.Id, cancellationToken: cancellationToken);
+
+            var visitDtos = mapper.Map<IReadOnlyList<UrlVisitDto>>(visits);
+
+            return new PaginatedResult<UrlVisitDto>(visitDtos, totalCount, request.PageNumber, request.PageSize);
+        }
+
+        public async Task<PaginatedResult<UrlVisitDto>> GetAllVisitsAsync(string userId, PaginationRequest request, CancellationToken cancellationToken = default)
+        {
+            if (!Guid.TryParse(userId, out var guidUserId))
+                throw new ArgumentException("Invalid user id");
+            
+            var skip = (request.PageNumber - 1) * request.PageSize;
+            
+            var (visits, totalCount) = await urlVisitRepository.GetUrlVisitsAsync(skip, request.PageSize, userId: guidUserId, cancellationToken: cancellationToken);
+            
+            var visitDtos = mapper.Map<IReadOnlyList<UrlVisitDto>>(visits);
+
+            return new PaginatedResult<UrlVisitDto>(visitDtos, totalCount, request.PageNumber, request.PageSize);
         }
 
         public async Task<UrlAnalyticsDto> GetUrlAnalyticsAsync(string id, string userId, CancellationToken cancellationToken = default)
