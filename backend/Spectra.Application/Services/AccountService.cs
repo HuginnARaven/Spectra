@@ -1,4 +1,6 @@
-﻿using Spectra.Application.DTOs.Account;
+﻿using AutoMapper;
+using Spectra.Application.Common;
+using Spectra.Application.DTOs.Account;
 using Spectra.Application.DTOs.SubscriptionPlans;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
@@ -6,9 +8,9 @@ using Spectra.Domain.Interfaces;
 
 namespace Spectra.Application.Services
 {
-    public class AccountService(IEmailNotificationService emailNotificationService, IIdentityService identityService, IUserSubscriptionRepository userSubscriptionRepository) : IAccountService
+    public class AccountService(IEmailNotificationService emailNotificationService, IIdentityService identityService, IUserSubscriptionRepository userSubscriptionRepository, IMapper mapper, IPaymentService paymentService) : IAccountService
     {
-        public async Task<ProfileResponse> GetUserAsync(string userId, CancellationToken cancellationToken = default)
+        public async Task<ProfileResponse> GetUserProfileAsync(string userId, CancellationToken cancellationToken = default)
         {
             var user = await identityService.GetUserByIdAsync(userId);
             if (user == null)
@@ -44,7 +46,7 @@ namespace Spectra.Application.Services
             return response;
         }
 
-        public async Task EditUserAsync(string userId, ProfileRequest request)
+        public async Task EditUserProfileAsync(string userId, ProfileRequest request)
         {
             var user = await identityService.GetUserByIdAsync(userId);
             if (user == null)
@@ -129,6 +131,77 @@ namespace Spectra.Application.Services
             var emailConfirmationToken = await identityService.CreateEmailConfirmationTokenAsync(user);
             
             await emailNotificationService.SendVerificationEmailAsync(user.Email, emailConfirmationToken, false);
+        }
+
+        public async Task<PaginatedResult<UserAdminDto>> AdminGetUsersAsync(PaginationRequest request, CancellationToken cancellationToken = default)
+        {
+            var skip = (request.PageNumber - 1) * request.PageSize;
+
+            var (users, totalCount) = await identityService.GetUsersAsync(skip, request.PageSize, cancellationToken: cancellationToken);
+
+            var userDtos = mapper.Map<IReadOnlyList<UserAdminDto>>(users);
+
+            return new PaginatedResult<UserAdminDto>(userDtos, totalCount, request.PageNumber, request.PageSize);
+        }
+
+        public async Task<UserAdminDto?> AdminGetUserByIdAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            var user = await identityService.GetUserByIdAsync(userId);
+            
+            if (user == null)
+                throw new KeyNotFoundException($"User with id '{userId}' not found.");
+            
+            var dto = mapper.Map<UserAdminDto>(user);
+            dto.Roles = await identityService.GetUserRolesAsync(user);
+            return dto;
+        }
+
+        public async Task<UserAdminDto> AdminEditUserAsync(UserAdminRequest request, string userId, CancellationToken cancellationToken = default)
+        {
+            var user = await identityService.GetUserByIdAsync(userId);
+            
+            if (user == null)
+                throw new KeyNotFoundException($"User with id '{userId}' not found.");
+            
+            var existingUser = await identityService.GetUserByEmailAsync(request.Email);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                throw new InvalidOperationException("User with this email already exists.");
+            }
+            existingUser = await identityService.GetUserByUsernameAsync(request.Username);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                throw new InvalidOperationException("User with this username already exists.");
+            }
+            
+            user.UserName = request.Username;
+            user.DisplayName = request.DisplayName;
+            user.Email = request.Email;
+            user.EmailConfirmed = request.EmailConfirmed;
+            
+            await identityService.UpdateUserAsync(user);
+            
+            var dto = mapper.Map<UserAdminDto>(user);
+            dto.Roles = await identityService.GetUserRolesAsync(user);
+            return dto;
+        }
+
+        public async Task AdminDeleteUserAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            var user = await identityService.GetUserByIdAsync(userId);
+            
+            if (user == null)
+                throw new KeyNotFoundException($"User with id '{userId}' not found.");
+            
+            var userSubscription = await userSubscriptionRepository.GetByUserIdAsync(userId);
+
+            if (userSubscription != null)
+            {
+                await paymentService.CancelSubscriptionAsync(userSubscription.StripeSubscriptionId, atPeriodEnd: false);
+                await userSubscriptionRepository.DeleteAsync(userSubscription);
+            }
+            
+            await identityService.DeleteUserAsync(user);
         }
     }
 }

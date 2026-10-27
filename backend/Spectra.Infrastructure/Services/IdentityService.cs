@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
@@ -44,6 +45,22 @@ namespace Spectra.Infrastructure.Services
             return await userManager.GetRolesAsync(user);
         }
 
+        public async Task<(IReadOnlyList<User> Items, int TotalCount)> GetUsersAsync(int skip, int take, CancellationToken cancellationToken = default)
+        {
+            var query = userManager.Users
+                .AsNoTracking()
+                .OrderByDescending(v => v.CreatedAt);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync(cancellationToken);
+
+            return (items, totalCount);
+        }
+
         public async Task UpdateUserAsync(User user)
         {
             var result = await userManager.UpdateAsync(user);
@@ -52,6 +69,17 @@ namespace Spectra.Infrastructure.Services
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 throw new InvalidOperationException($"Failed to update user: {errors}");
+            }
+        }
+
+        public async Task DeleteUserAsync(User user)
+        {
+            var result = await userManager.DeleteAsync(user);
+            
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to delete user: {errors}");
             }
         }
 

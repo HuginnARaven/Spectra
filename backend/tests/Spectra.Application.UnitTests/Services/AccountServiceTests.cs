@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentAssertions;
 using Moq;
 using Spectra.Application.DTOs;
@@ -16,6 +17,8 @@ public class AccountServiceTests
     private readonly Mock<IEmailNotificationService> _emailNotificationServiceMock;
     private readonly Mock<IIdentityService> _identityServiceMock;
     private readonly Mock<IUserSubscriptionRepository> _userSubscriptionRepository;
+    private readonly Mock<IMapper> _mapper;
+    private readonly Mock<IPaymentService> _paymentService;
     
     private readonly AccountService _sut;
 
@@ -24,6 +27,9 @@ public class AccountServiceTests
         _emailNotificationServiceMock = new Mock<IEmailNotificationService>();
         _identityServiceMock = new Mock<IIdentityService>();
         _userSubscriptionRepository = new Mock<IUserSubscriptionRepository>();
+        _mapper = new Mock<IMapper>();
+        _paymentService = new Mock<IPaymentService>();
+        
         _userSubscriptionRepository.Setup(x => x.GetEffectivePlanByUserIdAsync(It.IsAny<string>()))
             .ReturnsAsync(new SubscriptionPlan
             {
@@ -42,7 +48,9 @@ public class AccountServiceTests
         _sut = new AccountService(
             _emailNotificationServiceMock.Object,
             _identityServiceMock.Object,
-            _userSubscriptionRepository.Object
+            _userSubscriptionRepository.Object,
+            _mapper.Object,
+            _paymentService.Object
         );
     }
 
@@ -67,7 +75,7 @@ public class AccountServiceTests
             .ReturnsAsync(user);
 
         // Act
-        var result = await _sut.GetUserAsync(userId);
+        var result = await _sut.GetUserProfileAsync(userId);
 
         // Assert
         result.Should().NotBeNull();
@@ -91,7 +99,7 @@ public class AccountServiceTests
             .ReturnsAsync((User?)null);
 
         // Act & Assert
-        await FluentActions.Awaiting(() => _sut.GetUserAsync(userId))
+        await FluentActions.Awaiting(() => _sut.GetUserProfileAsync(userId))
             .Should()
             .ThrowAsync<KeyNotFoundException>()
             .WithMessage($"User with id '{userId}' not found.");
@@ -132,7 +140,7 @@ public class AccountServiceTests
             .ReturnsAsync((User?)null);
 
         // Act
-        await _sut.EditUserAsync(userId, request);
+        await _sut.EditUserProfileAsync(userId, request);
 
         // Assert
         user.EmailConfirmed.Should().BeTrue();
@@ -175,7 +183,7 @@ public class AccountServiceTests
             .ReturnsAsync((User?)null);
 
         // Act
-        await _sut.EditUserAsync(userId, request);
+        await _sut.EditUserProfileAsync(userId, request);
 
         // Assert
         user.EmailConfirmed.Should().BeFalse();
@@ -205,7 +213,7 @@ public class AccountServiceTests
             .ReturnsAsync((User?)null);
 
         // Act & Assert
-        await FluentActions.Awaiting(() => _sut.EditUserAsync(userId, request))
+        await FluentActions.Awaiting(() => _sut.EditUserProfileAsync(userId, request))
             .Should()
             .ThrowAsync<KeyNotFoundException>()
             .WithMessage($"User with id '{userId}' not found.");
@@ -246,7 +254,7 @@ public class AccountServiceTests
             .ReturnsAsync(anotherUser);
 
         // Act & Assert
-        await FluentActions.Awaiting(() => _sut.EditUserAsync(userId, request))
+        await FluentActions.Awaiting(() => _sut.EditUserProfileAsync(userId, request))
             .Should()
             .ThrowAsync<InvalidOperationException>()
             .WithMessage("User with this email already exists.");
@@ -289,7 +297,7 @@ public class AccountServiceTests
             .ReturnsAsync(anotherUser);
 
         // Act & Assert
-        await FluentActions.Awaiting(() => _sut.EditUserAsync(userId, request))
+        await FluentActions.Awaiting(() => _sut.EditUserProfileAsync(userId, request))
             .Should()
             .ThrowAsync<InvalidOperationException>()
             .WithMessage("User with this username already exists.");
@@ -329,7 +337,7 @@ public class AccountServiceTests
             .ReturnsAsync(user);
 
         // Act
-        await _sut.EditUserAsync(userId, request);
+        await _sut.EditUserProfileAsync(userId, request);
 
         // Assert
         user.DisplayName.Should().Be(request.DisplayName);

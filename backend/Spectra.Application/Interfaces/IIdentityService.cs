@@ -9,14 +9,17 @@ namespace Spectra.Application.Interfaces
 {
     public interface IIdentityService
     {
+        
         Task<User?> GetUserWithCredentialsAsync(string email, string password);
         Task<User?> GetUserByIdAsync(string userId);
         Task<User?> GetUserByEmailAsync(string email);
         Task<User?> GetUserByUsernameAsync(string username);
         Task<IList<string>> GetUserRolesAsync(User user);
+        Task<(IReadOnlyList<User> Items, int TotalCount)> GetUsersAsync(int skip, int take, CancellationToken cancellationToken = default);
         
         Task CreateUserAsync(User user, string password);
         Task UpdateUserAsync(User user);
+        Task DeleteUserAsync(User user);
         Task ChangePasswordAsync(User user, string currentPassword, string newPassword);
         Task AddPasswordAsync(User user, string password);
         

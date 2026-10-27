@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Spectra.Application.DTOs.Account;
 using Spectra.Application.DTOs.SubscriptionPlans;
 using Spectra.Application.DTOs.Urls;
 using Spectra.Domain.Entities;
@@ -13,6 +14,7 @@ namespace Spectra.Application.Mappings
             CreateMap<Url, UrlAdminDto>().ReverseMap();
             CreateMap<UrlVisit, UrlVisitDto>().ReverseMap();
             
+            CreateMap<User, UserAdminDto>().ReverseMap();
             
             CreateMap<SubscriptionPlanPrice, SubscriptionPriceDto>().ReverseMap();
             CreateMap<SubscriptionPlan, SubscriptionPlanDto>().ReverseMap();
