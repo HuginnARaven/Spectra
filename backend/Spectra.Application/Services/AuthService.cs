@@ -125,6 +125,7 @@ public class AuthService(
                 Username = user.UserName,
                 DisplayName = user.DisplayName,
                 EmailConfirmed =  user.EmailConfirmed,
+                Roles = roles,
                 SubscriptionPlan = new SubscriptionPlanBaseDto()
                 {
                     Id = userSubscription.Id,

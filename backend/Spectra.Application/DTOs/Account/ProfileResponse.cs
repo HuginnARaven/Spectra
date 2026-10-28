@@ -10,6 +10,7 @@ namespace Spectra.Application.DTOs.Account
         public string DisplayName { get; set; } = string.Empty;
         public bool EmailConfirmed { get; set; } = false;
         public SubscriptionPlanBaseDto SubscriptionPlan { get; set; } = new SubscriptionPlanDto();
+        public IList<string> Roles { get; set; } = new List<string>();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

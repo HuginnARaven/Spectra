@@ -1,11 +1,4 @@
-export interface User {
-    id: string;
-    email: string;
-    username: string;
-    displayName: string;
-    emailConfirmed: boolean;
-    createdAt: string;
-}
+import type {User} from "@/features/account/types.ts";
 
 export interface AuthResponse {
     user: User;

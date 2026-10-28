@@ -1,16 +1,17 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import type {
-    ChangePasswordRequest,
-    ProfileRequest,
-    SetPasswordRequest,
-    User,
-    UserSubscription,
-    CancelSubscriptionRequest,
-    ChangePlanRequest,
+import {
+    type ChangePasswordRequest,
+    type ProfileRequest,
+    type SetPasswordRequest,
+    type User,
+    type UserSubscription,
+    type CancelSubscriptionRequest,
+    type ChangePlanRequest, UserRole,
 } from './types';
 import accountApi from './accountApi';
 import subscriptionApi from './subscriptionApi';
-import {loginUser, logout, registerUser} from "@/features/auth/authSlice.ts";
+import {loginUser, loginUserViaGoogle, logout, registerUser} from "@/features/auth/authSlice.ts";
+import type {RootState} from "@/app/store.ts";
 
 
 interface AuthState {
@@ -40,6 +41,12 @@ export const loadUser = createAsyncThunk(
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.Message || 'Failed to load user profile');
         }
+    },
+    {
+        condition: (_, { getState }) => {
+            const { account } = getState() as RootState;
+            return !(account.isLoading || account.user);
+        },
     }
 );
 
@@ -139,6 +146,8 @@ export const changePlan = createAsyncThunk(
         }
     }
 );
+
+export const selectIsAdmin = (state: RootState) => state.account.user?.roles?.includes(UserRole.Admin) ?? false;
 
 const accountSlice = createSlice({
     name: 'account',
@@ -288,6 +297,9 @@ const accountSlice = createSlice({
                 state.subscription = null;
             })
             .addCase(loginUser.fulfilled, (state, action) => {
+                state.user = action.payload.user;
+            })
+            .addCase(loginUserViaGoogle.fulfilled, (state, action) => {
                 state.user = action.payload.user;
             })
             .addCase(registerUser.fulfilled, (state, action) => {

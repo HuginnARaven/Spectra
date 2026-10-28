@@ -19,6 +19,7 @@ namespace Spectra.Application.Services
             };
             
             var userSubscription = await userSubscriptionRepository.GetEffectivePlanByUserIdAsync(userId);
+            var userRoles = await identityService.GetUserRolesAsync(user);
             
             var response = new ProfileResponse()
             {
@@ -28,6 +29,7 @@ namespace Spectra.Application.Services
                 DisplayName = user.DisplayName,
                 EmailConfirmed =  user.EmailConfirmed,
                 CreatedAt = user.CreatedAt,
+                Roles = userRoles,
                 SubscriptionPlan = new SubscriptionPlanBaseDto()
                 {
                     Id = userSubscription.Id,

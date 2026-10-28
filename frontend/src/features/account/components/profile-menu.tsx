@@ -18,11 +18,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {useAppDispatch, useAppSelector} from "@/app/hooks"
-import {loadUser} from "@/features/account/accountSlice.ts"
 import {AccountEditForm} from "@/features/account/components/account-edit-form.tsx";
 import {logout} from "@/features/auth/authSlice.ts";
 import type {ReactNode} from "react"
-import {useEffect, useState} from "react"
+import {useState} from "react"
 import {IconUserCircle} from "@tabler/icons-react"
 import {BillingForm} from "@/features/account/components/billing-form.tsx";
 
@@ -33,12 +32,6 @@ export function ProfileMenu({children, isMobile}: { children: ReactNode, isMobil
     const [isBillingFormOpen, setIsBillingFormOpen] = useState(false);
     
     const avatar = 'https://static.vecteezy.com/system/resources/thumbnails/063/477/529/small/neutral-gray-silhouette-of-male-avatar-defoult-photo-placeholder-with-short-hair-for-anonymous-profile-picture-with-minimalist-style-suitable-for-various-social-media-platforms-and-websites-vector.jpg'
-
-    useEffect(() => {
-        if (!user) {
-            dispatch(loadUser());
-        }
-    }, [user, dispatch]);
 
     const handleLogout = () => {
         dispatch(logout());

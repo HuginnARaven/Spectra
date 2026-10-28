@@ -5,8 +5,13 @@ export interface User {
     displayName: string;
     emailConfirmed: boolean;
     subscriptionPlan?: Subscription;
+    roles?: string[]
     createdAt: string;
 }
+
+export const UserRole = {
+    Admin: "Admin",
+} as const;
 
 export interface Subscription {
     id: string;

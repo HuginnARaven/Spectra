@@ -4,8 +4,9 @@ import { NavMain } from "./nav-main"
 import { NavSecondary } from "./nav-secondary"
 import { NavUser } from "./nav-user"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, } from "@/components/ui/sidebar"
-import { Pyramid } from "lucide-react"
+import { Pyramid, Wrench} from "lucide-react"
 import { Link, useLocation } from "react-router"
+import {useIsAdmin} from "@/hooks/use-is-admin.ts";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const data = {
@@ -27,6 +28,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 url: "analytics",
                 icon: IconChartBar,
                 isActive: useLocation().pathname === `/analytics` ? true : false
+            },
+            {
+                title: "Admin tools",
+                url: "admin",
+                icon: Wrench,
+                isHidden: !useIsAdmin(),
+                items: [
+                    {
+                        title: "Users",
+                        url: "users",
+                        isActive: useLocation().pathname === `/admin/users` ? true : false,
+                    },
+                    {
+                        title: "Urls",
+                        url: "urls",
+                        isActive: useLocation().pathname === `/admin/urls` ? true : false,
+                    },
+                    {
+                        title: "Subscription plans",
+                        url: "subscription-plans",
+                        isActive: useLocation().pathname === `/admin/subscription-plans` ? true : false,
+                    },
+                ],
             }
         ],
         navSecondary: [
