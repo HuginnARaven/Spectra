@@ -1,6 +1,6 @@
 ﻿namespace Spectra.Application.DTOs.Account;
 
-public class UserAdminDto
+public class AdminUserListItem
 {
     public string Id { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
@@ -11,6 +11,4 @@ public class UserAdminDto
     public DateTime RefreshTokenExpiryTime { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime LastActive { get; set; } = DateTime.UtcNow;
-    
-    public IList<string> Roles { get; set; } = new List<string>();
 }

@@ -2,6 +2,7 @@
 using Spectra.Application.Common;
 using Spectra.Application.DTOs.Account;
 using Spectra.Application.DTOs.SubscriptionPlans;
+using Spectra.Application.DTOs.Subscriptions;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Interfaces;
@@ -135,30 +136,57 @@ namespace Spectra.Application.Services
             await emailNotificationService.SendVerificationEmailAsync(user.Email, emailConfirmationToken, false);
         }
 
-        public async Task<PaginatedResult<UserAdminDto>> AdminGetUsersAsync(PaginationRequest request, CancellationToken cancellationToken = default)
+        public async Task<PaginatedResult<AdminUserListItem>> AdminGetUsersAsync(PaginationRequest request, CancellationToken cancellationToken = default)
         {
             var skip = (request.PageNumber - 1) * request.PageSize;
 
             var (users, totalCount) = await identityService.GetUsersAsync(skip, request.PageSize, cancellationToken: cancellationToken);
 
-            var userDtos = mapper.Map<IReadOnlyList<UserAdminDto>>(users);
+            var userDtos = mapper.Map<IReadOnlyList<AdminUserListItem>>(users);
 
-            return new PaginatedResult<UserAdminDto>(userDtos, totalCount, request.PageNumber, request.PageSize);
+            return new PaginatedResult<AdminUserListItem>(userDtos, totalCount, request.PageNumber, request.PageSize);
         }
 
-        public async Task<UserAdminDto?> AdminGetUserByIdAsync(string userId, CancellationToken cancellationToken = default)
+        public async Task<AdminUserDetails?> AdminGetUserByIdAsync(string userId, CancellationToken cancellationToken = default)
         {
             var user = await identityService.GetUserByIdAsync(userId);
             
             if (user == null)
                 throw new KeyNotFoundException($"User with id '{userId}' not found.");
             
-            var dto = mapper.Map<UserAdminDto>(user);
+            var dto = mapper.Map<AdminUserDetails>(user);
             dto.Roles = await identityService.GetUserRolesAsync(user);
+            
+            var userSubscription = await userSubscriptionRepository.GetByUserIdAsync(userId);
+            if (userSubscription == null)
+            {
+                dto.UserSubscription = null;
+                return dto;
+            }
+            
+            var plan = userSubscription.SubscriptionPlan;
+            var price = userSubscription.SubscriptionPlanPrice;
+            
+            dto.UserSubscription = new UserSubscriptionDto()
+            {
+                Id = userSubscription.Id, 
+                Status = userSubscription.Status.ToString(), 
+                CurrentPeriodStart = userSubscription.CurrentPeriodStart, 
+                CurrentPeriodEnd = userSubscription.CurrentPeriodEnd, 
+                CanceledAt = userSubscription.CanceledAt, 
+                CancelAtPeriodEnd = userSubscription.CancelAtPeriodEnd, 
+                SubscriptionPlanId = userSubscription.SubscriptionPlanId, 
+                PlanName = plan?.Name ?? string.Empty, 
+                SubscriptionPlanPriceId = userSubscription.SubscriptionPlanPriceId, 
+                Amount = price?.Amount ?? 0, 
+                CurrencyCode = price?.CurrencyCode ?? string.Empty, 
+                Interval = price?.Interval ?? string.Empty
+            };
+            
             return dto;
         }
 
-        public async Task<UserAdminDto> AdminEditUserAsync(UserAdminRequest request, string userId, CancellationToken cancellationToken = default)
+        public async Task<AdminUserListItem> AdminEditUserAsync(AdminUserRequest request, string userId, CancellationToken cancellationToken = default)
         {
             var user = await identityService.GetUserByIdAsync(userId);
             
@@ -183,8 +211,7 @@ namespace Spectra.Application.Services
             
             await identityService.UpdateUserAsync(user);
             
-            var dto = mapper.Map<UserAdminDto>(user);
-            dto.Roles = await identityService.GetUserRolesAsync(user);
+            var dto = mapper.Map<AdminUserListItem>(user);
             return dto;
         }
 

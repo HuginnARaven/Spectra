@@ -202,6 +202,7 @@ namespace Spectra.Application.Services
             if (url == null)
                 throw new KeyNotFoundException($"URL with id '{urlId}' not found.");
             
+            await cache.RemoveUrlAsync(url.ShortCode);
             await repository.DeleteUrlAsync(url, cancellationToken);
         }
     }

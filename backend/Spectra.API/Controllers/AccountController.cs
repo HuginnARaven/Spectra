@@ -70,21 +70,21 @@ namespace Spectra.API.Controllers
         
         [Authorize(Roles = UserRoles.Admin)]
         [HttpGet("admin/get-user/{id}")]
-        public async Task<ActionResult<UserAdminDto>> AdminGetUser(string id, CancellationToken cancellationToken)
+        public async Task<ActionResult<AdminUserDetails>> AdminGetUser(string id, CancellationToken cancellationToken)
         {
             return Ok(await accountService.AdminGetUserByIdAsync(id, cancellationToken));
         }
         
         [Authorize(Roles = UserRoles.Admin)]
         [HttpGet("admin/get-users")]
-        public async Task<ActionResult<PaginatedResult<UserAdminDto>>> AdminGetUsers([FromQuery] PaginationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<PaginatedResult<AdminUserListItem>>> AdminGetUsers([FromQuery] PaginationRequest request, CancellationToken cancellationToken)
         {
             return Ok(await accountService.AdminGetUsersAsync(request, cancellationToken));
         }
         
         [Authorize(Roles = UserRoles.Admin)]
         [HttpPut("admin/edit-user/{id}")]
-        public async Task<ActionResult<UserAdminDto>> AdminEditUser(UserAdminRequest request, string id, CancellationToken cancellationToken)
+        public async Task<ActionResult<AdminUserListItem>> AdminEditUser(AdminUserRequest request, string id, CancellationToken cancellationToken)
         {
             return Ok(await accountService.AdminEditUserAsync(request, id, cancellationToken));
         }

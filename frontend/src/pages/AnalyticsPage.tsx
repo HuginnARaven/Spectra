@@ -25,7 +25,7 @@ const AnalyticsPage = () => {
 
     useEffect(() => {
         if (urls.length <= 0) {
-            dispatch(fetchUrls());
+            dispatch(fetchUrls({page: 1, pageSize: 50})); // TODO: pagination
         }
     }, [dispatch, urls.length]);
 

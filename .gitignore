@@ -366,3 +366,5 @@ FodyWeavers.xsd
 
 .env
 /frontend/skills-lock.json
+
+.agents

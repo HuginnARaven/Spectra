@@ -14,7 +14,8 @@ namespace Spectra.Application.Mappings
             CreateMap<Url, UrlAdminDto>().ReverseMap();
             CreateMap<UrlVisit, UrlVisitDto>().ReverseMap();
             
-            CreateMap<User, UserAdminDto>().ReverseMap();
+            CreateMap<User, AdminUserListItem>().ReverseMap();
+            CreateMap<User, AdminUserDetails>().ReverseMap();
             
             CreateMap<SubscriptionPlanPrice, SubscriptionPriceDto>().ReverseMap();
             CreateMap<SubscriptionPlan, SubscriptionPlanDto>().ReverseMap();

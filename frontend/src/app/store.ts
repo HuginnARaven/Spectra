@@ -5,7 +5,7 @@ import analyticsReducer from '../features/analytics/analyticsSlice';
 import dashboardReducer from '../features/dashboard/dashboardSlice';
 import accountReducer from '../features/account/accountSlice';
 import pricingReducer from '../features/pricing/pricingSlice';
-
+import adminReducer from '../features/admin/adminSlice';
 
 export const store = configureStore({
     reducer: {
@@ -15,6 +15,7 @@ export const store = configureStore({
         analytics: analyticsReducer,
         dashboard: dashboardReducer,
         pricing: pricingReducer,
+        admin: adminReducer,
     },
 });
 

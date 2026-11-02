@@ -25,36 +25,41 @@ public class SubscriptionPlansController(ISubscriptionPlanService subscriptionPl
     {
         return Ok(await subscriptionPlanService.GetSubscriptionPlanByIdAsync(id));
     }
-
-    [HttpPost("create-subscription-plan")]
+    
+    [Authorize(Roles = UserRoles.Admin)]
+    [HttpPost("admin/create-subscription-plan")]
     public async Task<IActionResult> CreatePlan(CreateSubscriptionPlanRequest request)
     {
         await subscriptionPlanService.CreateSubscriptionPlanAsync(request);
         return Ok();
     }
 
-    [HttpPost("add-price-to-plan/{planId}")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [HttpPost("admin/add-price-to-plan/{planId}")]
     public async Task<IActionResult> AddPriceToPlan(string planId,CreateSubscriptionPriceRequest request)
     {
         await subscriptionPlanService.AddPriceToSubscriptionPlanAsync(planId, request);
         return Ok();
     }
 
-    [HttpPut("update-subscription-plan/{id}")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [HttpPut("admin/update-subscription-plan/{id}")]
     public async Task<IActionResult> UpdatePlan(string id, UpdateSubscriptionPlanRequest request)
     {
         await subscriptionPlanService.UpdateSubscriptionPlanAsync(id, request);
         return Ok();
     }
 
-    [HttpDelete("delete-subscription-plan/{id}")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [HttpDelete("admin/delete-subscription-plan/{id}")]
     public async Task<IActionResult> DeletePlan(string id)
     {
         await subscriptionPlanService.DeleteSubscriptionPlanAsync(id);
         return Ok();
     }
 
-    [HttpPut("update-subscription-price/{id}")]
+    [Authorize(Roles = UserRoles.Admin)]
+    [HttpPut("admin/update-subscription-price/{id}")]
     public async Task<IActionResult> UpdatePrice(string id, UpdateSubscriptionPriceRequest request)
     {
         await subscriptionPlanService.UpdatePriceActiveStatusAsync(id, request.IsActive);

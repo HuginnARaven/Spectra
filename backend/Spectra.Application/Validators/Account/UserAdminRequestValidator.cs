@@ -3,7 +3,7 @@ using Spectra.Application.DTOs.Account;
 
 namespace Spectra.Application.Validators.Account;
 
-public class UserAdminRequestValidator : AbstractValidator<UserAdminRequest>
+public class UserAdminRequestValidator : AbstractValidator<AdminUserRequest>
 {
     public UserAdminRequestValidator()
     {
