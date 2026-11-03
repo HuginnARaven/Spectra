@@ -10,6 +10,8 @@ import type {
     UpdateSubscriptionPlanRequest,
     CreateSubscriptionPriceRequest,
     UpdateSubscriptionPriceRequest,
+    AdminPaginatedUsersQuery,
+    Role,
 } from './types';
 
 export interface AdminState {
@@ -29,6 +31,10 @@ export interface AdminState {
     subscriptionPlans: SubscriptionPlan[];
     selectedPlan: SubscriptionPlan | null;
     isPlansLoading: boolean;
+
+    // Roles
+    roles: Role[];
+    isRolesLoading: boolean;
 
     // General status
     isLoading: boolean;
@@ -50,6 +56,9 @@ const initialState: AdminState = {
     selectedPlan: null,
     isPlansLoading: false,
 
+    roles: [],
+    isRolesLoading: false,
+
     isLoading: false,
     error: null,
 };
@@ -59,13 +68,11 @@ const initialState: AdminState = {
 export const fetchAdminUsers = createAsyncThunk(
     'admin/fetchUsers',
     async (
-        params: { page?: number; pageSize?: number; pageNumber?: number } = {},
+        query: AdminPaginatedUsersQuery = { pageNumber: 1, pageSize: 10 },
         { rejectWithValue }
     ) => {
         try {
-            const page = params.pageNumber ?? params.page ?? 1;
-            const pageSize = params.pageSize ?? 10;
-            return await adminApi.getUsers(page, pageSize);
+            return await adminApi.getUsers(query);
         } catch (error: any) {
             return rejectWithValue(
                 error.response?.data?.message ||
@@ -117,6 +124,23 @@ export const deleteAdminUser = createAsyncThunk(
                 error.response?.data?.message ||
                 error.response?.data?.Message ||
                 'Failed to delete user'
+            );
+        }
+    }
+);
+
+
+// Role Thunks
+export const fetchAdminRoles = createAsyncThunk(
+    'admin/fetchRoles',
+    async (_, { rejectWithValue }) => {
+        try {
+            return await adminApi.getRoles();
+        } catch (error: any) {
+            return rejectWithValue(
+                error.response?.data?.message ||
+                error.response?.data?.Message ||
+                'Failed to fetch roles'
             );
         }
     }
@@ -415,6 +439,20 @@ const adminSlice = createSlice({
             .addCase(deleteAdminUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isUsersLoading = false;
+                state.error = action.payload as string;
+            })
+
+            // Fetch Roles
+            .addCase(fetchAdminRoles.pending, (state) => {
+                state.isRolesLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchAdminRoles.fulfilled, (state, action) => {
+                state.isRolesLoading = false;
+                state.roles = action.payload;
+            })
+            .addCase(fetchAdminRoles.rejected, (state, action) => {
+                state.isRolesLoading = false;
                 state.error = action.payload as string;
             })
 

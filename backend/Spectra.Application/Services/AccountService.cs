@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Spectra.Application.Common;
 using Spectra.Application.DTOs.Account;
 using Spectra.Application.DTOs.SubscriptionPlans;
@@ -136,15 +136,20 @@ namespace Spectra.Application.Services
             await emailNotificationService.SendVerificationEmailAsync(user.Email, emailConfirmationToken, false);
         }
 
-        public async Task<PaginatedResult<AdminUserListItem>> AdminGetUsersAsync(PaginationRequest request, CancellationToken cancellationToken = default)
+        public async Task<PaginatedResult<AdminUserListItem>> AdminGetUsersAsync(AdminPaginatedUsersQuery request, CancellationToken cancellationToken = default)
         {
-            var skip = (request.PageNumber - 1) * request.PageSize;
 
-            var (users, totalCount) = await identityService.GetUsersAsync(skip, request.PageSize, cancellationToken: cancellationToken);
+
+            var (users, totalCount) = await identityService.GetUsersAsync(request, cancellationToken: cancellationToken);
 
             var userDtos = mapper.Map<IReadOnlyList<AdminUserListItem>>(users);
 
             return new PaginatedResult<AdminUserListItem>(userDtos, totalCount, request.PageNumber, request.PageSize);
+        }
+
+        public Task<IList<RoleDto>> AdminGetRolesAsync(CancellationToken cancellationToken = default)
+        {
+            return identityService.GetExistingRolesAsync(cancellationToken);
         }
 
         public async Task<AdminUserDetails?> AdminGetUserByIdAsync(string userId, CancellationToken cancellationToken = default)

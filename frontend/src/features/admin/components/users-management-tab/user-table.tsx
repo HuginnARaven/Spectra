@@ -1,7 +1,8 @@
-﻿import type {SortingState, Updater} from '@tanstack/react-table'
+import type {SortingState, Updater} from '@tanstack/react-table'
 import {flexRender, getCoreRowModel, useReactTable} from '@tanstack/react-table'
 import {ChevronDownIcon, ChevronUpIcon} from 'lucide-react'
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table'
+import { Spinner } from '@/components/ui/spinner'
 import {cn} from '@/lib/utils'
 import type {AdminUserListItem} from "@/features/admin/types.ts";
 import {userTableColumns} from "@/features/admin/components/users-management-tab/user-table-columns.tsx";
@@ -11,9 +12,10 @@ export interface UserTableProps {
     paginatedUsers: AdminUserListItem[]
     sorting: UserSorting | null
     onSortingChange: (sorting: UserSorting | null) => void
+    isLoading?: boolean
 }
 
-export function UserTable({paginatedUsers, sorting, onSortingChange}: UserTableProps) {
+export function UserTable({paginatedUsers, sorting, onSortingChange, isLoading}: UserTableProps) {
     const sortingState: SortingState = sorting ? [sorting] : []
 
     const handleSortingChange = (updater: Updater<SortingState>) => {
@@ -91,7 +93,16 @@ export function UserTable({paginatedUsers, sorting, onSortingChange}: UserTableP
                 ))}
             </TableHeader>
             <TableBody>
-                {table.getRowModel().rows.length ? (
+                {isLoading ? (
+                    <TableRow>
+                        <TableCell colSpan={userTableColumns.length} className='h-24 text-center'>
+                            <div className='flex items-center justify-center gap-2 text-muted-foreground'>
+                                <Spinner className='size-5' />
+                                <span>Loading users...</span>
+                            </div>
+                        </TableCell>
+                    </TableRow>
+                ) : table.getRowModel().rows.length ? (
                     table.getRowModel().rows.map(row => (
                         <TableRow key={row.id}>
                             {row.getVisibleCells().map(cell => (

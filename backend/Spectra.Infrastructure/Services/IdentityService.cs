@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Entities;
+using Spectra.Application.DTOs.Account;
+using Spectra.Domain.Enums;
+using Spectra.Infrastructure.Data;
 
 namespace Spectra.Infrastructure.Services
 {
-    public class IdentityService(UserManager<User> userManager, IUrlGenerator urlGenerator) : IIdentityService
+    public class IdentityService(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager, IUrlGenerator urlGenerator, AppDbContext context) : IIdentityService
     {
         public async Task<User?> GetUserWithCredentialsAsync(string email, string password)
         {
@@ -45,17 +48,73 @@ namespace Spectra.Infrastructure.Services
             return await userManager.GetRolesAsync(user);
         }
 
-        public async Task<(IReadOnlyList<User> Items, int TotalCount)> GetUsersAsync(int skip, int take, CancellationToken cancellationToken = default)
+        public async Task<(IReadOnlyList<User> Items, int TotalCount)> GetUsersAsync(AdminPaginatedUsersQuery request, CancellationToken cancellationToken = default)
         {
             var query = userManager.Users
                 .AsNoTracking()
-                .OrderByDescending(v => v.CreatedAt);
+;
+
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                var searchTerm = request.Search.Trim();
+                query = query.Where(u =>
+                    EF.Functions.ToTsVector("english", (u.UserName ?? "") + " " + (u.DisplayName ?? "") + " " + (u.Email ?? ""))
+                        .Matches(EF.Functions.PlainToTsQuery("english", searchTerm)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.PlanId) && !string.Equals(request.PlanId, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Guid.TryParse(request.PlanId.Trim(), out var planGuid))
+                {
+                    var defaultPlan = await context.SubscriptionPlans
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(sp => sp.IsDefault, cancellationToken);
+
+                    if (defaultPlan != null && planGuid == defaultPlan.Id)
+                    {
+                        query = query.Where(u =>
+                            u.Subscription == null ||
+                            u.Subscription.SubscriptionPlanId == defaultPlan.Id);
+                    }
+                    else
+                    {
+                        query = query.Where(u =>
+                            u.Subscription != null &&
+                            u.Subscription.SubscriptionPlanId == planGuid);
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Status) && !string.Equals(request.Status, "all", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Enum.TryParse<SubscriptionStatus>(request.Status.Trim(), true, out var statusEnum))
+                {
+                    query = query.Where(u => u.Subscription != null && u.Subscription.Status == statusEnum);
+                }
+            }
+
+            // TODO: Role filter will be implemented later when navigation property for roles is added to User entity.
+
+            var isDesc = request.SortingDesc ?? true;
+            query = (request.SortingCol?.ToLower()) switch
+            {
+                "user" or "username" => isDesc ? query.OrderByDescending(u => u.UserName) : query.OrderBy(u => u.UserName),
+                "displayname" => isDesc ? query.OrderByDescending(u => u.DisplayName) : query.OrderBy(u => u.DisplayName),
+                "email" => isDesc ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+                "emailconfirmed" => isDesc ? query.OrderByDescending(u => u.EmailConfirmed) : query.OrderBy(u => u.EmailConfirmed),
+                "joineddate" or "createdat" => isDesc ? query.OrderByDescending(u => u.CreatedAt) : query.OrderBy(u => u.CreatedAt),
+                "lastactive" => isDesc ? query.OrderByDescending(u => u.LastActive) : query.OrderBy(u => u.LastActive),
+                "refreshtokenexpirytime" => isDesc ? query.OrderByDescending(u => u.RefreshTokenExpiryTime) : query.OrderBy(u => u.RefreshTokenExpiryTime),
+                _ => isDesc ? query.OrderByDescending(u => u.CreatedAt) : query.OrderBy(u => u.CreatedAt)
+            };
 
             var totalCount = await query.CountAsync(cancellationToken);
 
+            var skip = (request.PageNumber - 1) * request.PageSize;
+
             var items = await query
                 .Skip(skip)
-                .Take(take)
+                .Take(request.PageSize)
                 .ToListAsync(cancellationToken);
 
             return (items, totalCount);
@@ -171,6 +230,17 @@ namespace Spectra.Infrastructure.Services
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 throw new InvalidOperationException($"Failed to reset password: {errors}");
             }
+        }
+
+        public async Task<IList<RoleDto>> GetExistingRolesAsync(CancellationToken cancellationToken = default)
+        {
+            return await roleManager.Roles
+                .Select(r => new RoleDto
+                {
+                    Id = r.Id.ToString(),
+                    Name = r.Name ?? string.Empty
+                })
+                .ToListAsync(cancellationToken);
         }
 
         public async Task CreateUserAsync(User user, string password)

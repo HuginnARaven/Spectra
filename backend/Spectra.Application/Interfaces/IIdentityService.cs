@@ -1,4 +1,5 @@
-﻿using Spectra.Application.DTOs;
+using Spectra.Application.DTOs;
+using Spectra.Application.DTOs.Account;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,7 +16,7 @@ namespace Spectra.Application.Interfaces
         Task<User?> GetUserByEmailAsync(string email);
         Task<User?> GetUserByUsernameAsync(string username);
         Task<IList<string>> GetUserRolesAsync(User user);
-        Task<(IReadOnlyList<User> Items, int TotalCount)> GetUsersAsync(int skip, int take, CancellationToken cancellationToken = default);
+        Task<(IReadOnlyList<User> Items, int TotalCount)> GetUsersAsync(AdminPaginatedUsersQuery request, CancellationToken cancellationToken = default);
         
         Task CreateUserAsync(User user, string password);
         Task UpdateUserAsync(User user);
@@ -29,5 +30,7 @@ namespace Spectra.Application.Interfaces
         Task<string> CreatePasswordResetTokenAsync(User user);
         Task ConfirmEmailAsync(User user, string token);
         Task ResetPasswordAsync(User user, string token, string newPassword);
+        
+        Task<IList<RoleDto>> GetExistingRolesAsync(CancellationToken cancellationToken = default);
     }
 }

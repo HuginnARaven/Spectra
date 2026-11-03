@@ -126,12 +126,19 @@ export interface PaginatedResult<T> {
     totalPages?: number;
 }
 
+export type SubscriptionStatus = 'Active' | 'PastDue' | 'Canceled' | 'Incomplete';
+
+export interface Role {
+    id: string;
+    name: string;
+}
+
 export interface AdminPaginatedUsersQuery {
     pageNumber: number;
     pageSize: number;
-    role?: string;
-    plan?: string;
-    status?: string;
+    roleId?: string;
+    planId?: string;
+    status?: SubscriptionStatus | string;
     search?: string;
     sortingCol?: string;
     sortingDesc?: boolean;

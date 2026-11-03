@@ -1,11 +1,13 @@
-﻿import { Label } from '@/components/ui/label'
+import { useEffect } from 'react'
+import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import type {UserFilters} from "@/features/admin/components/users-management-tab/users-management-tab.tsx";
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
+import { fetchAdminRoles } from '@/features/admin/adminSlice'
+import { fetchSubscriptionPlans } from '@/features/pricing/pricingSlice'
+import type { UserFilters } from '@/features/admin/components/users-management-tab/users-management-tab.tsx'
 
-
-const ROLES = ['Admin', 'Manager', 'Test']
-const PLANS = ['Plus', 'Pro', 'Ultra']
-const STATUSES = ['Active', 'Pending', 'Suspended', 'Inactive']
+// TODO: Implement server endpoint to fetch available subscription statuses dynamically
+const STATUSES = ['Active', 'PastDue', 'Canceled', 'Incomplete'] as const
 
 export interface UserTableFiltersProps {
     filters: UserFilters
@@ -13,6 +15,19 @@ export interface UserTableFiltersProps {
 }
 
 export function UserTableFilters({ filters, onFilterChange }: UserTableFiltersProps) {
+    const dispatch = useAppDispatch()
+    const roles = useAppSelector(state => state.admin.roles)
+    const plans = useAppSelector(state => state.pricing.plans)
+
+    useEffect(() => {
+        if (!roles || roles.length === 0) {
+            dispatch(fetchAdminRoles())
+        }
+        if (!plans || plans.length === 0) {
+            dispatch(fetchSubscriptionPlans())
+        }
+    }, [dispatch, roles, plans])
+
     return (
         <div className='flex flex-col gap-4 border-b p-6'>
             <div className='grid grid-cols-1 gap-6 max-md:*:last:col-span-full sm:grid-cols-2 md:grid-cols-3'>
@@ -32,9 +47,9 @@ export function UserTableFilters({ filters, onFilterChange }: UserTableFiltersPr
                         <SelectContent>
                             <SelectGroup>
                                 <SelectItem value='all'>All</SelectItem>
-                                {ROLES.map(role => (
-                                    <SelectItem key={role} value={role}>
-                                        {role}
+                                {roles.map(role => (
+                                    <SelectItem key={role.id} value={role.id}>
+                                        {role.name}
                                     </SelectItem>
                                 ))}
                             </SelectGroup>
@@ -57,9 +72,9 @@ export function UserTableFilters({ filters, onFilterChange }: UserTableFiltersPr
                         <SelectContent>
                             <SelectGroup>
                                 <SelectItem value='all'>All</SelectItem>
-                                {PLANS.map(plan => (
-                                    <SelectItem key={plan} value={plan}>
-                                        {plan}
+                                {plans.map(plan => (
+                                    <SelectItem key={plan.id} value={plan.id}>
+                                        {plan.name}
                                     </SelectItem>
                                 ))}
                             </SelectGroup>

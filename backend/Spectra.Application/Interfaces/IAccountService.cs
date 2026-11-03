@@ -1,4 +1,4 @@
-﻿using Spectra.Application.Common;
+using Spectra.Application.Common;
 using Spectra.Application.DTOs.Account;
 
 
@@ -13,7 +13,8 @@ namespace Spectra.Application.Interfaces
         Task<ConfirmEmailResponse> ConfirmEmailAsync(ConfirmEmailRequest request, CancellationToken cancellationToken = default);
         Task SendEmailVerificationLetterAsync(string userId, CancellationToken cancellationToken = default);
         
-        Task<PaginatedResult<AdminUserListItem>> AdminGetUsersAsync(PaginationRequest request, CancellationToken cancellationToken = default);
+        Task<PaginatedResult<AdminUserListItem>> AdminGetUsersAsync(AdminPaginatedUsersQuery request, CancellationToken cancellationToken = default);
+        Task<IList<RoleDto>> AdminGetRolesAsync(CancellationToken cancellationToken = default);
         Task<AdminUserDetails?> AdminGetUserByIdAsync(string userId, CancellationToken cancellationToken = default);
         Task<AdminUserListItem> AdminEditUserAsync(AdminUserRequest request, string userId, CancellationToken cancellationToken = default);
         Task AdminDeleteUserAsync(string userId, CancellationToken cancellationToken = default);

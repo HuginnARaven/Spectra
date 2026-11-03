@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Spectra.API.Extensions;
 using Spectra.Application.Common;
@@ -77,7 +77,7 @@ namespace Spectra.API.Controllers
         
         [Authorize(Roles = UserRoles.Admin)]
         [HttpGet("admin/get-users")]
-        public async Task<ActionResult<PaginatedResult<AdminUserListItem>>> AdminGetUsers([FromQuery] PaginationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<PaginatedResult<AdminUserListItem>>> AdminGetUsers([FromQuery] AdminPaginatedUsersQuery request, CancellationToken cancellationToken)
         {
             return Ok(await accountService.AdminGetUsersAsync(request, cancellationToken));
         }
@@ -100,6 +100,13 @@ namespace Spectra.API.Controllers
             await accountService.AdminDeleteUserAsync(id, cancellationToken);
             
             return Ok();
+        }
+        
+        [Authorize(Roles = UserRoles.Admin)]
+        [HttpGet("admin/get-roles")]
+        public async Task<ActionResult<IList<RoleDto>>> AdminGetRoles(CancellationToken cancellationToken)
+        {
+            return Ok(await accountService.AdminGetRolesAsync(cancellationToken));
         }
     }
 }

@@ -10,15 +10,21 @@ import type {
     CreateSubscriptionPriceRequest,
     UpdateSubscriptionPriceRequest,
     PaginatedResult, AdminUserDetails,
+    AdminPaginatedUsersQuery,
+    Role,
 } from './types';
 
 export const adminApi = {
     // User management
-    getUsers: async (pageNumber: number = 1, pageSize: number = 10) => {
+    getUsers: async (query?: AdminPaginatedUsersQuery) => {
         const response = await agent.get<PaginatedResult<AdminUserListItem>>(
             '/account/admin/get-users',
-            { params: { pageNumber, pageSize } }
+            { params: query }
         );
+        return response.data;
+    },
+    getRoles: async () => {
+        const response = await agent.get<Role[]>('/account/admin/get-roles');
         return response.data;
     },
     getUserById: async (id: string) => {
