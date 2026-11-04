@@ -24,6 +24,7 @@ import { Link } from "react-router-dom"
 import type {AdminUserListItem} from "@/features/admin/types.ts";
 import {Badge} from "@/components/ui/badge.tsx";
 import { memo } from 'react'
+import {DeleteUserAlertDialog} from "@/features/admin/components/users-management-tab/delete-user-alert-dialog.tsx";
 
 const MONTHS = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -75,16 +76,7 @@ const UserRowActions = memo(function UserRowActions({ user }: { user: AdminUserL
                 </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant='ghost' size='icon' aria-label='Delete user'>
-                        <Trash2Icon className='size-4.5' />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Delete</p>
-                </TooltipContent>
-            </Tooltip>
+            <DeleteUserAlertDialog userId={user.id} userName={user.userName} />
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
