@@ -1,4 +1,5 @@
-﻿import type { ColumnDef } from '@tanstack/react-table'
+﻿import {useState} from "react";
+import type { ColumnDef } from '@tanstack/react-table'
 import {
     EllipsisVerticalIcon,
     EyeIcon,
@@ -25,6 +26,7 @@ import type {AdminUserListItem} from "@/features/admin/types.ts";
 import {Badge} from "@/components/ui/badge.tsx";
 import { memo } from 'react'
 import {DeleteUserAlertDialog} from "@/features/admin/components/users-management-tab/delete-user-alert-dialog.tsx";
+import {EditUserDialog} from "@/features/admin/components/users-management-tab/edit-user-dialog.tsx";
 
 const MONTHS = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -61,13 +63,16 @@ const getInitialsFromName = (name: string) => {
 }
 
 const UserRowActions = memo(function UserRowActions({ user }: { user: AdminUserListItem }) {
+    const [isUserEditFormOpen, setIsUserEditFormOpen] = useState(false);
+    const [isUserDeleteFormOpen, setIsUserDeleteFormOpen] = useState(false);
+    
     return (
         <div className='flex items-center justify-center gap-1'>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <Link to='/apps/users/view' >
+                    <Link to="/users">
                         <Button variant='ghost' size='icon' aria-label='View user'>
-                            <EyeIcon className='size-4.5' />
+                            <EyeIcon className='size-4.5'/>
                         </Button>
                     </Link>
                 </TooltipTrigger>
@@ -75,9 +80,16 @@ const UserRowActions = memo(function UserRowActions({ user }: { user: AdminUserL
                     <p>View</p>
                 </TooltipContent>
             </Tooltip>
-
-            <DeleteUserAlertDialog userId={user.id} userName={user.userName} />
-
+            <Tooltip>
+                <TooltipTrigger asChild>
+                        <Button variant='ghost' size='icon' aria-label='Delete user' onClick={() => setIsUserDeleteFormOpen(true)}>
+                            <Trash2Icon className='size-4.5'/>
+                        </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Delete</p>
+                </TooltipContent>
+            </Tooltip>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button size='icon' variant='ghost' aria-label='Open actions'>
@@ -86,7 +98,7 @@ const UserRowActions = memo(function UserRowActions({ user }: { user: AdminUserL
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='end'>
                     <DropdownMenuGroup>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setIsUserEditFormOpen(true)}>
                             <PencilIcon className='size-4' />
                             Edit User
                         </DropdownMenuItem>
@@ -106,13 +118,15 @@ const UserRowActions = memo(function UserRowActions({ user }: { user: AdminUserL
                             </DropdownMenuItem>
                         ) : null}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem variant='destructive'>
+                        <DropdownMenuItem variant='destructive' onClick={() => setIsUserDeleteFormOpen(true)}>
                             <Trash2Icon className='size-4' />
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
+            <EditUserDialog user={user} isOpen={isUserEditFormOpen} setOpen={setIsUserEditFormOpen}/>
+            <DeleteUserAlertDialog userId={user.id} userName={user.userName} isOpen={isUserDeleteFormOpen} setOpen={setIsUserDeleteFormOpen}/>
         </div>
     )
 })

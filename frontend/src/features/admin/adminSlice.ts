@@ -348,7 +348,7 @@ const adminSlice = createSlice({
     name: 'admin',
     initialState,
     reducers: {
-        clearError: (state) => {
+        clearErrors: (state) => {
             state.error = null;
         },
         setSelectedUser: (state, action) => {
@@ -401,12 +401,12 @@ const adminSlice = createSlice({
             // Edit User
             .addCase(editAdminUser.pending, (state) => {
                 state.isLoading = true;
-                state.isUsersLoading = true;
+                //state.isUsersLoading = true;
                 state.error = null;
             })
             .addCase(editAdminUser.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.isUsersLoading = false;
+                //state.isUsersLoading = false;
                 const index = state.users.findIndex((u) => u.id === action.payload.id);
                 if (index !== -1) {
                     state.users[index] = action.payload;
@@ -417,19 +417,19 @@ const adminSlice = createSlice({
             })
             .addCase(editAdminUser.rejected, (state, action) => {
                 state.isLoading = false;
-                state.isUsersLoading = false;
+                //state.isUsersLoading = false;
                 state.error = action.payload as string;
             })
 
             // Delete User
             .addCase(deleteAdminUser.pending, (state) => {
                 state.isLoading = true;
-                state.isUsersLoading = true;
+                //state.isUsersLoading = true;
                 state.error = null;
             })
             .addCase(deleteAdminUser.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.isUsersLoading = false;
+                //state.isUsersLoading = false;
                 state.users = state.users.filter((u) => u.id !== action.payload);
                 state.usersTotalCount = Math.max(0, state.usersTotalCount - 1);
                 if (state.selectedUser?.id === action.payload) {
@@ -438,7 +438,7 @@ const adminSlice = createSlice({
             })
             .addCase(deleteAdminUser.rejected, (state, action) => {
                 state.isLoading = false;
-                state.isUsersLoading = false;
+                //state.isUsersLoading = false;
                 state.error = action.payload as string;
             })
 
@@ -673,6 +673,6 @@ const adminSlice = createSlice({
     },
 });
 
-export const { clearError, setSelectedUser, setSelectedUrl, setSelectedPlan } = adminSlice.actions;
+export const { clearErrors, setSelectedUser, setSelectedUrl, setSelectedPlan } = adminSlice.actions;
 
 export default adminSlice.reducer;
