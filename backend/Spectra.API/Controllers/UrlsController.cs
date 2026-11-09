@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Spectra.API.Extensions;
 using Spectra.Application.Interfaces;
@@ -144,7 +144,7 @@ namespace Spectra.API.Controllers
 
         [Authorize(Roles = UserRoles.Admin)]
         [HttpGet("admin/get-urls")]
-        public async Task<ActionResult<PaginatedResult<UrlAdminDto>>> AdminGetUrls([FromQuery] PaginationRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<PaginatedResult<UrlAdminDto>>> AdminGetUrls([FromQuery] AdminPaginatedUrlsQuery request, CancellationToken cancellationToken)
         {
             return Ok(await urlService.AdminGetUrlsAsync(request, cancellationToken));
         }

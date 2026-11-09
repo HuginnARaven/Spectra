@@ -11,6 +11,7 @@ import type {
     CreateSubscriptionPriceRequest,
     UpdateSubscriptionPriceRequest,
     AdminPaginatedUsersQuery,
+    AdminPaginatedUrlsQuery,
     Role,
 } from './types';
 
@@ -150,13 +151,13 @@ export const fetchAdminRoles = createAsyncThunk(
 export const fetchAdminUrls = createAsyncThunk(
     'admin/fetchUrls',
     async (
-        params: { page?: number; pageSize?: number; pageNumber?: number } = {},
+        query: AdminPaginatedUrlsQuery = { pageNumber: 1, pageSize: 10 },
         { rejectWithValue }
     ) => {
         try {
-            const page = params.pageNumber ?? params.page ?? 1;
-            const pageSize = params.pageSize ?? 10;
-            return await adminApi.getUrls(page, pageSize);
+
+
+            return await adminApi.getUrls(query);
         } catch (error: any) {
             return rejectWithValue(
                 error.response?.data?.message ||

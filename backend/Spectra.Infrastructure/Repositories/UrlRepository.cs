@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Spectra.Domain.Entities;
 using Spectra.Domain.Interfaces;
 using Spectra.Infrastructure.Data;
@@ -16,14 +16,47 @@ namespace Spectra.Infrastructure.Repositories
                 cancellationToken);
         }
 
-        public async Task<(IReadOnlyList<Url> Items, int TotalCount)> GetUrlsAsync(int skip, int take, Guid? userId = null, CancellationToken cancellationToken = default)
+        public async Task<(IReadOnlyList<Url> Items, int TotalCount)> GetUrlsAsync(
+            int skip, 
+            int take, 
+            Guid? userId = null, 
+            string? search = null, 
+            string? sortingCol = null, 
+            bool? sortingDesc = null, 
+            CancellationToken cancellationToken = default)
         {
             var query = context.Urls.AsNoTracking();
             
             if (userId.HasValue)
                 query = query.Where(v => v.UserId == userId.Value);
 
-            query = query.OrderByDescending(v => v.CreatedAt);
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var searchTerm = search.Trim();
+                if (Guid.TryParse(searchTerm, out var searchGuid))
+                {
+                    query = query.Where(u =>
+                        EF.Functions.ILike(u.OriginalUrl, $"%{searchTerm}%") ||
+                        EF.Functions.ILike(u.ShortCode, $"%{searchTerm}%") ||
+                        u.UserId == searchGuid);
+                }
+                else
+                {
+                    query = query.Where(u =>
+                        EF.Functions.ILike(u.OriginalUrl, $"%{searchTerm}%") ||
+                        EF.Functions.ILike(u.ShortCode, $"%{searchTerm}%"));
+                }
+            }
+
+            var isDesc = sortingDesc ?? true;
+            query = (sortingCol?.ToLower()) switch
+            {
+                "originalurl" => isDesc ? query.OrderByDescending(u => u.OriginalUrl) : query.OrderBy(u => u.OriginalUrl),
+                "shortcode" => isDesc ? query.OrderByDescending(u => u.ShortCode) : query.OrderBy(u => u.ShortCode),
+                "createdat" or "joineddate" => isDesc ? query.OrderByDescending(u => u.CreatedAt) : query.OrderBy(u => u.CreatedAt),
+                "updatedat" => isDesc ? query.OrderByDescending(u => u.UpdatedAt) : query.OrderBy(u => u.UpdatedAt),
+                _ => isDesc ? query.OrderByDescending(u => u.CreatedAt) : query.OrderBy(u => u.CreatedAt)
+            };
 
             var totalCount = await query.CountAsync(cancellationToken);
 

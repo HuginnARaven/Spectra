@@ -11,6 +11,7 @@ import type {
     UpdateSubscriptionPriceRequest,
     PaginatedResult, AdminUserDetails,
     AdminPaginatedUsersQuery,
+    AdminPaginatedUrlsQuery,
     Role,
 } from './types';
 
@@ -41,10 +42,10 @@ export const adminApi = {
     },
 
     // URL management
-    getUrls: async (pageNumber: number = 1, pageSize: number = 10) => {
+    getUrls: async (query?: AdminPaginatedUrlsQuery) => {
         const response = await agent.get<PaginatedResult<AdminUrlListItem>>(
             '/urls/admin/get-urls',
-            { params: { pageNumber, pageSize } }
+            { params: query }
         );
         return response.data;
     },

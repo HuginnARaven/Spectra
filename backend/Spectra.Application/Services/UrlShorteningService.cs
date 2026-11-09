@@ -1,4 +1,4 @@
-﻿using Spectra.Application.Interfaces;
+using Spectra.Application.Interfaces;
 using Spectra.Application.Interfaces.Utilities;
 using Spectra.Domain.Interfaces;
 using Spectra.Domain.Entities;
@@ -136,11 +136,11 @@ namespace Spectra.Application.Services
             await repository.DeleteUrlAsync(url, cancellationToken);
         }
 
-        public async Task<PaginatedResult<UrlAdminDto>> AdminGetUrlsAsync(PaginationRequest request, CancellationToken cancellationToken = default)
+        public async Task<PaginatedResult<UrlAdminDto>> AdminGetUrlsAsync(AdminPaginatedUrlsQuery request, CancellationToken cancellationToken = default)
         {
             var skip = (request.PageNumber - 1) * request.PageSize;
             
-            var (visits, totalCount) = await repository.GetUrlsAsync(skip, request.PageSize, cancellationToken: cancellationToken);
+            var (visits, totalCount) = await repository.GetUrlsAsync(skip, request.PageSize, search: request.Search, sortingCol: request.SortingCol, sortingDesc: request.SortingDesc, cancellationToken: cancellationToken);
             
             var urlsDtos = mapper.Map<IReadOnlyList<UrlAdminDto>>(visits);
             

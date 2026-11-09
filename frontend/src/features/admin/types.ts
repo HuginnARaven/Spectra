@@ -143,3 +143,11 @@ export interface AdminPaginatedUsersQuery {
     sortingCol?: string;
     sortingDesc?: boolean;
 }
+
+export interface AdminPaginatedUrlsQuery {
+    pageNumber: number;
+    pageSize: number;
+    search?: string;
+    sortingCol?: string;
+    sortingDesc?: boolean;
+}
