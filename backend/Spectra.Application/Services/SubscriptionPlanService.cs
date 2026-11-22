@@ -129,10 +129,11 @@ public class SubscriptionPlanService(ISubscriptionPlanRepository subscriptionPla
             throw new KeyNotFoundException($"Subscription plan with id {subscriptionPlanId} does not exists");
         
         if (!plan.IsDefault && plan.StripeProductId != null)
-            await paymentService.UpdateSubscriptionPlanAsync(plan.StripeProductId, request.Name, request.Description);
+            await paymentService.UpdateSubscriptionPlanAsync(plan.StripeProductId, request.Name, request.Description, request.IsActive);
 
         plan.Name = request.Name;
         plan.Description = request.Description;
+        plan.IsActive = request.IsActive;
         plan.HasAccessToGeneralAnalytics = request.HasAccessToGeneralAnalytics;
         plan.HasAccessToUrlAnalytics = request.HasAccessToUrlAnalytics;
         plan.HasCustomAliasAccess = request.HasCustomAliasAccess;
@@ -187,12 +188,12 @@ public class SubscriptionPlanService(ISubscriptionPlanRepository subscriptionPla
             return;
         }
 
-        if (plan.Name == name && plan.Description == description)
+        if (plan.Name == name && plan.Description == description && plan.IsActive == isActive)
             return;
         
         plan.Name = name;
         plan.Description = description;
-        plan.IsActive =  isActive;
+        plan.IsActive = isActive;
         
         await subscriptionPlanRepository.UpdateSubscriptionPlanAsync(plan);
     }
@@ -202,7 +203,7 @@ public class SubscriptionPlanService(ISubscriptionPlanRepository subscriptionPla
         await subscriptionPlanRepository.DeletePriceFromSubscriptionPlanAsync(paymentSubscriptionPlanPriceId);
     }
 
-    public async Task HandlePricePaymentStatusChangeAsync(string paymentPriceId, bool isActive)
+    public async Task HandlePricePaymentStatusChangeAsync(string paymentPriceId, bool isActive) //TODO add user subscription deactivation when price.IsActive = false
     {
         var price = await subscriptionPlanRepository.GetSubscriptionPriceByPaymentIdAsync(paymentPriceId);
         if (price == null)

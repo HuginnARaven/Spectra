@@ -1,6 +1,8 @@
-﻿import UsersManagementTab from "@/features/admin/components/users-management-tab/users-management-tab";
-import { useParams, Navigate } from "react-router-dom";
+﻿import { useParams, Navigate } from "react-router-dom";
+
+import UsersManagementTab from "@/features/admin/components/users-management-tab/users-management-tab";
 import UrlsManagementTab from "@/features/admin/components/urls-management-tab/urls-management-tab.tsx";
+import PlansManagementTab from "@/features/admin/components/plans-management-tab/plans-management-tab.tsx";
 
 export default function AdminPage() {
     const { section } = useParams<{ section: string }>();
@@ -12,7 +14,7 @@ export default function AdminPage() {
             case "urls":
                 return <UrlsManagementTab />;
             case "subscription-plans":
-                return "<PlansManagementTab />";
+                return <PlansManagementTab />;
             default:
                 return <Navigate to="/admin/users" replace />;
         }

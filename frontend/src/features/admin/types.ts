@@ -72,6 +72,7 @@ export interface SubscriptionPlan {
     name: string;
     description: string;
     isDefault: boolean;
+    isActive: boolean;
     hasAccessToGeneralAnalytics: boolean;
     hasAccessToUrlAnalytics: boolean;
     hasCustomAliasAccess: boolean;
@@ -99,6 +100,7 @@ export interface CreateSubscriptionPlanRequest {
 export interface UpdateSubscriptionPlanRequest {
     name: string;
     description: string;
+    isActive: boolean;
     hasAccessToGeneralAnalytics: boolean;
     hasAccessToUrlAnalytics: boolean;
     hasCustomAliasAccess?: boolean;

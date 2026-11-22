@@ -11,6 +11,7 @@ export interface SubscriptionPlan {
     name: string;
     description: string;
     isDefault: boolean;
+    isActive: boolean;
     hasAccessToGeneralAnalytics: boolean;
     hasAccessToUrlAnalytics: boolean;
     hasCustomAliasAccess: boolean;

@@ -58,7 +58,7 @@ const pricingSlice = createSlice({
             .addCase(fetchSubscriptionPlans.fulfilled, (state, action) => {
                 state.isLoading = false;
                 if (action.payload && action.payload.length > 0) {
-                    state.plans = action.payload;
+                    state.plans = action.payload.filter((p) => p.isActive);
                 }
             })
             .addCase(fetchSubscriptionPlans.rejected, (state, action) => {

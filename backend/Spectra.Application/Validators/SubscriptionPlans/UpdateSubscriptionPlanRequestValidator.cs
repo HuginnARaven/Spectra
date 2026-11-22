@@ -13,6 +13,9 @@ public class UpdateSubscriptionPlanRequestValidator : AbstractValidator<UpdateSu
         RuleFor(x => x.Description)
             .NotEmpty().WithMessage("Description is required.");
         
+        RuleFor(x => x.IsActive)
+            .NotNull().WithMessage("IsActive is required.");
+        
         RuleFor(x => x.MaxUrlsLimit)
             .NotNull().WithMessage("MaxUrlsLimit is required.")
             .GreaterThanOrEqualTo(-1).WithMessage("MaxUrlsLimit must be greater than or equal to -1.");

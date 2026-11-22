@@ -2,6 +2,7 @@
 
 public class SubscriptionPlanDto : SubscriptionPlanBaseDto
 {
+    public bool IsActive { get; set; }
     public ICollection<SubscriptionPriceDto?> Prices { get; set; } =  new List<SubscriptionPriceDto?>();
 }
 

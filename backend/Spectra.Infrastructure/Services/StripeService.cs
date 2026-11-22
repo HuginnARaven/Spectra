@@ -68,12 +68,13 @@ public class StripeService(StripeClient stripeClient): IPaymentService
         return (product.Id, product.DefaultPriceId);
     }
 
-    public async Task UpdateSubscriptionPlanAsync(string planId, string name, string description)
+    public async Task UpdateSubscriptionPlanAsync(string planId, string name, string description, bool isActive)
     {
         var options = new ProductUpdateOptions
         {
             Name = name,
             Description = description,
+            Active = isActive
         };
         
         await stripeClient.V1.Products.UpdateAsync(planId, options);
