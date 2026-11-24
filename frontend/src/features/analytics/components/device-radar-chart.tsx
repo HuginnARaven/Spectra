@@ -11,6 +11,10 @@ const chartData = [
     { device: "Other", visits: 110 },
 ];
 
+const PIE_COLORS = [
+    "var(--primary)",
+    "var(--muted-foreground)"
+];
 
 const chartConfig = {
     visits: {
@@ -22,6 +26,10 @@ const chartConfig = {
 export function DeviceRadarChart() {
     const { deviceDistribution } = useAppSelector((state) => state.analytics.urlAnalyticsData);
     const data = deviceDistribution.length > 0 ? deviceDistribution : chartData
+    const pieData = data.map((item, index) => ({
+        ...item,
+        fill: PIE_COLORS[index % PIE_COLORS.length],
+    }));
     return (
         <Card className="flex flex-col h-full">
             <CardHeader>
@@ -50,7 +58,7 @@ export function DeviceRadarChart() {
                                 <ChartTooltip
                                     content={<ChartTooltipContent nameKey="visits" hideLabel />}
                                 />
-                                <Pie data={data} dataKey="visits" label nameKey="visits" fill="var(--color-visits)">
+                                <Pie data={pieData} dataKey="visits" label nameKey="visits">
                                     <LabelList
                                         dataKey="device"
                                         className="fill-background"

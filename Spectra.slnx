@@ -11,6 +11,9 @@
     <Project Path="backend/tests/Spectra.API.UnitTests/Spectra.API.UnitTests.csproj" />
     <Project Path="backend/tests/Spectra.Application.UnitTests/Spectra.Application.UnitTests.csproj" />
   </Folder>
+  <Folder Name="/Backend/tools/">
+    <Project Path="backend/tools/Spectra.DataSeeder/Spectra.DataSeeder.csproj" />
+  </Folder>
   <Folder Name="/Frontend/">
     <Project Path="frontend/frontend.esproj">
       <Build />

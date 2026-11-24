@@ -11,9 +11,9 @@ namespace Spectra.Infrastructure.Services.Utilities
     public class GeoLocationService : IGeoLocationService
     {
         private readonly DatabaseReader? _reader;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IHostEnvironment? _hostEnvironment;
 
-        public GeoLocationService(IWebHostEnvironment webHostEnvironment)
+        public GeoLocationService(IHostEnvironment? hostEnvironment = null)
         {
             var dbPath = Path.Combine(AppContext.BaseDirectory, "Assets", "GeoLite2-City.mmdb");
 
@@ -22,7 +22,7 @@ namespace Spectra.Infrastructure.Services.Utilities
                 _reader = new DatabaseReader(dbPath);
             }
 
-            _webHostEnvironment = webHostEnvironment;
+            _hostEnvironment = hostEnvironment;
         }
 
         public GeoLocationInfo GetLocation(string ipAddress)
@@ -35,7 +35,7 @@ namespace Spectra.Infrastructure.Services.Utilities
             if (!IPAddress.TryParse(ipAddress, out var ip)) // !!! if ipAddress is valid writing it to variable ip
                 return unknown;
 
-            if (IsLocalIp(ip) && _webHostEnvironment.IsDevelopment())
+            if (IsLocalIp(ip) && _hostEnvironment?.IsDevelopment() == true)
                 IPAddress.TryParse("8.8.8.8", out ip);
             
             try

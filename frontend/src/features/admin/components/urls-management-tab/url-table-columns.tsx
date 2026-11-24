@@ -155,12 +155,16 @@ function ShortCodeCell({ shortCode }: { shortCode: string }) {
 
 export const urlTableColumns: ColumnDef<AdminUrlListItem>[] = [
     {
-        id: 'shortCode',
-        header: 'Short Code',
-        accessorKey: 'shortCode',
-        cell: ({ row }) => <ShortCodeCell shortCode={row.original.shortCode} />,
-        size: 180,
-        enableSorting: true
+        id: 'userId',
+        header: 'User ID',
+        accessorKey: 'userId',
+        cell: ({ row }) => (
+            <span className="font-mono text-xs text-muted-foreground truncate max-w-[200px] block" title={row.original.userId}>
+                {row.original.userId}
+            </span>
+        ),
+        size: 220,
+        enableSorting: false
     },
     {
         id: 'originalUrl',
@@ -182,16 +186,12 @@ export const urlTableColumns: ColumnDef<AdminUrlListItem>[] = [
         enableSorting: true
     },
     {
-        id: 'userId',
-        header: 'User ID',
-        accessorKey: 'userId',
-        cell: ({ row }) => (
-            <span className="font-mono text-xs text-muted-foreground truncate max-w-[200px] block" title={row.original.userId}>
-                {row.original.userId}
-            </span>
-        ),
-        size: 220,
-        enableSorting: false
+        id: 'shortCode',
+        header: 'Short Code',
+        accessorKey: 'shortCode',
+        cell: ({ row }) => <ShortCodeCell shortCode={row.original.shortCode} />,
+        size: 180,
+        enableSorting: true
     },
     {
         id: 'createdAt',
